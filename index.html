@@ -4,29 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OminiPay - Plateforme Complète</title>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        /* ========== RESET & VARIABLES ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
         :root {
             --ui-bg: #f0f2f5;
             --ui-card: rgba(255, 255, 255, 0.95);
             --ui-text-main: #000000;
             --ui-text-sub: #666666;
-            --ui-radius: 35px;
+            --ui-radius: 30px;
             --ui-accent: #007AFF;
             --ui-success: #34c759;
             --ui-warning: #ff9f0a;
             --ui-danger: #ff3b30;
-            --ui-info: #5856d6;
             --ui-blur: blur(40px) saturate(200%);
         }
 
-        /* Thème sombre */
         body.dark-theme {
             --ui-bg: #1c1c1e;
             --ui-card: rgba(44, 44, 46, 0.95);
@@ -35,27 +42,13 @@
             --ui-accent: #0A84FF;
         }
 
-        * {
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            outline: none;
-            box-sizing: border-box;
-        }
-
         body {
             background-color: var(--ui-bg);
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            margin: 0;
-            padding: 0;
             color: var(--ui-text-main);
             transition: background-color 0.3s ease;
-            min-height: 100vh;
-        }
-
-        .app-container {
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            height: 100vh;
             overflow: hidden;
         }
 
@@ -74,7 +67,6 @@
             top: 0;
             width: 100%;
             z-index: 1000;
-            box-sizing: border-box;
         }
 
         .logo-img {
@@ -91,14 +83,13 @@
             display: flex;
             align-items: center;
             position: relative;
-            transition: transform 0.1s cubic-bezier(0.2, 0, 0, 1);
+            transition: transform 0.1s ease;
         }
 
         .btn-header:active {
             transform: scale(0.85);
         }
 
-        /* Badge de notification */
         .notification-badge {
             position: absolute;
             top: 0;
@@ -112,66 +103,7 @@
             text-align: center;
         }
 
-        /* ========== CONTENU PRINCIPAL ========== */
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 90px 5% 85px 5%;
-            position: relative;
-        }
-
-        /* Vues dynamiques */
-        .view {
-            display: none;
-        }
-
-        .view.active {
-            display: block;
-        }
-
-        /* ========== FOOTER FIXE ========== */
-        .footer {
-            height: 75px;
-            background: var(--ui-card);
-            backdrop-filter: var(--ui-blur);
-            -webkit-backdrop-filter: var(--ui-blur);
-            border-top: 1px solid rgba(0,0,0,0.05);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            z-index: 1000;
-            padding-bottom: 10px;
-            box-sizing: border-box;
-        }
-
-        .nav-link {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: var(--ui-text-sub);
-            font-size: 11px;
-            font-weight: 500;
-            gap: 5px;
-            cursor: pointer;
-            transition: transform 0.1s cubic-bezier(0.2, 0, 0, 1);
-            background: none;
-            border: none;
-            padding: 5px;
-        }
-
-        .nav-link:active {
-            transform: scale(0.85);
-        }
-
-        .nav-link.active {
-            color: var(--ui-accent);
-        }
-
-        /* ========== MENU PROFIL LATÉRAL ========== */
+        /* ========== MENU LATÉRAL ========== */
         .side-menu {
             position: fixed;
             top: 0;
@@ -239,7 +171,6 @@
             height: 60px;
             border-radius: 50%;
             background: var(--ui-accent);
-            border: 2px solid rgba(255,255,255,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -258,13 +189,11 @@
         .user-info h2 {
             font-size: 18px;
             font-weight: 700;
-            margin-bottom: 4px;
         }
 
         .user-info p {
             font-size: 13px;
             color: var(--ui-text-sub);
-            margin: 2px 0;
         }
 
         .user-badge {
@@ -313,7 +242,7 @@
         }
 
         .menu-item:active {
-            background: rgba(0, 122, 255, 0.08);
+            background: rgba(0,122,255,0.08);
             transform: scale(0.98);
         }
 
@@ -353,451 +282,185 @@
         }
 
         .btn-logout:active {
-            background: rgba(255, 59, 48, 0.1);
+            background: rgba(255,59,48,0.1);
             transform: scale(0.98);
         }
 
-        /* ========== VUE ACCUEIL ========== */
-        .welcome-card {
-            background: var(--ui-card);
-            border-radius: var(--ui-radius);
-            padding: 25px;
-            margin-bottom: 20px;
-            text-align: center;
-            backdrop-filter: var(--ui-blur);
-            -webkit-backdrop-filter: var(--ui-blur);
+        /* ========== CONTENU PRINCIPAL ========== */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 90px 5% 85px 5%;
+            position: relative;
         }
 
-        .welcome-title {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .welcome-subtitle {
-            color: var(--ui-text-sub);
-            font-size: 14px;
-        }
-
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .quick-action {
-            background: var(--ui-card);
-            border-radius: 20px;
-            padding: 15px 5px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.1s cubic-bezier(0.2, 0, 0, 1);
-            backdrop-filter: var(--ui-blur);
-            -webkit-backdrop-filter: var(--ui-blur);
-        }
-
-        .quick-action:active {
-            transform: scale(0.94);
-        }
-
-        .quick-action span {
-            font-size: 11px;
-            font-weight: 600;
-            margin-top: 8px;
-            display: block;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .stat-card {
-            background: var(--ui-card);
-            border-radius: 25px;
-            padding: 20px;
-            backdrop-filter: var(--ui-blur);
-            -webkit-backdrop-filter: var(--ui-blur);
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: 800;
-            margin: 10px 0 5px;
-            color: var(--ui-accent);
-        }
-
-        /* ========== VUE COMMANDES ========== */
-        .orders-filter {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding: 10px 0;
-            margin-bottom: 15px;
-            scrollbar-width: none;
-        }
-
-        .orders-filter::-webkit-scrollbar {
+        /* ========== VUES ========== */
+        .view {
             display: none;
         }
 
-        .filter-chip {
+        .view.active {
+            display: block;
+        }
+
+        /* ========== FOOTER FIXE ========== */
+        .footer {
+            height: 75px;
             background: var(--ui-card);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            color: var(--ui-text-sub);
-            font-size: 13px;
-            font-weight: 500;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: all 0.2s;
             backdrop-filter: var(--ui-blur);
             -webkit-backdrop-filter: var(--ui-blur);
-        }
-
-        .filter-chip:active {
-            transform: scale(0.94);
-        }
-
-        .filter-chip.active {
-            background: var(--ui-accent);
-            color: white;
-        }
-
-        .order-item {
-            background: var(--ui-card);
-            border-radius: 25px;
-            padding: 15px;
-            margin-bottom: 10px;
+            border-top: 1px solid rgba(0,0,0,0.05);
             display: flex;
+            justify-content: space-around;
             align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            transition: transform 0.2s;
-            backdrop-filter: var(--ui-blur);
-            -webkit-backdrop-filter: var(--ui-blur);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 1000;
+            padding-bottom: 10px;
         }
 
-        .order-item:active {
-            transform: scale(0.98);
-        }
-
-        .order-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 15px;
-            background: rgba(0,122,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--ui-accent);
-        }
-
-        .order-info {
-            flex: 1;
-        }
-
-        .order-title {
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 4px;
-        }
-
-        .order-meta {
-            font-size: 11px;
-            color: var(--ui-text-sub);
-            display: flex;
-            gap: 10px;
-        }
-
-        .order-amount {
-            font-weight: 700;
-            font-size: 16px;
-        }
-
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: 600;
-        }
-
-        .status-approved {
-            background: rgba(52,199,89,0.1);
-            color: var(--ui-success);
-        }
-
-        .status-pending {
-            background: rgba(255,159,10,0.1);
-            color: var(--ui-warning);
-        }
-
-        .status-refunded {
-            background: rgba(89,89,89,0.1);
-            color: var(--ui-text-sub);
-        }
-
-        .status-rejected {
-            background: rgba(255,59,48,0.1);
-            color: var(--ui-danger);
-        }
-
-        /* ========== VUE NOTIFICATIONS ========== */
-        .notifications-list {
+        .nav-link {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-        }
-
-        .notification-item {
-            background: var(--ui-card);
-            border-radius: 25px;
-            padding: 15px;
-            display: flex;
-            gap: 15px;
-            cursor: pointer;
-            transition: transform 0.2s;
-            border-left: 4px solid transparent;
-            backdrop-filter: var(--ui-blur);
-            -webkit-backdrop-filter: var(--ui-blur);
-        }
-
-        .notification-item:active {
-            transform: scale(0.98);
-        }
-
-        .notification-item.unread {
-            border-left-color: var(--ui-accent);
-            background: rgba(0,122,255,0.05);
-        }
-
-        .notification-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 20px;
-            display: flex;
             align-items: center;
-            justify-content: center;
+            text-decoration: none;
+            color: var(--ui-text-sub);
+            font-size: 11px;
+            font-weight: 500;
+            gap: 5px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: transform 0.1s ease;
         }
 
-        .icon-promo {
-            background: rgba(255,159,10,0.1);
-            color: var(--ui-warning);
+        .nav-link:active {
+            transform: scale(0.85);
         }
 
-        .icon-gift {
-            background: rgba(52,199,89,0.1);
-            color: var(--ui-success);
-        }
-
-        .icon-referral {
-            background: rgba(0,122,255,0.1);
+        .nav-link.active {
             color: var(--ui-accent);
         }
 
-        .icon-sale {
-            background: rgba(89,89,89,0.1);
+        /* ========== STYLES SPÉCIFIQUES ========== */
+        /* Inclure tous les styles des différentes pages */
+        .wallet-container, .recharge-menu, .buy-menu, .form-container, .account-selector, .image-upload-section, .cards-dropdown, .quick-actions, .stats-grid, .orders-filter, .notifications-list, .faq-group, .intro-box, .ui-group, .contact-group, .security-score, .balance-card, .quick-stats, .action-grid, .recent-transactions, .saved-accounts, .history-section, .card-selector, .selected-card-preview, .upload-buttons, .calculation-box, .filter-tabs, .transaction-detail, .cart-panel, .purchase-modal, .mode-selector, .mode-card, .search-area, #reloadlyGrid, .empty-msg, .dropdown-list, .dropdown-header, .account-option, .radio-indicator, .add-account-btn, .quick-amount, .withdraw-btn, .fee-info, .back-home, .section-label, .loader {
+            /* Les styles sont repris dans les sections ci-dessous, on les fusionnera */
+        }
+
+        /* On va importer les styles essentiels des différentes pages pour éviter les doublons */
+        /* Pour gagner de la place, je vais inclure une version condensée des styles nécessaires */
+        /* Mais dans un souci de lisibilité, je vais garder la structure et ajouter les classes manquantes */
+
+        /* ========== IMPORT DES STYLES DE TOUTES LES PAGES ========== */
+        /* Styles de l'accueil (interface.html) */
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1.5px solid rgba(0,0,0,0.08);
+            border-radius: 12px;
+            padding: 12px 18px;
+            margin-bottom: 15px;
+        }
+        .search-bar input {
+            border: none;
+            background: none;
+            width: 100%;
+            margin-left: 12px;
+            font-size: 16px;
             color: var(--ui-text-main);
         }
-
-        .notification-content {
-            flex: 1;
+        .categories-wrapper {
+            overflow-x: auto;
+            display: flex;
+            gap: 10px;
+            padding-bottom: 5px;
+            scrollbar-width: none;
         }
-
-        .notification-title {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
-
-        .notification-message {
+        .categories-wrapper::-webkit-scrollbar { display: none; }
+        .cat-btn {
+            white-space: nowrap;
+            padding: 8px 18px;
+            border-radius: 20px;
+            background: #f5f5f7;
+            color: #8e8e93;
             font-size: 13px;
-            color: var(--ui-text-sub);
-            margin-bottom: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
         }
-
-        .notification-time {
-            font-size: 10px;
-            color: var(--ui-text-sub);
+        .cat-btn.active { background: var(--ui-accent); color: #fff; }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
         }
-
-        .unread-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--ui-accent);
-            border-radius: 50%;
-            align-self: center;
+        .card-slot {
+            aspect-ratio: 1.6/1;
+            border: 1px solid var(--ui-text-sub);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
         }
+        .card-slot.hidden { display: none; }
+        .card-image { max-width: 60px; max-height: 40px; margin-bottom: 8px; }
+        .card-name { font-size: 14px; font-weight: 600; }
+        .card-category { font-size: 10px; color: var(--ui-text-sub); }
+        #no-result-msg { display: none; text-align: center; color: var(--ui-text-sub); margin-top: 40px; }
 
-        /* ========== WALLET ========== */
+        /* Styles de wallet */
         .wallet-container {
             background: var(--ui-card);
             border-radius: var(--ui-radius);
             padding: 25px;
             margin-bottom: 20px;
             backdrop-filter: var(--ui-blur);
-            -webkit-backdrop-filter: var(--ui-blur);
         }
+        .balance-section { text-align: center; margin-bottom: 20px; }
+        .balance-label { font-size: 13px; font-weight: 700; color: var(--ui-text-sub); text-transform: uppercase; margin-bottom: 8px; }
+        .balance-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
+        #balanceAmount { font-size: 42px; font-weight: 800; color: var(--ui-accent); }
+        .eye-toggle { background: none; border: none; cursor: pointer; padding: 5px; color: var(--ui-text-main); }
+        .balance-progress { width: 80%; height: 6px; background: rgba(0,0,0,0.1); border-radius: 3px; margin: 15px auto; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--ui-accent); width: 0%; transition: width 0.5s; }
+        .quick-stats { display: flex; justify-content: center; gap: 30px; margin: 20px 0; padding: 15px; background: var(--ui-card); border-radius: 30px; }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 18px; font-weight: 700; color: var(--ui-accent); }
+        .stat-label { font-size: 11px; color: var(--ui-text-sub); }
+        .action-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 5px; margin: 20px 0; }
+        .action-btn { display: flex; flex-direction: column; align-items: center; color: var(--ui-text-main); gap: 10px; transition: transform 0.1s; cursor: pointer; background: none; border: none; }
+        .action-btn:active { transform: scale(0.85); }
+        .icon-circle { width: 60px; height: 60px; background: var(--ui-card); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .action-text { font-size: 12px; font-weight: 600; }
+        .recent-transactions { background: var(--ui-card); border-radius: 30px; padding: 20px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .section-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .view-all { color: var(--ui-accent); font-size: 12px; cursor: pointer; }
+        .transaction-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .transaction-left { display: flex; align-items: center; gap: 12px; }
+        .transaction-icon { width: 40px; height: 40px; border-radius: 20px; background: rgba(0,122,255,0.1); display: flex; align-items: center; justify-content: center; color: var(--ui-accent); }
+        .transaction-info { display: flex; flex-direction: column; }
+        .transaction-title { font-weight: 600; font-size: 14px; }
+        .transaction-date { font-size: 11px; color: var(--ui-text-sub); }
+        .transaction-amount { font-weight: 700; font-size: 15px; }
+        .amount-positive { color: var(--ui-success); }
+        .amount-negative { color: var(--ui-danger); }
 
-        .balance-section {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .balance-label {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--ui-text-sub);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-        }
-
-        .balance-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        #balanceAmount {
-            font-size: 42px;
-            font-weight: 800;
-            letter-spacing: -1px;
-            color: var(--ui-accent);
-        }
-
-        .eye-toggle {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 5px;
-            color: var(--ui-text-main);
-            display: flex;
-            transition: transform 0.1s ease;
-        }
-
-        .eye-toggle:active {
-            transform: scale(0.8);
-        }
-
-        .balance-progress {
-            width: 80%;
-            height: 6px;
-            background: rgba(0,0,0,0.1);
-            border-radius: 3px;
-            margin: 15px auto;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--ui-accent);
-            width: 0%;
-            transition: width 0.5s ease;
-            border-radius: 3px;
-        }
-
-        .quick-stats {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin: 20px 0;
-            padding: 15px;
+        /* Styles de retirer, compte, recharger, etc. */
+        .form-container, .account-selector, .withdraw-form, .image-upload-section, .card-selector {
             background: var(--ui-card);
             border-radius: 30px;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--ui-accent);
-        }
-
-        .stat-label {
-            font-size: 11px;
-            color: var(--ui-text-sub);
-        }
-
-        .action-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 5px;
-            margin: 20px 0;
-        }
-
-        .action-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-decoration: none;
-            color: var(--ui-text-main);
-            gap: 10px;
-            transition: transform 0.1s cubic-bezier(0.2, 0, 0, 1);
-            cursor: pointer;
-            background: none;
-            border: none;
-        }
-
-        .action-btn:active {
-            transform: scale(0.85);
-        }
-
-        .icon-circle {
-            width: 60px;
-            height: 60px;
-            background: var(--ui-card);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-        }
-
-        .action-text {
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        /* ========== FORMULAIRES ========== */
-        .form-container {
-            background: var(--ui-card);
-            border-radius: var(--ui-radius);
-            padding: 25px;
-            margin: 20px 0;
-            backdrop-filter: var(--ui-blur);
-            -webkit-backdrop-filter: var(--ui-blur);
-        }
-
-        .form-title {
-            font-size: 18px;
-            font-weight: 700;
+            padding: 20px;
             margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--ui-text-sub);
-        }
-
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--ui-text-sub); }
         input, textarea, select {
             width: 100%;
             padding: 15px;
@@ -806,30 +469,8 @@
             background: var(--ui-bg);
             color: var(--ui-text-main);
             font-size: 15px;
-            box-sizing: border-box;
         }
-
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .input-wrapper {
-            position: relative;
-        }
-
-        .scan-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--ui-accent);
-            cursor: pointer;
-        }
-
-        .btn-primary {
+        .btn-primary, .sell-btn, .withdraw-btn, .recharge-btn, .save-btn {
             width: 100%;
             background: var(--ui-accent);
             color: white;
@@ -841,897 +482,537 @@
             cursor: pointer;
             transition: transform 0.2s;
         }
+        .btn-primary:active, .sell-btn:active, .withdraw-btn:active, .recharge-btn:active, .save-btn:active { transform: scale(0.96); }
+        .btn-primary:disabled, .sell-btn:disabled, .withdraw-btn:disabled, .recharge-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .btn-primary:active {
-            transform: scale(0.96);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* ========== UPLOAD D'IMAGE ========== */
-        .image-upload-section {
-            background: var(--ui-card);
-            border-radius: 30px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .image-preview {
-            background: rgba(0,0,0,0.02);
-            border-radius: 20px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 15px;
-            border: 2px dashed rgba(0,122,255,0.3);
+        .account-option, .method-btn, .dropdown-header, .quick-amount {
             cursor: pointer;
+            transition: transform 0.1s;
         }
+        .account-option:active, .method-btn:active, .dropdown-header:active, .quick-amount:active { transform: scale(0.96); }
 
-        .upload-placeholder p {
-            margin: 10px 0 5px;
-        }
+        .selected-card-preview { display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(0,122,255,0.05); border-radius: 20px; margin-bottom: 15px; }
+        .selected-card-logo { width: 50px; height: 50px; border-radius: 12px; object-fit: contain; }
+        .rate-badge { background: var(--ui-success); color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
 
-        .small-note {
-            font-size: 11px;
-            opacity: 0.7;
-        }
+        .dropdown-list { position: absolute; background: var(--ui-card); border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); max-height: 300px; overflow-y: auto; z-index: 100; display: none; }
+        .dropdown-list.open { display: block; }
+        .dropdown-item { padding: 12px 15px; display: flex; align-items: center; gap: 10px; cursor: pointer; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .dropdown-item:active { background: rgba(0,122,255,0.05); }
 
-        .preview-img {
-            max-width: 100%;
-            max-height: 150px;
-            border-radius: 12px;
-            display: none;
-        }
+        .image-preview { background: rgba(0,0,0,0.02); border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 15px; border: 2px dashed rgba(0,122,255,0.3); cursor: pointer; }
+        .preview-img { max-width: 100%; max-height: 150px; border-radius: 12px; display: none; }
+        .upload-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .upload-btn { padding: 12px; border: none; border-radius: 18px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .camera-btn { background: var(--ui-accent); color: white; }
+        .gallery-btn { background: rgba(0,122,255,0.1); color: var(--ui-accent); }
 
-        .upload-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
+        .calculation-box { background: rgba(52,199,89,0.1); border-radius: 20px; padding: 15px; margin: 15px 0; }
+        .calc-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        .calc-total { font-weight: 700; font-size: 18px; color: var(--ui-success); border-top: 1px solid rgba(0,0,0,0.1); padding-top: 8px; margin-top: 8px; }
 
-        .upload-btn {
-            padding: 12px;
-            border: none;
-            border-radius: 18px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: transform 0.2s;
-        }
+        .fee-info { text-align: center; font-size: 12px; color: var(--ui-text-sub); margin: 10px 0; }
 
-        .upload-btn:active {
-            transform: scale(0.96);
-        }
+        .quick-amounts { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 20px; }
+        .quick-amount { padding: 12px; background: var(--ui-bg); border: 1px solid rgba(0,0,0,0.05); border-radius: 15px; font-weight: 600; text-align: center; }
 
-        .camera-btn {
-            background: var(--ui-accent);
-            color: white;
-        }
+        .add-account-btn { width: 100%; padding: 15px; background: none; border: 2px dashed var(--ui-text-sub); border-radius: 20px; color: var(--ui-text-sub); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
 
-        .gallery-btn {
-            background: rgba(0,122,255,0.1);
-            color: var(--ui-accent);
-        }
+        .history-section { background: var(--ui-card); border-radius: 30px; padding: 20px; margin-top: 20px; }
+        .history-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .history-icon { width: 40px; height: 40px; border-radius: 10px; margin-right: 12px; }
+        .history-name { font-weight: 600; font-size: 14px; }
+        .history-date { font-size: 11px; color: var(--ui-text-sub); }
+        .history-amount { font-weight: 700; font-size: 14px; color: var(--ui-success); }
 
-        /* ========== SÉLECTION DE CARTE ========== */
-        .selected-card-preview {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            background: rgba(0,122,255,0.05);
-            border-radius: 20px;
-            margin-bottom: 15px;
-        }
+        .filter-tabs { display: flex; gap: 10px; margin-bottom: 20px; background: var(--ui-card); border-radius: 30px; padding: 5px; }
+        .filter-btn { flex: 1; padding: 12px; border-radius: 25px; border: none; background: transparent; color: var(--ui-text-sub); font-weight: 600; cursor: pointer; }
+        .filter-btn.active { background: var(--ui-accent); color: white; }
 
-        .selected-card-logo {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            object-fit: contain;
-        }
+        .orders-list .order-item { background: var(--ui-card); border-radius: 25px; padding: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; }
+        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; }
+        .status-approved { background: rgba(52,199,89,0.1); color: var(--ui-success); }
+        .status-pending { background: rgba(255,159,10,0.1); color: var(--ui-warning); }
+        .status-refunded { background: rgba(89,89,89,0.1); color: var(--ui-text-sub); }
+        .status-rejected { background: rgba(255,59,48,0.1); color: var(--ui-danger); }
 
-        .selected-card-info {
-            flex: 1;
-        }
+        .notification-item { background: var(--ui-card); border-radius: 25px; padding: 15px; display: flex; gap: 15px; cursor: pointer; border-left: 4px solid transparent; }
+        .notification-item.unread { border-left-color: var(--ui-accent); background: rgba(0,122,255,0.05); }
+        .notification-icon { width: 40px; height: 40px; border-radius: 20px; display: flex; align-items: center; justify-content: center; }
+        .icon-promo { background: rgba(255,159,10,0.1); color: var(--ui-warning); }
+        .icon-gift { background: rgba(52,199,89,0.1); color: var(--ui-success); }
+        .icon-referral { background: rgba(0,122,255,0.1); color: var(--ui-accent); }
 
-        .selected-card-name {
-            font-weight: 700;
-            font-size: 16px;
-        }
+        .empty-state, .loader { text-align: center; padding: 40px; color: var(--ui-text-sub); }
+        .loader { border: 3px solid var(--ui-card); border-top: 3px solid var(--ui-accent); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
 
-        .selected-card-rate {
-            font-size: 13px;
-            color: var(--ui-text-sub);
-        }
+        .back-home { margin-top: 20px; text-align: center; }
+        .back-home button { background: none; border: none; color: var(--ui-text-sub); font-size: 14px; cursor: pointer; text-decoration: underline; }
 
-        .rate-badge {
-            background: var(--ui-success);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .dropdown-header {
-            padding: 15px;
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--ui-card);
-        }
-
-        .dropdown-list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: var(--ui-card);
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            max-height: 300px;
-            overflow-y: auto;
-            z-index: 100;
-            display: none;
-        }
-
-        .dropdown-list.open {
-            display: block;
-        }
-
-        .dropdown-item {
-            padding: 12px 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .dropdown-item:active {
-            background: rgba(0,122,255,0.05);
-        }
-
-        .dropdown-item img {
-            width: 30px;
-            height: 30px;
-            border-radius: 8px;
-        }
-
-        .cards-dropdown {
-            position: relative;
-        }
-
-        /* ========== CALCUL DE MONTANT ========== */
-        .calculation-box {
-            background: rgba(52,199,89,0.1);
-            border-radius: 20px;
-            padding: 15px;
-            margin: 15px 0;
-        }
-
-        .calc-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .calc-total {
-            font-weight: 700;
-            font-size: 18px;
-            color: var(--ui-success);
-            border-top: 1px solid rgba(0,0,0,0.1);
-            padding-top: 8px;
-            margin-top: 8px;
-        }
-
-        /* ========== COMPTES ENREGISTRÉS ========== */
-        .account-item {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            background: rgba(0,0,0,0.02);
-            border-radius: 20px;
-            margin-bottom: 10px;
-        }
-
-        .account-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            margin-right: 12px;
-            object-fit: cover;
-        }
-
-        .account-details {
-            flex: 1;
-        }
-
-        .account-name {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .account-number {
-            font-size: 12px;
-            color: var(--ui-text-sub);
-        }
-
-        .delete-btn {
-            background: none;
-            border: none;
-            color: var(--ui-danger);
-            cursor: pointer;
-            padding: 8px;
-        }
-
-        .account-option {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            border: 2px solid transparent;
-            border-radius: 20px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            background: rgba(0,0,0,0.02);
-        }
-
-        .account-option.selected {
-            border-color: var(--ui-accent);
-            background: rgba(0,122,255,0.05);
-        }
-
-        .radio-indicator {
-            width: 22px;
-            height: 22px;
-            border: 2px solid var(--ui-text-sub);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .selected .radio-indicator {
-            border-color: var(--ui-accent);
-        }
-
-        .selected .radio-indicator::after {
-            content: '';
-            width: 12px;
-            height: 12px;
-            background: var(--ui-accent);
-            border-radius: 50%;
-        }
-
-        .add-account-btn {
-            width: 100%;
-            padding: 15px;
-            background: none;
-            border: 2px dashed var(--ui-text-sub);
-            border-radius: 20px;
-            color: var(--ui-text-sub);
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        /* ========== HISTORIQUE ========== */
-        .transaction-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .transaction-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            background: rgba(0,122,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 12px;
-            color: var(--ui-accent);
-        }
-
-        .transaction-info {
-            flex: 1;
-        }
-
-        .transaction-title {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .transaction-date {
-            font-size: 11px;
-            color: var(--ui-text-sub);
-        }
-
-        .transaction-amount {
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        .amount-positive {
-            color: var(--ui-success);
-        }
-
-        .amount-negative {
-            color: var(--ui-danger);
-        }
-
-        /* ========== LOADER & EMPTY STATE ========== */
-        .loader {
-            border: 3px solid var(--ui-card);
-            border-top: 3px solid var(--ui-accent);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--ui-text-sub);
-        }
-
-        .hidden {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <!-- ========== HEADER FIXE ========== -->
-    <header class="header">
-        <button class="btn-header" onclick="toggleMenu()">
-            <i data-lucide="menu"></i>
+<!-- ========== HEADER FIXE ========== -->
+<header class="header">
+    <button class="btn-header" onclick="toggleMenu()">
+        <i data-lucide="menu"></i>
+    </button>
+    <img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/a1b7da54-63d4-402a-bc11-1ab5aaf9206e.png" alt="OminiPay" class="logo-img">
+    <div style="display: flex; gap: 5px;">
+        <button class="btn-header" onclick="showView('wallet')">
+            <i data-lucide="wallet"></i>
         </button>
-        <img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/a1b7da54-63d4-402a-bc11-1ab5aaf9206e.png" alt="OminiPay" class="logo-img">
-        <div style="display: flex; gap: 5px;">
-            <button class="btn-header" onclick="showWallet()">
-                <i data-lucide="wallet"></i>
+        <button class="btn-header" onclick="showView('notifications')">
+            <i data-lucide="bell"></i>
+            <span class="notification-badge" id="notificationBadge">0</span>
+        </button>
+    </div>
+</header>
+
+<!-- ========== MENU LATÉRAL ========== -->
+<div class="menu-blur" id="menuBlur" onclick="toggleMenu()"></div>
+<div class="side-menu" id="sideMenu">
+    <div class="close-area">
+        <button class="btn-close" onclick="toggleMenu()">
+            <i data-lucide="x"></i>
+        </button>
+    </div>
+
+    <div class="profile-header">
+        <div class="avatar-circle" id="menuAvatar">
+            <i data-lucide="user" size="30"></i>
+        </div>
+        <div class="user-info">
+            <h2 id="menuName">Chargement...</h2>
+            <p id="menuEmail"></p>
+            <span class="user-badge" id="menuBadge">Membre OminiPay</span>
+        </div>
+    </div>
+
+    <div class="menu-content">
+        <div class="menu-group">
+            <p class="group-title">Mon Compte</p>
+            <button class="menu-item" onclick="showView('profil')">
+                <div class="item-left"><i data-lucide="user"></i> Mon profil</div>
+                <div class="item-right"><i data-lucide="chevron-right"></i></div>
             </button>
-            <button class="btn-header" onclick="showView('notifications')">
-                <i data-lucide="bell"></i>
-                <span class="notification-badge" id="notificationBadge">0</span>
+            <button class="menu-item" onclick="showView('cadeaux')">
+                <div class="item-left"><i data-lucide="gift"></i> Mes cadeaux</div>
+                <div class="item-right"><i data-lucide="chevron-right"></i></div>
+            </button>
+            <button class="menu-item" onclick="showView('parrainage')">
+                <div class="item-left"><i data-lucide="users"></i> Parrainage</div>
+                <div class="item-right"><i data-lucide="chevron-right"></i></div>
+            </button>
+            <button class="menu-item" onclick="showView('historique')">
+                <div class="item-left"><i data-lucide="history"></i> Historique</div>
+                <div class="item-right"><i data-lucide="chevron-right"></i></div>
             </button>
         </div>
-    </header>
-
-    <!-- ========== MENU LATÉRAL PROFIL ========== -->
-    <div class="menu-blur" id="menuBlur" onclick="toggleMenu()"></div>
-    <div class="side-menu" id="sideMenu">
-        <div class="close-area">
-            <button class="btn-close" onclick="toggleMenu()">
-                <i data-lucide="x"></i>
+        <div class="menu-group">
+            <p class="group-title">Préférences</p>
+            <button class="menu-item" onclick="showView('parametres')">
+                <div class="item-left"><i data-lucide="settings"></i> Paramètres</div>
+                <div class="item-right"><i data-lucide="chevron-right"></i></div>
+            </button>
+            <button class="menu-item" onclick="toggleTheme()">
+                <div class="item-left"><i data-lucide="moon"></i> Mode Sombre</div>
+                <div class="item-right"><div class="switch" style="width:40px;height:22px;background:#ccc;border-radius:20px;"></div></div>
+            </button>
+            <button class="menu-item" onclick="showView('langue')">
+                <div class="item-left"><i data-lucide="languages"></i> Langue</div>
+                <div class="item-right">Français</div>
             </button>
         </div>
-
-        <div class="profile-header">
-            <div class="avatar-circle" id="menuAvatar">
-                <i data-lucide="user" size="30"></i>
-            </div>
-            <div class="user-info">
-                <h2 id="menuName">Chargement...</h2>
-                <p id="menuEmail"></p>
-                <span class="user-badge" id="menuBadge">Membre OminiPay</span>
-            </div>
-        </div>
-
-        <div class="menu-content">
-            <div class="menu-group">
-                <p class="group-title">Mon Compte</p>
-                <button class="menu-item" onclick="navigateTo('profil.html')">
-                    <div class="item-left"><i data-lucide="user"></i> Mon profil</div>
-                    <div class="item-right"><i data-lucide="chevron-right" size="16"></i></div>
-                </button>
-                <button class="menu-item" onclick="navigateTo('cadeaux.html')">
-                    <div class="item-left"><i data-lucide="gift"></i> Mes cadeaux</div>
-                    <div class="item-right"><i data-lucide="chevron-right" size="16"></i></div>
-                </button>
-                <button class="menu-item" onclick="navigateTo('parrainage.html')">
-                    <div class="item-left"><i data-lucide="users"></i> Parrainage</div>
-                    <div class="item-right"><i data-lucide="chevron-right" size="16"></i></div>
-                </button>
-                <button class="menu-item" onclick="navigateTo('historique.html')">
-                    <div class="item-left"><i data-lucide="history"></i> Historique</div>
-                    <div class="item-right"><i data-lucide="chevron-right" size="16"></i></div>
-                </button>
-            </div>
-
-            <div class="menu-group">
-                <p class="group-title">Préférences</p>
-                <button class="menu-item" onclick="navigateTo('parametres.html')">
-                    <div class="item-left"><i data-lucide="settings"></i> Paramètres</div>
-                    <div class="item-right"><i data-lucide="chevron-right" size="16"></i></div>
-                </button>
-                <button class="menu-item" onclick="toggleTheme()">
-                    <div class="item-left"><i data-lucide="moon"></i> Mode Sombre</div>
-                    <div class="item-right"><div class="switch"></div></div>
-                </button>
-                <button class="menu-item" onclick="navigateTo('langue.html')">
-                    <div class="item-left"><i data-lucide="languages"></i> Langue</div>
-                    <div class="item-right">Français</div>
-                </button>
-            </div>
-
-            <div class="menu-group">
-                <p class="group-title">Assistance & Légal</p>
-                <button class="menu-item" onclick="navigateTo('faq.html')">
-                    <div class="item-left"><i data-lucide="help-circle"></i> FAQ</div>
-                </button>
-                <button class="menu-item" onclick="navigateTo('contact.html')">
-                    <div class="item-left"><i data-lucide="mail"></i> Contact</div>
-                </button>
-                <button class="menu-item" onclick="navigateTo('apropos.html')">
-                    <div class="item-left"><i data-lucide="info"></i> À propos</div>
-                </button>
-                <button class="menu-item" onclick="navigateTo('confidentialite.html')">
-                    <div class="item-left"><i data-lucide="shield-check"></i> Confidentialité</div>
-                </button>
-                <button class="menu-item" onclick="navigateTo('securite.html')">
-                    <div class="item-left"><i data-lucide="lock"></i> Sécurité</div>
-                </button>
-            </div>
-        </div>
-
-        <div class="menu-footer">
-            <button class="btn-logout" onclick="logout()">
-                <i data-lucide="log-out"></i> Déconnexion
+        <div class="menu-group">
+            <p class="group-title">Assistance & Légal</p>
+            <button class="menu-item" onclick="showView('faq')">
+                <div class="item-left"><i data-lucide="help-circle"></i> FAQ</div>
+            </button>
+            <button class="menu-item" onclick="showView('contact')">
+                <div class="item-left"><i data-lucide="mail"></i> Contact</div>
+            </button>
+            <button class="menu-item" onclick="showView('apropos')">
+                <div class="item-left"><i data-lucide="info"></i> À propos</div>
+            </button>
+            <button class="menu-item" onclick="showView('confidentialite')">
+                <div class="item-left"><i data-lucide="shield-check"></i> Confidentialité</div>
+            </button>
+            <button class="menu-item" onclick="showView('securite')">
+                <div class="item-left"><i data-lucide="lock"></i> Sécurité</div>
             </button>
         </div>
     </div>
 
-    <!-- ========== CONTENU PRINCIPAL ========== -->
-    <main class="main-content" id="mainContent">
-        <!-- VUE ACCUEIL -->
-        <div id="viewHome" class="view active">
-            <div class="welcome-card">
-                <div class="welcome-title">Bienvenue sur OminiPay</div>
-                <div class="welcome-subtitle" id="welcomeUser">Chargement...</div>
-            </div>
-
-            <div class="quick-actions">
-                <div class="quick-action" onclick="navigateTo('recharger.html')">
-                    <i data-lucide="plus-circle"></i>
-                    <span>Recharger</span>
-                </div>
-                <div class="quick-action" onclick="navigateTo('acheter.html')">
-                    <i data-lucide="shopping-cart"></i>
-                    <span>Acheter</span>
-                </div>
-                <div class="quick-action" onclick="navigateTo('vendre.html')">
-                    <i data-lucide="badge-dollar-sign"></i>
-                    <span>Vendre</span>
-                </div>
-                <div class="quick-action" onclick="navigateTo('transfert.html')">
-                    <i data-lucide="move-right"></i>
-                    <span>Transférer</span>
-                </div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <i data-lucide="wallet" size="20"></i>
-                    <div class="stat-value" id="homeBalance">0 FCFA</div>
-                    <div>Solde actuel</div>
-                </div>
-                <div class="stat-card">
-                    <i data-lucide="gift" size="20"></i>
-                    <div class="stat-value" id="homeGifts">0</div>
-                    <div>Cadeaux reçus</div>
-                </div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <i data-lucide="users" size="20"></i>
-                    <div class="stat-value" id="homeReferrals">0</div>
-                    <div>Filleuls</div>
-                </div>
-                <div class="stat-card">
-                    <i data-lucide="trending-up" size="20"></i>
-                    <div class="stat-value" id="homeEarnings">0 FCFA</div>
-                    <div>Gains parrainage</div>
-                </div>
-            </div>
-
-            <!-- WALLET INTÉGRÉ -->
-            <div class="wallet-container">
-                <div class="balance-section">
-                    <div class="balance-label">Solde OminiPay</div>
-                    <div class="balance-row">
-                        <span id="balanceAmount">0</span>
-                        <button class="eye-toggle" onclick="toggleBalance()">
-                            <i data-lucide="eye" id="eyeIcon"></i>
-                        </button>
-                    </div>
-                    <div class="balance-progress">
-                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-                    </div>
-                </div>
-
-                <div class="quick-stats">
-                    <div class="stat-item">
-                        <div class="stat-value" id="todayEarned">0</div>
-                        <div class="stat-label">Aujourd'hui</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="weekEarned">0</div>
-                        <div class="stat-label">Cette semaine</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="monthEarned">0</div>
-                        <div class="stat-label">Ce mois</div>
-                    </div>
-                </div>
-
-                <div class="action-grid">
-                    <button class="action-btn" onclick="navigateTo('retirer.html')">
-                        <div class="icon-circle"><i data-lucide="arrow-down-to-line"></i></div>
-                        <span class="action-text">Retirer</span>
-                    </button>
-                    <button class="action-btn" onclick="navigateTo('compte.html')">
-                        <div class="icon-circle"><i data-lucide="user-round"></i></div>
-                        <span class="action-text">Compte</span>
-                    </button>
-                    <button class="action-btn" onclick="navigateTo('recharger.html')">
-                        <div class="icon-circle"><i data-lucide="plus"></i></div>
-                        <span class="action-text">Recharger</span>
-                    </button>
-                    <button class="action-btn" onclick="showView('orders')">
-                        <div class="icon-circle"><i data-lucide="history"></i></div>
-                        <span class="action-text">Historique</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- VUE COMMANDES -->
-        <div id="viewOrders" class="view">
-            <h2 style="margin: 0 0 15px 0;">Mes commandes</h2>
-            
-            <div class="orders-filter" id="orderFilters">
-                <button class="filter-chip active" onclick="filterOrders('all')">Tous</button>
-                <button class="filter-chip" onclick="filterOrders('approved')">Approuvés</button>
-                <button class="filter-chip" onclick="filterOrders('pending')">En attente</button>
-                <button class="filter-chip" onclick="filterOrders('refunded')">Remboursés</button>
-                <button class="filter-chip" onclick="filterOrders('rejected')">Refusés</button>
-            </div>
-
-            <div id="ordersList">
-                <div class="loader"></div>
-            </div>
-        </div>
-
-        <!-- VUE NOTIFICATIONS -->
-        <div id="viewNotifications" class="view">
-            <h2 style="margin: 0 0 15px 0;">Notifications</h2>
-            
-            <div id="notificationsList" class="notifications-list">
-                <div class="loader"></div>
-            </div>
-        </div>
-
-        <!-- VUE COMPTES ENREGISTRÉS -->
-        <div id="viewAccounts" class="view">
-            <h2 style="margin: 0 0 15px 0;">Mes comptes</h2>
-            
-            <div class="saved-accounts" id="savedAccounts">
-                <div class="loader"></div>
-            </div>
-
-            <button class="add-account-btn" onclick="showAddAccountForm()">
-                <i data-lucide="plus-circle"></i>
-                Ajouter un compte
-            </button>
-        </div>
-
-        <!-- VUE VENDRE -->
-        <div id="viewSell" class="view">
-            <h2 style="margin: 0 0 15px 0;">Vendre une carte</h2>
-
-            <!-- Sélection de carte -->
-            <div class="form-container">
-                <div class="selected-card-preview" id="sellSelectedCardPreview" style="display: none;">
-                    <img src="" id="sellSelectedCardLogo" class="selected-card-logo">
-                    <div class="selected-card-info">
-                        <div class="selected-card-name" id="sellSelectedCardName"></div>
-                        <div class="selected-card-rate">
-                            Taux: <span id="sellSelectedCardRate">80%</span>
-                        </div>
-                    </div>
-                    <span class="rate-badge" id="sellSelectedCardBadge">×0.80</span>
-                </div>
-
-                <div class="cards-dropdown">
-                    <div class="dropdown-header" onclick="toggleSellDropdown()">
-                        <i data-lucide="chevron-down" id="sellDropdownIcon"></i>
-                        <span id="sellDropdownText">Choisir une carte</span>
-                    </div>
-                    <div class="dropdown-list" id="sellCardsList">
-                        <!-- Rempli par Firebase -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Upload d'image -->
-            <div class="image-upload-section">
-                <div class="image-label">
-                    <i data-lucide="camera"></i>
-                    Photo de la carte
-                </div>
-
-                <div class="image-preview" id="sellImagePreview" onclick="triggerSellFileInput()">
-                    <img src="" id="sellPreviewImg" class="preview-img">
-                    <div class="upload-placeholder" id="sellUploadPlaceholder">
-                        <i data-lucide="image-plus" size="32"></i>
-                        <p>Ajouter une photo</p>
-                        <span class="small-note">(Recommandé)</span>
-                    </div>
-                </div>
-
-                <div class="upload-buttons">
-                    <button class="upload-btn camera-btn" onclick="takeSellPhoto()">
-                        <i data-lucide="camera"></i> Prendre photo
-                    </button>
-                    <button class="upload-btn gallery-btn" onclick="selectSellFromGallery()">
-                        <i data-lucide="images"></i> Galerie
-                    </button>
-                </div>
-
-                <input type="file" id="sellFileInput" accept="image/*" capture="environment" style="display: none;">
-            </div>
-
-            <!-- Formulaire -->
-            <div class="form-container">
-                <div class="input-group">
-                    <label>Montant (FCFA)</label>
-                    <input type="number" id="sellAmount" placeholder="Ex: 5000" oninput="calculateSellAmount()">
-                </div>
-
-                <div class="input-group">
-                    <label>Code de la carte</label>
-                    <div class="input-wrapper">
-                        <input type="text" id="sellCode" placeholder="XXXX-XXXX-XXXX">
-                        <button class="scan-btn" onclick="scanSellCode()">
-                            <i data-lucide="scan-line"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="calculation-box" id="sellCalculationBox" style="display: none;">
-                    <div class="calc-row">
-                        <span>Valeur:</span>
-                        <span id="sellDisplayAmount">0 FCFA</span>
-                    </div>
-                    <div class="calc-row">
-                        <span>Taux:</span>
-                        <span id="sellDisplayRate">80%</span>
-                    </div>
-                    <div class="calc-row">
-                        <span>Frais (2%):</span>
-                        <span id="sellDisplayFee">0 FCFA</span>
-                    </div>
-                    <div class="calc-total">
-                        <span>Vous recevrez:</span>
-                        <span id="sellDisplayTotal">0 FCFA</span>
-                    </div>
-                </div>
-
-                <button class="btn-primary" id="sellBtn" onclick="processSell()" disabled>
-                    Vendre cette carte
-                </button>
-            </div>
-
-            <!-- Historique des ventes -->
-            <div class="form-container">
-                <h3 style="margin: 0 0 15px 0;">Mes dernières ventes</h3>
-                <div id="sellHistory">
-                    <div class="loader"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- VUE RETIRER -->
-        <div id="viewWithdraw" class="view">
-            <h2 style="margin: 0 0 15px 0;">Retrait d'argent</h2>
-
-            <div class="wallet-container">
-                <div class="balance-section">
-                    <div class="balance-label">Solde disponible</div>
-                    <div class="balance-row">
-                        <span id="withdrawBalance">0 FCFA</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-container">
-                <h3 style="margin: 0 0 15px 0;">Sélectionnez un compte</h3>
-                <div id="withdrawAccountsList">
-                    <div class="loader"></div>
-                </div>
-
-                <button class="add-account-btn" onclick="navigateTo('compte.html')">
-                    <i data-lucide="plus-circle"></i>
-                    Ajouter un compte
-                </button>
-            </div>
-
-            <div class="form-container">
-                <div class="input-group">
-                    <label>Montant à retirer</label>
-                    <input type="number" id="withdrawAmount" placeholder="Ex: 5000" oninput="calculateWithdraw()">
-                </div>
-
-                <div class="calculation-box" id="withdrawCalculationBox" style="display: none;">
-                    <div class="calc-row">
-                        <span>Montant demandé:</span>
-                        <span id="withdrawRequestAmount">0 FCFA</span>
-                    </div>
-                    <div class="calc-row">
-                        <span>Frais (2%):</span>
-                        <span id="withdrawFee">0 FCFA</span>
-                    </div>
-                    <div class="calc-total">
-                        <span>Net reçu:</span>
-                        <span id="withdrawNet">0 FCFA</span>
-                    </div>
-                </div>
-
-                <button class="btn-primary" id="withdrawBtn" onclick="processWithdraw()" disabled>
-                    Effectuer le retrait
-                </button>
-            </div>
-        </div>
-
-        <!-- VUE RECHARGER -->
-        <div id="viewRecharge" class="view">
-            <h2 style="margin: 0 0 15px 0;">Recharger mon compte</h2>
-
-            <div class="recharge-tabs" style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <button class="filter-chip active" onclick="switchRechargeTab('moi')">Mon compte</button>
-                <button class="filter-chip" onclick="switchRechargeTab('ami')">Pour un ami</button>
-            </div>
-
-            <!-- Recharge pour moi -->
-            <div id="rechargeMoi" class="view active">
-                <div class="form-container">
-                    <div class="input-group">
-                        <label>Mode de paiement</label>
-                        <div style="display: flex; gap: 15px;">
-                            <div class="method-item selected" onclick="selectPaymentMethod('card', this)">
-                                <i data-lucide="credit-card"></i>
-                            </div>
-                            <div class="method-item" onclick="selectPaymentMethod('mobile', this)">
-                                <i data-lucide="smartphone"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <label>Montant (FCFA)</label>
-                        <input type="number" id="rechargeAmount" placeholder="Ex: 5000" oninput="calculateRecharge()">
-                    </div>
-
-                    <div class="calculation-box" id="rechargeCalculationBox" style="display: none;">
-                        <div class="calc-row">
-                            <span>Montant:</span>
-                            <span id="rechargeAmount">0 FCFA</span>
-                        </div>
-                        <div class="calc-row">
-                            <span>Frais (2%):</span>
-                            <span id="rechargeFee">0 FCFA</span>
-                        </div>
-                        <div class="calc-total">
-                            <span>Total à payer:</span>
-                            <span id="rechargeTotal">0 FCFA</span>
-                        </div>
-                    </div>
-
-                    <button class="btn-primary" onclick="processRecharge()">
-                        Recharger
-                    </button>
-                </div>
-            </div>
-
-            <!-- Recharge pour un ami -->
-            <div id="rechargeAmi" class="view">
-                <div class="form-container">
-                    <div class="source-selector" style="display: flex; gap: 10px; margin-bottom: 20px;">
-                        <button class="filter-chip active" onclick="setRechargeSource('internal')">Solde OminiPay</button>
-                        <button class="filter-chip" onclick="setRechargeSource('external')">Carte bancaire</button>
-                    </div>
-
-                    <div class="input-group">
-                        <label>ID OminiPay du bénéficiaire</label>
-                        <input type="text" id="friendId" placeholder="OM-XXXXXXXXXXXX">
-                    </div>
-
-                    <div class="input-group">
-                        <label>Montant (FCFA)</label>
-                        <input type="number" id="friendAmount" placeholder="Ex: 5000" oninput="calculateFriendRecharge()">
-                    </div>
-
-                    <div class="input-group">
-                        <label>Motif (optionnel)</label>
-                        <textarea id="friendMotif" placeholder="Ex: Joyeux anniversaire"></textarea>
-                    </div>
-
-                    <div class="calculation-box" id="friendCalculationBox" style="display: none;">
-                        <div class="calc-row">
-                            <span>Montant:</span>
-                            <span id="friendAmount">0 FCFA</span>
-                        </div>
-                        <div class="calc-row">
-                            <span>Frais:</span>
-                            <span id="friendFee">0 FCFA</span>
-                        </div>
-                        <div class="calc-total">
-                            <span>Total:</span>
-                            <span id="friendTotal">0 FCFA</span>
-                        </div>
-                    </div>
-
-                    <div class="confirm-zone" style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
-                        <input type="checkbox" id="friendConfirm" onchange="toggleFriendButton()">
-                        <label>Je certifie l'ID du destinataire</label>
-                    </div>
-
-                    <button class="btn-primary" id="friendBtn" onclick="processFriendRecharge()" disabled>
-                        Envoyer maintenant
-                    </button>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- ========== FOOTER FIXE ========== -->
-    <footer class="footer">
-        <button class="nav-link active" onclick="showView('home')">
-            <i data-lucide="home"></i>
-            <span>Accueil</span>
+    <div class="menu-footer">
+        <button class="btn-logout" onclick="logout()">
+            <i data-lucide="log-out"></i> Déconnexion
         </button>
-        <button class="nav-link" onclick="showView('sell')">
-            <i data-lucide="badge-dollar-sign"></i>
-            <span>Vendre</span>
-        </button>
-        <button class="nav-link" onclick="navigateTo('acheter.html')">
-            <i data-lucide="shopping-cart"></i>
-            <span>Achat</span>
-        </button>
-        <button class="nav-link" onclick="showView('orders')">
-            <i data-lucide="list-ordered"></i>
-            <span>Commande</span>
-        </button>
-    </footer>
+    </div>
 </div>
+
+<!-- ========== CONTENU PRINCIPAL ========== -->
+<main class="main-content" id="mainContent">
+    <!-- VUE ACCUEIL -->
+    <div id="viewHome" class="view active">
+        <!-- Ici on met le contenu de l'interface principale (accueil) -->
+        <div class="welcome-card" style="background:var(--ui-card); border-radius:30px; padding:25px; margin-bottom:20px;">
+            <div class="welcome-title" style="font-size:22px; font-weight:700;">Bienvenue sur OminiPay</div>
+            <div class="welcome-subtitle" id="welcomeUser">Chargement...</div>
+        </div>
+
+        <div class="quick-actions" style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px;">
+            <div class="quick-action" style="background:var(--ui-card); border-radius:20px; padding:15px 5px; text-align:center; cursor:pointer;" onclick="showView('recharger')">
+                <i data-lucide="plus-circle"></i><span style="display:block; font-size:11px; margin-top:8px;">Recharger</span>
+            </div>
+            <div class="quick-action" style="background:var(--ui-card); border-radius:20px; padding:15px 5px; text-align:center; cursor:pointer;" onclick="showView('acheter')">
+                <i data-lucide="shopping-cart"></i><span>Acheter</span>
+            </div>
+            <div class="quick-action" style="background:var(--ui-card); border-radius:20px; padding:15px 5px; text-align:center; cursor:pointer;" onclick="showView('vendre')">
+                <i data-lucide="badge-dollar-sign"></i><span>Vendre</span>
+            </div>
+            <div class="quick-action" style="background:var(--ui-card); border-radius:20px; padding:15px 5px; text-align:center; cursor:pointer;" onclick="showView('transfert')">
+                <i data-lucide="move-right"></i><span>Transférer</span>
+            </div>
+        </div>
+
+        <div class="stats-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="stat-card" style="background:var(--ui-card); border-radius:25px; padding:20px;">
+                <i data-lucide="wallet"></i>
+                <div class="stat-value" id="homeBalance">0 FCFA</div>
+                <div>Solde actuel</div>
+            </div>
+            <div class="stat-card" style="background:var(--ui-card); border-radius:25px; padding:20px;">
+                <i data-lucide="gift"></i>
+                <div class="stat-value" id="homeGifts">0</div>
+                <div>Cadeaux reçus</div>
+            </div>
+        </div>
+
+        <!-- Wallet intégré -->
+        <div class="wallet-container">
+            <div class="balance-section">
+                <div class="balance-label">Solde OminiPay</div>
+                <div class="balance-row">
+                    <span id="balanceAmount">0</span>
+                    <button class="eye-toggle" onclick="toggleBalance()"><i data-lucide="eye" id="eyeIcon"></i></button>
+                </div>
+                <div class="balance-progress"><div class="progress-fill" id="progressFill"></div></div>
+            </div>
+            <div class="quick-stats">
+                <div class="stat-item"><div class="stat-value" id="todayEarned">0</div><div class="stat-label">Aujourd'hui</div></div>
+                <div class="stat-item"><div class="stat-value" id="weekEarned">0</div><div class="stat-label">Cette semaine</div></div>
+                <div class="stat-item"><div class="stat-value" id="monthEarned">0</div><div class="stat-label">Ce mois</div></div>
+            </div>
+            <div class="action-grid">
+                <button class="action-btn" onclick="showView('retirer')"><div class="icon-circle"><i data-lucide="arrow-down-to-line"></i></div><span class="action-text">Retirer</span></button>
+                <button class="action-btn" onclick="showView('compte')"><div class="icon-circle"><i data-lucide="user-round"></i></div><span class="action-text">Compte</span></button>
+                <button class="action-btn" onclick="showView('recharger')"><div class="icon-circle"><i data-lucide="plus"></i></div><span class="action-text">Recharger</span></button>
+                <button class="action-btn" onclick="showView('historique')"><div class="icon-circle"><i data-lucide="history"></i></div><span class="action-text">Historique</span></button>
+            </div>
+        </div>
+
+        <div class="recent-transactions">
+            <div class="section-header">
+                <div class="section-title"><i data-lucide="clock"></i> Dernières opérations</div>
+                <span class="view-all" onclick="showView('historique')">Voir tout</span>
+            </div>
+            <div id="transactionsList"><div class="loader"></div></div>
+        </div>
+    </div>
+
+    <!-- VUE COMMANDES -->
+    <div id="viewOrders" class="view">
+        <h2 style="margin:0 0 15px;">Mes commandes</h2>
+        <div class="filter-tabs" id="orderFilters">
+            <button class="filter-btn active" onclick="filterOrders('all')">Tous</button>
+            <button class="filter-btn" onclick="filterOrders('approved')">Approuvés</button>
+            <button class="filter-btn" onclick="filterOrders('pending')">En attente</button>
+            <button class="filter-btn" onclick="filterOrders('refunded')">Remboursés</button>
+            <button class="filter-btn" onclick="filterOrders('rejected')">Refusés</button>
+        </div>
+        <div id="ordersList" class="orders-list"><div class="loader"></div></div>
+    </div>
+
+    <!-- VUE NOTIFICATIONS -->
+    <div id="viewNotifications" class="view">
+        <h2 style="margin:0 0 15px;">Notifications</h2>
+        <div id="notificationsList" class="notifications-list"><div class="loader"></div></div>
+    </div>
+
+    <!-- VUE WALLET -->
+    <div id="viewWallet" class="view">
+        <!-- Même contenu que le wallet intégré dans l'accueil, mais en version complète -->
+        <div class="wallet-container">
+            <div class="balance-section">
+                <div class="balance-label">Solde OminiPay</div>
+                <div class="balance-row">
+                    <span id="walletBalance">0</span>
+                    <button class="eye-toggle" onclick="toggleWalletBalance()"><i data-lucide="eye" id="walletEyeIcon"></i></button>
+                </div>
+                <div class="balance-progress"><div class="progress-fill" id="walletProgressFill"></div></div>
+            </div>
+            <div class="quick-stats">
+                <div class="stat-item"><div class="stat-value" id="walletToday">0</div><div class="stat-label">Aujourd'hui</div></div>
+                <div class="stat-item"><div class="stat-value" id="walletWeek">0</div><div class="stat-label">Cette semaine</div></div>
+                <div class="stat-item"><div class="stat-value" id="walletMonth">0</div><div class="stat-label">Ce mois</div></div>
+            </div>
+            <div class="action-grid">
+                <button class="action-btn" onclick="showView('retirer')"><div class="icon-circle"><i data-lucide="arrow-down-to-line"></i></div><span class="action-text">Retirer</span></button>
+                <button class="action-btn" onclick="showView('compte')"><div class="icon-circle"><i data-lucide="user-round"></i></div><span class="action-text">Compte</span></button>
+                <button class="action-btn" onclick="showView('recharger')"><div class="icon-circle"><i data-lucide="plus"></i></div><span class="action-text">Recharger</span></button>
+                <button class="action-btn" onclick="showView('historique')"><div class="icon-circle"><i data-lucide="history"></i></div><span class="action-text">Historique</span></button>
+            </div>
+        </div>
+        <div class="recent-transactions">
+            <div class="section-header">
+                <div class="section-title"><i data-lucide="clock"></i> Dernières opérations</div>
+                <span class="view-all" onclick="showView('historique')">Voir tout</span>
+            </div>
+            <div id="walletTransactionsList"><div class="loader"></div></div>
+        </div>
+    </div>
+
+    <!-- VUE RETIRER -->
+    <div id="viewRetirer" class="view">
+        <h2 style="margin:0 0 15px;">Retrait</h2>
+        <div class="balance-card" style="background:var(--ui-card); border-radius:30px; padding:25px; text-align:center; margin-bottom:20px;">
+            <div class="balance-label">Solde disponible</div>
+            <div class="balance-amount" id="withdrawBalanceDisplay">0 FCFA</div>
+        </div>
+        <div class="account-selector">
+            <div class="section-title"><i data-lucide="wallet"></i> Compte de retrait</div>
+            <div id="withdrawAccountsList"><div class="loader"></div></div>
+            <button class="add-account-btn" onclick="showView('compte')"><i data-lucide="plus-circle"></i> Ajouter un compte</button>
+        </div>
+        <div class="withdraw-form">
+            <input type="number" class="amount-input" id="withdrawAmount" placeholder="Montant" min="100" style="width:100%; padding:20px; font-size:24px; text-align:center; border-radius:20px;">
+            <div class="quick-amounts">
+                <div class="quick-amount" onclick="setWithdrawAmount(1000)">1 000</div>
+                <div class="quick-amount" onclick="setWithdrawAmount(5000)">5 000</div>
+                <div class="quick-amount" onclick="setWithdrawAmount(10000)">10 000</div>
+                <div class="quick-amount" onclick="setWithdrawAmount(25000)">25 000</div>
+                <div class="quick-amount" onclick="setWithdrawAmount(50000)">50 000</div>
+                <div class="quick-amount" onclick="setWithdrawAmount(100000)">100 000</div>
+            </div>
+            <div class="fee-info" id="withdrawFeeInfo">Frais: 0 FCFA • Net reçu: 0 FCFA</div>
+            <button class="withdraw-btn" id="withdrawBtn" onclick="processWithdraw()" disabled>Effectuer le retrait</button>
+        </div>
+    </div>
+
+    <!-- VUE COMPTE (gestion des moyens de paiement) -->
+    <div id="viewCompte" class="view">
+        <h2 style="margin:0 0 15px;">Moyens de Paiement</h2>
+        <div class="saved-accounts" style="background:var(--ui-card); border-radius:30px; padding:20px; margin-bottom:20px;">
+            <h3>Vos comptes enregistrés</h3>
+            <div id="accountsContainer"></div>
+        </div>
+        <div class="payment-menu" style="display:flex; flex-direction:column; gap:12px;">
+            <!-- Les boutons des méthodes -->
+            <div class="method-btn" onclick="showAccountForm('carte')"><img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/eef31e83-7616-4491-a9a6-06730c0b9d27.jpg"><span>Carte Bancaire</span><i data-lucide="chevron-right"></i></div>
+            <div class="method-btn" onclick="showAccountForm('paypal')"><img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/b8d06d9a-4981-480e-aa82-5a5303405121.jpg"><span>PayPal</span><i data-lucide="chevron-right"></i></div>
+            <div class="method-btn" onclick="showAccountForm('orange')"><img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/afb1295e-8769-4c03-a67e-25ed4a568dd9.jpg"><span>Orange Money</span><i data-lucide="chevron-right"></i></div>
+            <div class="method-btn" onclick="showAccountForm('mtn')"><img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/0b009beb-4e04-43e9-9de5-5a71c0b25e19.jpg"><span>MTN MoMo</span><i data-lucide="chevron-right"></i></div>
+            <div class="method-btn" onclick="showAccountForm('moov')"><img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/ddf26487-f953-441c-8e21-3b5011212ecc.jpg"><span>Moov Money</span><i data-lucide="chevron-right"></i></div>
+            <div class="method-btn" onclick="showAccountForm('wave')"><img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/c22b5c6e-a563-4822-ab7e-1483589ea6c8.jpg"><span>Wave</span><i data-lucide="chevron-right"></i></div>
+        </div>
+        <!-- Formulaire caché pour ajouter un compte -->
+        <div id="accountFormContainer" class="form-container" style="display:none;"></div>
+    </div>
+
+    <!-- VUE RECHARGER -->
+    <div id="viewRecharger" class="view">
+        <div class="recharge-menu" style="background:var(--oneui-bg); backdrop-filter:blur(40px); border-radius:35px; padding:28px;">
+            <div class="recharge-tabs" style="display:flex; background:rgba(0,0,0,0.07); border-radius:25px; padding:5px; margin-bottom:30px;">
+                <div class="recharge-tab active" onclick="switchRechargeTab('moi')">Mon compte</div>
+                <div class="recharge-tab" onclick="switchRechargeTab('ami')">Pour un ami</div>
+            </div>
+            <div id="rechargeMoi" class="option-content active">
+                <div class="field"><label>Mode de paiement</label><div class="payment-zone"><div class="method-item selected" onclick="selectRechargeMethod('card',this)"><i data-lucide="credit-card"></i></div><div class="method-item" onclick="selectRechargeMethod('mobile',this)"><i data-lucide="smartphone"></i></div></div></div>
+                <div class="field"><label>Montant (FCFA)</label><input type="number" id="rechargeAmountMoi" placeholder="Ex: 5 000" oninput="calculateRechargeMoi()"></div>
+                <div class="fee-info" id="rechargeFeeMoi">Frais: 0 FCFA • Total: 0 FCFA</div>
+                <button class="recharge-btn" onclick="processRechargeMoi()">Recharger</button>
+            </div>
+            <div id="rechargeAmi" class="option-content">
+                <div class="source-selector" style="display:flex; gap:12px; margin-bottom:20px;">
+                    <div class="source-btn active" onclick="setRechargeSource('internal')">OminiPay</div>
+                    <div class="source-btn" onclick="setRechargeSource('external')">Externe</div>
+                </div>
+                <div id="extZone" class="field hidden"><label>Moyen externe</label><div class="payment-zone"><div class="method-item selected"><i data-lucide="credit-card"></i></div></div></div>
+                <div class="field"><label>ID OminiPay bénéficiaire</label><input type="text" id="recipientId"></div>
+                <div class="field"><label>Montant (FCFA)</label><input type="number" id="rechargeAmountAmi" oninput="calculateRechargeAmi()"></div>
+                <div class="fee-info" id="rechargeFeeAmi">Frais: 0 FCFA • Total: 0 FCFA</div>
+                <div class="field"><label>Motif</label><textarea id="motifAmi"></textarea></div>
+                <div class="confirm-zone"><input type="checkbox" id="checkAmi"> <label>Je certifie l'ID</label></div>
+                <button class="recharge-btn" id="btnAmi" disabled onclick="processRechargeAmi()">Envoyer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VUE ACHETER (Reloadly) -->
+    <div id="viewAcheter" class="view">
+        <div class="buy-menu">
+            <div class="buy-header"><h2>Boutique OminiPay</h2><div class="cart-trigger"><i data-lucide="shopping-bag"></i><span id="cartCount">0</span></div></div>
+            <div id="modeSelector" class="mode-selector">
+                <div class="mode-card" onclick="openShopMode('Moi')"><i data-lucide="user"></i><h3>Pour moi-même</h3><div class="notice">Utilisation immédiate</div></div>
+                <div class="mode-card" onclick="openShopMode('Ami')"><i data-lucide="gift"></i><h3>Offrir à un proche</h3><div class="notice">Transfert</div></div>
+                <div class="mode-card" onclick="openShopMode('Demande')"><i data-lucide="mail"></i><h3>Demander cadeau</h3><div class="notice">Lien de paiement</div></div>
+            </div>
+            <div id="catalogView" style="display:none;">
+                <div class="search-area"><input type="text" id="searchInput" placeholder="Rechercher..."></div>
+                <div id="reloadlyGrid"><div class="empty-msg">Connexion à Reloadly en attente... (xxxxxxx)</div></div>
+                <button class="back-btn" onclick="closeShopMode()">← Retour</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VUE VENDRE -->
+    <div id="viewVendre" class="view">
+        <h2>Vendre une carte</h2>
+        <div class="card-selector">
+            <div class="selected-card-preview" id="sellSelectedPreview" style="display:none;">
+                <img src="" id="sellSelectedLogo" class="selected-card-logo">
+                <div class="selected-card-info"><span id="sellSelectedName"></span><span class="selected-card-rate" id="sellSelectedRate"></span></div>
+                <span class="rate-badge" id="sellSelectedBadge"></span>
+            </div>
+            <div class="cards-dropdown">
+                <div class="dropdown-header" onclick="toggleSellDropdown()"><i data-lucide="chevron-down" id="sellDropdownIcon"></i><span id="sellDropdownText">Choisir une carte</span></div>
+                <div class="dropdown-list" id="sellCardsList"></div>
+            </div>
+        </div>
+        <div class="image-upload-section">
+            <div class="image-preview" onclick="triggerSellFileInput()">
+                <img src="" id="sellPreviewImg" class="preview-img">
+                <div class="upload-placeholder"><i data-lucide="image-plus"></i><p>Ajouter une photo</p></div>
+            </div>
+            <div class="upload-buttons">
+                <button class="upload-btn camera-btn" onclick="takeSellPhoto()"><i data-lucide="camera"></i> Prendre photo</button>
+                <button class="upload-btn gallery-btn" onclick="selectSellGallery()"><i data-lucide="images"></i> Galerie</button>
+            </div>
+            <input type="file" id="sellFileInput" accept="image/*" style="display:none;">
+        </div>
+        <div class="form-section">
+            <input type="number" id="sellAmount" placeholder="Montant" oninput="calculateSell()">
+            <div class="input-wrapper"><input type="text" id="sellCode" placeholder="Code"><button class="scan-btn" onclick="scanSellCode()"><i data-lucide="scan-line"></i></button></div>
+            <div class="calculation-box" id="sellCalc" style="display:none;"></div>
+            <button class="sell-btn" id="sellBtn" onclick="processSell()" disabled>Vendre</button>
+        </div>
+        <div class="history-section"><h3>Mes ventes</h3><div id="sellHistory"></div></div>
+    </div>
+
+    <!-- VUE PROFIL -->
+    <div id="viewProfil" class="view">
+        <h2>Mon Profil</h2>
+        <div class="form-container">
+            <div class="profile-header" style="justify-content:center;">
+                <div class="avatar-circle" id="profilAvatar"></div>
+                <div class="user-info"><h2 id="profilName"></h2><p id="profilEmail"></p></div>
+            </div>
+            <div class="input-group"><label>Nom</label><input type="text" id="profilDisplayName"></div>
+            <div class="input-group"><label>Téléphone</label><input type="tel" id="profilPhone"></div>
+            <button class="btn-primary" onclick="updateProfil()">Mettre à jour</button>
+        </div>
+    </div>
+
+    <!-- VUE CADEAUX -->
+    <div id="viewCadeaux" class="view">
+        <h2>Mes cadeaux</h2>
+        <div id="giftsList"><div class="loader"></div></div>
+    </div>
+
+    <!-- VUE PARRAINAGE -->
+    <div id="viewParrainage" class="view">
+        <h2>Parrainage</h2>
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-value" id="referralCount">0</div><div>Filleuls</div></div>
+            <div class="stat-card"><div class="stat-value" id="referralEarnings">0 FCFA</div><div>Gains</div></div>
+        </div>
+        <div class="form-container"><p>Votre lien de parrainage :</p><input type="text" id="referralLink" readonly></div>
+    </div>
+
+    <!-- VUE HISTORIQUE -->
+    <div id="viewHistorique" class="view">
+        <h2>Historique des transactions</h2>
+        <div id="fullHistoryList"><div class="loader"></div></div>
+    </div>
+
+    <!-- VUE PARAMÈTRES -->
+    <div id="viewParametres" class="view">
+        <h2>Paramètres</h2>
+        <div class="form-container">
+            <div class="input-group"><label>Notifications</label><input type="checkbox" id="notifSettings"> Activer</div>
+            <div class="input-group"><label>Biométrie</label><input type="checkbox" id="bioSettings"></div>
+            <button class="btn-primary">Sauvegarder</button>
+        </div>
+    </div>
+
+    <!-- VUE LANGUE -->
+    <div id="viewLangue" class="view">
+        <h2>Langue</h2>
+        <div class="form-container">
+            <select id="languageSelect">
+                <option value="fr">Français</option>
+                <option value="en">English</option>
+            </select>
+            <button class="btn-primary" onclick="changeLanguage()">Appliquer</button>
+        </div>
+    </div>
+
+    <!-- VUE FAQ -->
+    <div id="viewFaq" class="view">
+        <div class="header"><h1>FAQ</h1></div>
+        <div id="faqContainer"><div class="loader"></div></div>
+    </div>
+
+    <!-- VUE CONTACT -->
+    <div id="viewContact" class="view">
+        <div class="contact-group">
+            <a href="#" class="contact-button" id="contactWhatsapp"><div class="btn-content"><div class="icon-circle"><i data-lucide="message-circle"></i></div><span>WhatsApp</span></div><i data-lucide="chevron-right"></i></a>
+            <a href="#" class="contact-button" id="contactEmail"><div class="btn-content"><div class="icon-circle"><i data-lucide="mail"></i></div><span>Gmail</span></div><i data-lucide="chevron-right"></i></a>
+            <button class="contact-button" onclick="openMessageForm()"><div class="btn-content"><div class="icon-circle"><i data-lucide="edit-3"></i></div><span>Envoyer un message</span></div><i data-lucide="chevron-right"></i></button>
+        </div>
+    </div>
+
+    <!-- VUE À PROPOS -->
+    <div id="viewApropos" class="view">
+        <div class="header"><h1>À propos</h1></div>
+        <div id="aboutContent"><div class="loader"></div></div>
+    </div>
+
+    <!-- VUE CONFIDENTIALITÉ -->
+    <div id="viewConfidentialite" class="view">
+        <div class="header"><h1>Confidentialité</h1></div>
+        <div id="privacyContent"><div class="loader"></div></div>
+    </div>
+
+    <!-- VUE SÉCURITÉ -->
+    <div id="viewSecurite" class="view">
+        <div class="header"><h1>Sécurité</h1></div>
+        <div id="securityContent"><div class="loader"></div></div>
+    </div>
+
+    <!-- VUE TRANSFERT (si besoin) -->
+    <div id="viewTransfert" class="view">
+        <h2>Transfert d'argent</h2>
+        <div class="form-container">
+            <input type="text" placeholder="ID destinataire">
+            <input type="number" placeholder="Montant">
+            <textarea placeholder="Motif"></textarea>
+            <button class="btn-primary">Transférer</button>
+        </div>
+    </div>
+</main>
+
+<!-- ========== FOOTER FIXE ========== -->
+<footer class="footer">
+    <button class="nav-link active" onclick="showView('home')"><i data-lucide="home"></i><span>Accueil</span></button>
+    <button class="nav-link" onclick="showView('vendre')"><i data-lucide="badge-dollar-sign"></i><span>Vendre</span></button>
+    <button class="nav-link" onclick="showView('acheter')"><i data-lucide="shopping-cart"></i><span>Achat</span></button>
+    <button class="nav-link" onclick="showView('orders')"><i data-lucide="list-ordered"></i><span>Commande</span></button>
+</footer>
 
 <script>
     // ========== CONFIGURATION FIREBASE ==========
@@ -1745,134 +1026,79 @@
         measurementId: "G-YB449VY632"
     };
 
-    // Initialisation Firebase
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
     const auth = firebase.auth();
+    const db = firebase.firestore();
     const storage = firebase.storage();
-    const analytics = firebase.analytics();
 
     // ========== VARIABLES GLOBALES ==========
     let currentUser = null;
     let currentView = 'home';
-    let currentOrderFilter = 'all';
-    let unreadCount = 0;
-    let hiddenBalance = false;
     let userBalance = 0;
-    let selectedCard = null;
-    let selectedAccount = null;
-    let currentPaymentMethod = 'card';
-    let currentRechargeSource = 'internal';
+    let hiddenBalance = false;
+    let hiddenWalletBalance = false;
+    let currentWithdrawAccount = null;
+    let accountsList = [];
     let availableCards = [];
-    let userAccounts = [];
+    let selectedSellCard = null;
+    let sellImageFile = null;
+    let currentRechargeSource = 'internal';
+    let currentRechargeMethod = 'card';
 
-    // ========== AUTHENTIFICATION ==========
-    auth.onAuthStateChanged((user) => {
+    // ========== AUTH ==========
+    auth.onAuthStateChanged(user => {
         if (user) {
             currentUser = user;
             loadUserData();
-            loadMenuUserData();
-            loadOrders();
+            loadMenuData();
             loadNotifications();
-            loadCards();
-            loadUserAccounts();
-            setupRealtimeListeners();
+            loadOrders();
+            loadTransactions();
+            loadAccounts();
+            loadSellCards();
+            loadSellHistory();
+            loadFaq();
+            loadAbout();
+            loadPrivacy();
+            loadSecurity();
             updateWelcomeMessage();
-            updateUIWithUserData(user);
         } else {
-            window.location.href = 'inscription.html';
+            window.location.href = 'index.html'; // rediriger vers la page de connexion
         }
     });
 
-    // ========== MENU PROFIL ==========
-    function toggleMenu() {
-        document.getElementById('sideMenu').classList.toggle('open');
-        document.getElementById('menuBlur').classList.toggle('open');
-        lucide.createIcons();
-    }
-
-    function loadMenuUserData() {
-        if (!currentUser) return;
-        
-        db.collection('users').doc(currentUser.uid).onSnapshot((doc) => {
+    function loadUserData() {
+        db.collection('users').doc(currentUser.uid).onSnapshot(doc => {
             if (doc.exists) {
-                const data = doc.data();
-                document.getElementById('menuName').textContent = data.name || currentUser.displayName || 'Utilisateur';
-                document.getElementById('menuEmail').textContent = currentUser.email || '';
-                
-                const days = data.createdAt ? Math.floor((Date.now() - data.createdAt.toDate()) / (1000*60*60*24)) : 0;
-                document.getElementById('menuBadge').textContent = days < 7 ? '🎉 Nouveau membre' : '⭐ Membre OminiPay';
+                userBalance = doc.data().balance || 0;
+                document.getElementById('homeBalance').innerText = userBalance.toLocaleString() + ' FCFA';
+                document.getElementById('balanceAmount').innerText = userBalance.toLocaleString();
+                document.getElementById('walletBalance').innerText = userBalance.toLocaleString();
+                document.getElementById('withdrawBalanceDisplay').innerText = userBalance.toLocaleString() + ' FCFA';
+                document.getElementById('homeGifts').innerText = doc.data().giftCount || 0;
+                // Progress
+                const goal = 100000;
+                const percent = (userBalance / goal) * 100;
+                document.getElementById('progressFill').style.width = Math.min(percent, 100) + '%';
+                document.getElementById('walletProgressFill').style.width = Math.min(percent, 100) + '%';
             }
         });
     }
 
-    function updateUIWithUserData(user) {
-        // Avatar
-        const avatar = document.querySelector('.avatar-circle');
-        if (user.photoURL) {
-            avatar.innerHTML = `<img src="${user.photoURL}" style="width:100%; height:100%; object-fit:cover;">`;
-        } else {
-            const firstLetter = (user.displayName || user.email || 'U').charAt(0).toUpperCase();
-            avatar.innerHTML = `<span style="font-size: 24px;">${firstLetter}</span>`;
-        }
-    }
-
-    // ========== GESTION DES VUES ==========
-    function showView(viewName) {
-        document.querySelectorAll('.view').forEach(view => {
-            view.classList.remove('active');
-        });
-        
-        document.getElementById(`view${viewName.charAt(0).toUpperCase() + viewName.slice(1)}`).classList.add('active');
-        
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.classList.remove('active');
-        });
-        
-        const navLinks = document.querySelectorAll('.nav-link');
-        if (viewName === 'home') navLinks[0].classList.add('active');
-        else if (viewName === 'orders') navLinks[3].classList.add('active');
-        else if (viewName === 'sell') navLinks[1].classList.add('active');
-        
-        currentView = viewName;
-        
-        if (viewName === 'orders') loadOrders();
-        if (viewName === 'notifications') {
-            loadNotifications();
-            markAllAsRead();
-        }
-        if (viewName === 'sell') loadCards();
-        if (viewName === 'withdraw') loadUserAccounts();
-    }
-
-    function navigateTo(page) {
-        window.location.href = page;
-    }
-
-    function showWallet() {
-        showView('home');
-        setTimeout(() => {
-            document.querySelector('.wallet-container').scrollIntoView({ behavior: 'smooth' });
-        }, 100);
-    }
-
-    // ========== DONNÉES UTILISATEUR ==========
-    function loadUserData() {
-        db.collection('users').doc(currentUser.uid).onSnapshot((doc) => {
+    function loadMenuData() {
+        if (!currentUser) return;
+        db.collection('users').doc(currentUser.uid).get().then(doc => {
             if (doc.exists) {
                 const data = doc.data();
-                userBalance = data.balance || 0;
-                
-                document.getElementById('homeBalance').textContent = userBalance.toLocaleString() + ' FCFA';
-                document.getElementById('homeGifts').textContent = data.giftCount || 0;
-                document.getElementById('homeReferrals').textContent = data.referralCount || 0;
-                document.getElementById('homeEarnings').textContent = (data.referralEarnings || 0).toLocaleString() + ' FCFA';
-                document.getElementById('balanceAmount').textContent = userBalance.toLocaleString();
-                document.getElementById('withdrawBalance').textContent = userBalance.toLocaleString() + ' FCFA';
-                
-                const goal = 100000;
-                const percentage = (userBalance / goal) * 100;
-                document.getElementById('progressFill').style.width = Math.min(percentage, 100) + '%';
+                document.getElementById('menuName').innerText = data.name || currentUser.displayName || 'Utilisateur';
+                document.getElementById('menuEmail').innerText = currentUser.email;
+                const avatar = document.getElementById('menuAvatar');
+                if (currentUser.photoURL) {
+                    avatar.innerHTML = `<img src="${currentUser.photoURL}" style="width:100%;height:100%;object-fit:cover;">`;
+                } else {
+                    const letter = (data.name || currentUser.email).charAt(0).toUpperCase();
+                    avatar.innerHTML = `<span>${letter}</span>`;
+                }
             }
         });
     }
@@ -1881,749 +1107,454 @@
         const hour = new Date().getHours();
         let greeting = 'Bonjour';
         if (hour >= 18) greeting = 'Bonsoir';
-        else if (hour >= 12) greeting = 'Bon après-midi';
-        
-        document.getElementById('welcomeUser').textContent = `${greeting}, ${currentUser.displayName || currentUser.email}`;
+        document.getElementById('welcomeUser').innerText = `${greeting}, ${currentUser.displayName || currentUser.email}`;
+    }
+
+    // ========== GESTION DES VUES ==========
+    function showView(viewName) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('view' + viewName.charAt(0).toUpperCase() + viewName.slice(1)).classList.add('active');
+        currentView = viewName;
+
+        // Mettre à jour la navigation
+        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+        if (viewName === 'home') document.querySelectorAll('.nav-link')[0].classList.add('active');
+        else if (viewName === 'vendre') document.querySelectorAll('.nav-link')[1].classList.add('active');
+        else if (viewName === 'acheter') document.querySelectorAll('.nav-link')[2].classList.add('active');
+        else if (viewName === 'orders') document.querySelectorAll('.nav-link')[3].classList.add('active');
+
+        // Charger les données si nécessaire
+        if (viewName === 'orders') loadOrders();
+        if (viewName === 'notifications') loadNotifications();
+        if (viewName === 'historique') loadFullHistory();
+        if (viewName === 'cadeaux') loadGifts();
+        if (viewName === 'parrainage') loadReferral();
+        if (viewName === 'profil') loadProfil();
+    }
+
+    // ========== MENU ==========
+    function toggleMenu() {
+        document.getElementById('sideMenu').classList.toggle('open');
+        document.getElementById('menuBlur').classList.toggle('open');
+    }
+
+    // ========== THÈME ==========
+    function toggleTheme() {
+        document.body.classList.toggle('dark-theme');
     }
 
     // ========== WALLET ==========
     function toggleBalance() {
         hiddenBalance = !hiddenBalance;
-        const amountDisplay = document.getElementById('balanceAmount');
-        const eyeIcon = document.getElementById('eyeIcon');
-        
+        const el = document.getElementById('balanceAmount');
+        const icon = document.getElementById('eyeIcon');
         if (hiddenBalance) {
-            amountDisplay.innerText = "••••••";
-            eyeIcon.setAttribute('data-lucide', 'eye-off');
+            el.innerText = '••••••';
+            icon.setAttribute('data-lucide', 'eye-off');
         } else {
-            amountDisplay.innerText = userBalance.toLocaleString();
-            eyeIcon.setAttribute('data-lucide', 'eye');
+            el.innerText = userBalance.toLocaleString();
+            icon.setAttribute('data-lucide', 'eye');
         }
         lucide.createIcons();
+    }
+
+    function toggleWalletBalance() {
+        hiddenWalletBalance = !hiddenWalletBalance;
+        const el = document.getElementById('walletBalance');
+        const icon = document.getElementById('walletEyeIcon');
+        if (hiddenWalletBalance) {
+            el.innerText = '••••••';
+            icon.setAttribute('data-lucide', 'eye-off');
+        } else {
+            el.innerText = userBalance.toLocaleString();
+            icon.setAttribute('data-lucide', 'eye');
+        }
+        lucide.createIcons();
+    }
+
+    // ========== TRANSACTIONS RÉCENTES ==========
+    function loadTransactions() {
+        db.collection('transactions')
+            .where('userId', '==', currentUser.uid)
+            .orderBy('timestamp', 'desc')
+            .limit(5)
+            .onSnapshot(snapshot => {
+                let html = '';
+                snapshot.forEach(doc => {
+                    const tx = doc.data();
+                    const date = tx.timestamp?.toDate() || new Date();
+                    const isPos = tx.type === 'deposit' || tx.type === 'recharge' || tx.type === 'gift_received';
+                    html += `<div class="transaction-item"><div class="transaction-left"><div class="transaction-icon"><i data-lucide="${getTxIcon(tx.type)}"></i></div><div class="transaction-info"><span class="transaction-title">${tx.description || tx.type}</span><span class="transaction-date">${formatDate(date)}</span></div></div><span class="transaction-amount ${isPos ? 'amount-positive' : 'amount-negative'}">${isPos ? '+' : '-'} ${Math.abs(tx.amount).toLocaleString()} FCFA</span></div>`;
+                });
+                document.getElementById('transactionsList').innerHTML = html || '<div class="empty-state">Aucune transaction</div>';
+                lucide.createIcons();
+            });
+    }
+
+    function getTxIcon(type) {
+        const map = { deposit: 'arrow-down', withdraw: 'arrow-up', recharge: 'plus-circle', purchase: 'shopping-cart', sale: 'badge-dollar-sign', gift: 'gift' };
+        return map[type] || 'circle';
+    }
+
+    function formatDate(date) {
+        const diff = Date.now() - date;
+        if (diff < 60000) return 'À l\'instant';
+        if (diff < 3600000) return `Il y a ${Math.floor(diff/60000)} min`;
+        if (diff < 86400000) return `Il y a ${Math.floor(diff/3600000)}h`;
+        return date.toLocaleDateString('fr-FR');
     }
 
     // ========== COMMANDES ==========
-    function loadOrders() {
-        let query = db.collection('sales')
-            .where('userId', '==', currentUser.uid)
-            .orderBy('timestamp', 'desc')
-            .limit(20);
-
-        query.onSnapshot((snapshot) => {
-            displayOrders(snapshot);
-        });
-    }
-
+    let currentOrderFilter = 'all';
     function filterOrders(filter) {
         currentOrderFilter = filter;
-        
-        document.querySelectorAll('.filter-chip').forEach(chip => {
-            chip.classList.remove('active');
-        });
-        event.currentTarget.classList.add('active');
-        
-        let query = db.collection('sales')
-            .where('userId', '==', currentUser.uid)
-            .orderBy('timestamp', 'desc')
-            .limit(20);
-
-        query.onSnapshot((snapshot) => {
-            displayOrders(snapshot, filter);
-        });
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        loadOrders();
     }
 
-    function displayOrders(snapshot, filter = 'all') {
-        const ordersList = document.getElementById('ordersList');
-        
-        if (snapshot.empty) {
-            ordersList.innerHTML = `
-                <div class="empty-state">
-                    <i data-lucide="package" size="40"></i>
-                    <p>Aucune commande pour le moment</p>
-                </div>
-            `;
+    function loadOrders() {
+        let query = db.collection('sales').where('userId', '==', currentUser.uid).orderBy('timestamp', 'desc');
+        query.onSnapshot(snapshot => {
+            let html = '';
+            snapshot.forEach(doc => {
+                const order = doc.data();
+                if (currentOrderFilter !== 'all' && order.status !== currentOrderFilter) return;
+                const date = order.timestamp?.toDate() || new Date();
+                const statusClass = order.status === 'approved' ? 'status-approved' : order.status === 'pending' ? 'status-pending' : order.status === 'refunded' ? 'status-refunded' : 'status-rejected';
+                const statusText = order.status === 'approved' ? '✓ Approuvé' : order.status === 'pending' ? '⏳ En attente' : order.status === 'refunded' ? '↺ Remboursé' : '✗ Refusé';
+                html += `<div class="order-item"><div class="order-icon"><i data-lucide="trending-up"></i></div><div class="order-info"><span class="order-title">${order.cardName}</span><span class="order-date">${formatDate(date)}</span></div><div><span class="order-amount">${order.received?.toLocaleString()} FCFA</span><span class="status-badge ${statusClass}">${statusText}</span></div></div>`;
+            });
+            document.getElementById('ordersList').innerHTML = html || '<div class="empty-state">Aucune commande</div>';
             lucide.createIcons();
-            return;
-        }
-
-        let html = '';
-        snapshot.forEach(doc => {
-            const order = doc.data();
-            
-            if (filter !== 'all' && order.status !== filter) return;
-            
-            const date = order.timestamp?.toDate() || new Date();
-            const statusColors = {
-                'approved': 'status-approved',
-                'pending': 'status-pending',
-                'refunded': 'status-refunded',
-                'rejected': 'status-rejected'
-            };
-            const statusTexts = {
-                'approved': '✓ Approuvé',
-                'pending': '⏳ En attente',
-                'refunded': '↺ Remboursé',
-                'rejected': '✗ Refusé'
-            };
-
-            html += `
-                <div class="order-item">
-                    <div class="order-icon">
-                        <i data-lucide="${order.type === 'sale' ? 'trending-up' : 'shopping-cart'}"></i>
-                    </div>
-                    <div class="order-info">
-                        <div class="order-title">${order.cardName || 'Carte'}</div>
-                        <div class="order-meta">
-                            <span>${formatDate(date)}</span>
-                            <span>${order.type === 'sale' ? 'Vente' : 'Achat'}</span>
-                        </div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div class="order-amount">${(order.received || order.amount).toLocaleString()} FCFA</div>
-                        <div class="status-badge ${statusColors[order.status]}">${statusTexts[order.status]}</div>
-                    </div>
-                </div>
-            `;
         });
-
-        if (html === '') {
-            html = `
-                <div class="empty-state">
-                    <i data-lucide="filter" size="40"></i>
-                    <p>Aucune commande avec ce filtre</p>
-                </div>
-            `;
-        }
-
-        ordersList.innerHTML = html;
-        lucide.createIcons();
     }
 
     // ========== NOTIFICATIONS ==========
-    function setupRealtimeListeners() {
-        db.collection('notifications')
-            .where('userId', '==', currentUser.uid)
-            .orderBy('timestamp', 'desc')
-            .limit(20)
-            .onSnapshot((snapshot) => {
-                updateNotificationBadge(snapshot);
-                if (currentView === 'notifications') {
-                    displayNotifications(snapshot);
-                }
-            });
-
-        listenForReferralEvents();
-        listenForPromotions();
-    }
-
     function loadNotifications() {
-        db.collection('notifications')
-            .where('userId', '==', currentUser.uid)
-            .orderBy('timestamp', 'desc')
-            .limit(50)
-            .onSnapshot((snapshot) => {
-                displayNotifications(snapshot);
+        db.collection('notifications').where('userId', '==', currentUser.uid).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+            let unread = 0;
+            let html = '';
+            snapshot.forEach(doc => {
+                const notif = doc.data();
+                if (!notif.read) unread++;
+                const date = notif.timestamp?.toDate() || new Date();
+                html += `<div class="notification-item ${notif.read ? '' : 'unread'}" onclick="markNotifRead('${doc.id}')"><div class="notification-icon icon-${notif.type}"><i data-lucide="${getNotifIcon(notif.type)}"></i></div><div class="notification-content"><span class="notification-title">${notif.title}</span><span class="notification-message">${notif.message}</span><span class="notification-time">${formatDate(date)}</span></div></div>`;
             });
-    }
-
-    function displayNotifications(snapshot) {
-        const notificationsList = document.getElementById('notificationsList');
-        
-        if (snapshot.empty) {
-            notificationsList.innerHTML = `
-                <div class="empty-state">
-                    <i data-lucide="bell-off" size="40"></i>
-                    <p>Aucune notification</p>
-                </div>
-            `;
+            document.getElementById('notificationsList').innerHTML = html || '<div class="empty-state">Aucune notification</div>';
+            document.getElementById('notificationBadge').innerText = unread;
+            document.getElementById('notificationBadge').style.display = unread ? 'block' : 'none';
             lucide.createIcons();
-            return;
-        }
-
-        let html = '';
-        snapshot.forEach(doc => {
-            const notif = doc.data();
-            const date = notif.timestamp?.toDate() || new Date();
-            const isUnread = !notif.read;
-
-            const iconClasses = {
-                'promo': 'icon-promo',
-                'gift': 'icon-gift',
-                'referral': 'icon-referral',
-                'sale': 'icon-sale'
-            };
-
-            html += `
-                <div class="notification-item ${isUnread ? 'unread' : ''}" onclick="markAsRead('${doc.id}')">
-                    <div class="notification-icon ${iconClasses[notif.type] || 'icon-sale'}">
-                        <i data-lucide="${getNotificationIcon(notif.type)}" size="20"></i>
-                    </div>
-                    <div class="notification-content">
-                        <div class="notification-title">${notif.title}</div>
-                        <div class="notification-message">${notif.message}</div>
-                        <div class="notification-time">${formatDate(date)}</div>
-                    </div>
-                    ${isUnread ? '<div class="unread-dot"></div>' : ''}
-                </div>
-            `;
         });
-
-        notificationsList.innerHTML = html;
-        lucide.createIcons();
     }
 
-    function getNotificationIcon(type) {
-        const icons = {
-            'promo': 'tag',
-            'gift': 'gift',
-            'referral': 'users',
-            'sale': 'shopping-bag',
-            'bonus': 'star'
+    function getNotifIcon(type) {
+        return { promo: 'tag', gift: 'gift', referral: 'users', sale: 'shopping-bag' }[type] || 'bell';
+    }
+
+    function markNotifRead(id) {
+        db.collection('notifications').doc(id).update({ read: true });
+    }
+
+    // ========== COMPTES (moyens de paiement) ==========
+    function loadAccounts() {
+        db.collection('users').doc(currentUser.uid).collection('paymentMethods').onSnapshot(snapshot => {
+            let html = '';
+            snapshot.forEach(doc => {
+                const acc = doc.data();
+                html += `<div class="account-item"><img src="${getAccountIcon(acc.type)}" class="account-icon"><div class="account-details"><span class="account-name">${acc.name || acc.type}</span><span class="account-number">${maskNumber(acc.number)}</span></div><button class="delete-btn" onclick="deleteAccount('${doc.id}')">✕</button></div>`;
+            });
+            document.getElementById('accountsContainer').innerHTML = html || '<p>Aucun compte</p>';
+            lucide.createIcons();
+        });
+    }
+
+    function getAccountIcon(type) {
+        const map = {
+            carte: 'https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/eef31e83-7616-4491-a9a6-06730c0b9d27.jpg',
+            paypal: 'https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/b8d06d9a-4981-480e-aa82-5a5303405121.jpg',
+            orange: 'https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/afb1295e-8769-4c03-a67e-25ed4a568dd9.jpg',
+            mtn: 'https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/0b009beb-4e04-43e9-9de5-5a71c0b25e19.jpg',
+            moov: 'https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/ddf26487-f953-441c-8e21-3b5011212ecc.jpg',
+            wave: 'https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/c22b5c6e-a563-4822-ab7e-1483589ea6c8.jpg'
         };
-        return icons[type] || 'bell';
+        return map[acc.type] || '';
     }
 
-    function updateNotificationBadge(snapshot) {
-        unreadCount = 0;
-        snapshot.forEach(doc => {
-            if (!doc.data().read) unreadCount++;
-        });
-        
-        const badge = document.getElementById('notificationBadge');
-        badge.textContent = unreadCount;
-        badge.style.display = unreadCount > 0 ? 'block' : 'none';
+    function maskNumber(num) {
+        if (!num) return '';
+        if (num.includes('@')) return num;
+        return '•••• ' + num.slice(-4);
     }
 
-    function markAsRead(notificationId) {
-        db.collection('notifications').doc(notificationId).update({
-            read: true
-        });
-    }
-
-    function markAllAsRead() {
-        const batch = db.batch();
-        db.collection('notifications')
-            .where('userId', '==', currentUser.uid)
-            .where('read', '==', false)
-            .get()
-            .then((snapshot) => {
-                snapshot.forEach(doc => {
-                    batch.update(doc.ref, { read: true });
-                });
-                batch.commit();
-            });
-    }
-
-    function listenForReferralEvents() {
-        db.collection('sales')
-            .where('referrerId', '==', currentUser.uid)
-            .onSnapshot((snapshot) => {
-                snapshot.forEach((change) => {
-                    if (change.type === 'added') {
-                        const sale = change.data();
-                        createNotification({
-                            type: 'referral',
-                            title: '💰 Commission de parrainage',
-                            message: `Votre filleul a vendu une carte ${sale.cardName}. +250 FCFA !`,
-                            data: { saleId: change.id, amount: 250 }
-                        });
-                    }
-                });
-            });
-    }
-
-    function listenForPromotions() {
-        db.collection('promotions')
-            .where('active', '==', true)
-            .onSnapshot((snapshot) => {
-                snapshot.forEach((change) => {
-                    if (change.type === 'added') {
-                        const promo = change.data();
-                        createNotification({
-                            type: 'promo',
-                            title: '🎉 Promotion spéciale',
-                            message: promo.message,
-                            data: { promoId: change.id }
-                        });
-                    }
-                });
-            });
-    }
-
-    async function createNotification(notif) {
-        await db.collection('notifications').add({
-            userId: currentUser.uid,
-            ...notif,
-            read: false,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-    }
-
-    // ========== GESTION DES CARTES (VENDE) ==========
-    async function loadCards() {
-        try {
-            const snapshot = await db.collection('cards').get();
-            
-            if (snapshot.empty) {
-                await loadDefaultCards();
-            } else {
-                availableCards = [];
-                snapshot.forEach(doc => {
-                    availableCards.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
-                });
-            }
-
-            displayCardsList();
-        } catch (error) {
-            console.error('Erreur chargement cartes:', error);
+    function deleteAccount(id) {
+        if (confirm('Supprimer ?')) {
+            db.collection('users').doc(currentUser.uid).collection('paymentMethods').doc(id).delete();
         }
     }
 
-    async function loadDefaultCards() {
-        const defaultCards = [
-            { name: 'Netflix', logo: 'https://via.placeholder.com/50', rate: 80, category: 'Streaming', active: true },
-            { name: 'Amazon', logo: 'https://via.placeholder.com/50', rate: 85, category: 'Shopping', active: true },
-            { name: 'PlayStation', logo: 'https://via.placeholder.com/50', rate: 75, category: 'Jeux', active: true },
-            { name: 'Apple', logo: 'https://via.placeholder.com/50', rate: 82, category: 'Applications', active: true },
-            { name: 'Google Play', logo: 'https://via.placeholder.com/50', rate: 78, category: 'Applications', active: true }
-        ];
+    function showAccountForm(type) {
+        // Implémentez le formulaire d'ajout selon le type
+        alert('Formulaire d\'ajout pour ' + type);
+    }
 
-        const batch = db.batch();
-        defaultCards.forEach(card => {
-            const docRef = db.collection('cards').doc();
-            batch.set(docRef, card);
+    // ========== RETRAIT ==========
+    function setWithdrawAmount(amount) {
+        document.getElementById('withdrawAmount').value = amount;
+        calculateWithdraw();
+    }
+
+    function calculateWithdraw() {
+        const amount = parseFloat(document.getElementById('withdrawAmount').value) || 0;
+        const fee = Math.min(amount * 0.02, 500);
+        const net = amount - fee;
+        document.getElementById('withdrawFeeInfo').innerText = `Frais: ${fee.toLocaleString()} FCFA • Net reçu: ${net.toLocaleString()} FCFA`;
+        document.getElementById('withdrawBtn').disabled = !(amount > 0 && amount <= userBalance && currentWithdrawAccount);
+    }
+
+    function processWithdraw() {
+        // Implémentez la logique de retrait
+        alert('Retrait en cours...');
+    }
+
+    // ========== VENDRE ==========
+    function loadSellCards() {
+        db.collection('cards').get().then(snapshot => {
+            availableCards = [];
+            snapshot.forEach(doc => availableCards.push({ id: doc.id, ...doc.data() }));
+            renderSellCards();
         });
-        await batch.commit();
-
-        availableCards = defaultCards;
     }
 
-    function displayCardsList() {
+    function renderSellCards() {
         const list = document.getElementById('sellCardsList');
-        
-        list.innerHTML = availableCards.map(card => `
-            <div class="dropdown-item" onclick="selectSellCard('${card.id}')">
-                <img src="${card.logo || 'https://via.placeholder.com/30'}" alt="${card.name}">
-                <div class="item-info">
-                    <div class="item-name">${card.name}</div>
-                    <div class="item-rate">Taux: ${card.rate}%</div>
-                </div>
-                <span class="rate-badge">×${(card.rate/100).toFixed(2)}</span>
-            </div>
-        `).join('');
-
-        lucide.createIcons();
+        list.innerHTML = availableCards.map(c => `<div class="dropdown-item" onclick="selectSellCard('${c.id}')"><img src="${c.logo}"><span>${c.name} (${c.rate}%)</span></div>`).join('');
     }
 
-    function selectSellCard(cardId) {
-        selectedCard = availableCards.find(c => c.id === cardId);
-        
-        document.getElementById('sellSelectedCardPreview').style.display = 'flex';
-        document.getElementById('sellSelectedCardLogo').src = selectedCard.logo || 'https://via.placeholder.com/50';
-        document.getElementById('sellSelectedCardName').textContent = selectedCard.name;
-        document.getElementById('sellSelectedCardRate').textContent = selectedCard.rate + '%';
-        document.getElementById('sellSelectedCardBadge').textContent = '×' + (selectedCard.rate/100).toFixed(2);
-        
-        document.getElementById('sellDropdownText').innerHTML = `
-            <img src="${selectedCard.logo}" style="width: 20px; height: 20px; border-radius: 4px; margin-right: 5px;">
-            ${selectedCard.name}
-        `;
-        
+    function selectSellCard(id) {
+        selectedSellCard = availableCards.find(c => c.id === id);
+        document.getElementById('sellSelectedPreview').style.display = 'flex';
+        document.getElementById('sellSelectedLogo').src = selectedSellCard.logo;
+        document.getElementById('sellSelectedName').innerText = selectedSellCard.name;
+        document.getElementById('sellSelectedRate').innerText = selectedSellCard.rate + '%';
+        document.getElementById('sellSelectedBadge').innerText = '×' + (selectedSellCard.rate/100).toFixed(2);
+        document.getElementById('sellDropdownText').innerHTML = `<img src="${selectedSellCard.logo}" style="width:20px;"> ${selectedSellCard.name}`;
         toggleSellDropdown();
-        calculateSellAmount();
+        calculateSell();
     }
 
     function toggleSellDropdown() {
         const list = document.getElementById('sellCardsList');
         list.classList.toggle('open');
-        const icon = document.getElementById('sellDropdownIcon');
-        icon.setAttribute('data-lucide', list.classList.contains('open') ? 'chevron-up' : 'chevron-down');
-        lucide.createIcons();
     }
 
-    // Upload d'image pour vente
-    function triggerSellFileInput() {
-        document.getElementById('sellFileInput').click();
-    }
+    function triggerSellFileInput() { document.getElementById('sellFileInput').click(); }
+    function takeSellPhoto() { /* à implémenter */ }
+    function selectSellGallery() { /* à implémenter */ }
 
-    function takeSellPhoto() {
-        const input = document.getElementById('sellFileInput');
-        input.capture = 'environment';
-        input.click();
-    }
-
-    function selectSellFromGallery() {
-        const input = document.getElementById('sellFileInput');
-        input.capture = '';
-        input.click();
-    }
-
-    document.getElementById('sellFileInput').addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            document.getElementById('sellPreviewImg').src = e.target.result;
-            document.getElementById('sellPreviewImg').style.display = 'block';
-            document.getElementById('sellUploadPlaceholder').style.display = 'none';
-        };
-        reader.readAsDataURL(file);
-    });
-
-    function calculateSellAmount() {
+    function calculateSell() {
         const amount = parseFloat(document.getElementById('sellAmount').value) || 0;
-        
-        if (!selectedCard || amount === 0) {
-            document.getElementById('sellCalculationBox').style.display = 'none';
-            return;
-        }
-
-        const rate = selectedCard.rate / 100;
+        if (!selectedSellCard || amount === 0) { document.getElementById('sellCalc').style.display = 'none'; return; }
+        const rate = selectedSellCard.rate / 100;
         const fee = Math.min(amount * 0.02, 500);
-        const received = (amount * rate) - fee;
-
-        document.getElementById('sellCalculationBox').style.display = 'block';
-        document.getElementById('sellDisplayAmount').textContent = amount.toLocaleString() + ' FCFA';
-        document.getElementById('sellDisplayRate').textContent = selectedCard.rate + '%';
-        document.getElementById('sellDisplayFee').textContent = fee.toLocaleString() + ' FCFA';
-        document.getElementById('sellDisplayTotal').textContent = Math.max(0, received).toLocaleString() + ' FCFA';
-
-        checkSellButton();
+        const received = amount * rate - fee;
+        document.getElementById('sellCalc').style.display = 'block';
+        document.getElementById('sellCalc').innerHTML = `<div class="calc-row"><span>Valeur:</span><span>${amount.toLocaleString()} FCFA</span></div><div class="calc-row"><span>Taux:</span><span>${selectedSellCard.rate}%</span></div><div class="calc-row"><span>Frais:</span><span>${fee.toLocaleString()} FCFA</span></div><div class="calc-total"><span>Vous recevez:</span><span>${received.toLocaleString()} FCFA</span></div>`;
+        document.getElementById('sellBtn').disabled = !(amount > 0 && document.getElementById('sellCode').value.length >= 4);
     }
 
-    function checkSellButton() {
-        const amount = parseFloat(document.getElementById('sellAmount').value) || 0;
-        const code = document.getElementById('sellCode').value;
-        
-        document.getElementById('sellBtn').disabled = !(selectedCard && amount > 0 && code.length >= 10);
+    function scanSellCode() { alert('Scan à implémenter'); }
+
+    function processSell() {
+        // Enregistrer la vente
+        alert('Vente enregistrée');
     }
 
-    function scanSellCode() {
-        alert('Fonction de scan à implémenter avec API de reconnaissance');
-    }
-
-    async function processSell() {
-        const amount = parseFloat(document.getElementById('sellAmount').value);
-        const code = document.getElementById('sellCode').value;
-        const rate = selectedCard.rate / 100;
-        const fee = Math.min(amount * 0.02, 500);
-        const received = (amount * rate) - fee;
-
-        try {
-            await db.collection('sales').add({
-                userId: currentUser.uid,
-                cardId: selectedCard.id,
-                cardName: selectedCard.name,
-                cardLogo: selectedCard.logo,
-                amount: amount,
-                rate: selectedCard.rate,
-                fee: fee,
-                received: received,
-                code: code,
-                type: 'sale',
-                status: 'pending',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    function loadSellHistory() {
+        db.collection('sales').where('userId', '==', currentUser.uid).orderBy('timestamp', 'desc').limit(5).onSnapshot(snapshot => {
+            let html = '';
+            snapshot.forEach(doc => {
+                const s = doc.data();
+                html += `<div class="history-item"><img src="${s.cardLogo}" class="history-icon"><div class="history-info"><span class="history-name">${s.cardName}</span><span class="history-date">${formatDate(s.timestamp?.toDate())}</span></div><span class="history-amount">+${s.received.toLocaleString()} FCFA</span><span class="status-badge ${s.status === 'approved' ? 'status-approved' : 'status-pending'}">${s.status}</span></div>`;
             });
-
-            alert('✅ Vente enregistrée ! En attente de vérification.');
-            
-            document.getElementById('sellAmount').value = '';
-            document.getElementById('sellCode').value = '';
-            document.getElementById('sellSelectedCardPreview').style.display = 'none';
-            document.getElementById('sellCalculationBox').style.display = 'none';
-            document.getElementById('sellPreviewImg').style.display = 'none';
-            document.getElementById('sellUploadPlaceholder').style.display = 'block';
-            document.getElementById('sellDropdownText').innerHTML = 'Choisir une carte';
-            selectedCard = null;
-
-        } catch (error) {
-            alert('❌ Erreur: ' + error.message);
-        }
-    }
-
-    // ========== GESTION DES COMPTES ==========
-    function loadUserAccounts() {
-        db.collection('users').doc(currentUser.uid).collection('paymentMethods')
-            .onSnapshot((snapshot) => {
-                userAccounts = [];
-                const accountsList = document.getElementById('withdrawAccountsList');
-                
-                if (snapshot.empty) {
-                    accountsList.innerHTML = `
-                        <div class="empty-state">
-                            <i data-lucide="credit-card" size="40"></i>
-                            <p>Aucun compte enregistré</p>
-                        </div>
-                    `;
-                    lucide.createIcons();
-                    return;
-                }
-
-                let html = '';
-                snapshot.forEach(doc => {
-                    const account = { id: doc.id, ...doc.data() };
-                    userAccounts.push(account);
-                    
-                    html += `
-                        <div class="account-option" onclick="selectWithdrawAccount('${doc.id}')">
-                            <img src="${getAccountIcon(account.type)}" style="width:40px; height:40px; border-radius:10px; margin-right:12px;">
-                            <div class="account-info">
-                                <div class="account-name">${account.name || account.type}</div>
-                                <div class="account-number">${maskNumber(account.number)}</div>
-                            </div>
-                            <div class="radio-indicator"></div>
-                        </div>
-                    `;
-                });
-
-                accountsList.innerHTML = html;
-                lucide.createIcons();
-            });
-    }
-
-    function selectWithdrawAccount(accountId) {
-        selectedAccount = userAccounts.find(a => a.id === accountId);
-        
-        document.querySelectorAll('.account-option').forEach(opt => {
-            opt.classList.remove('selected');
+            document.getElementById('sellHistory').innerHTML = html || '<div class="empty-state">Aucune vente</div>';
         });
-        event.currentTarget.classList.add('selected');
-        
-        calculateWithdraw();
     }
 
-    function getAccountIcon(type) {
-        const icons = {
-            'carte': 'https://via.placeholder.com/40',
-            'paypal': 'https://via.placeholder.com/40',
-            'orange': 'https://via.placeholder.com/40',
-            'mtn': 'https://via.placeholder.com/40',
-            'wave': 'https://via.placeholder.com/40'
-        };
-        return icons[type] || icons.carte;
-    }
-
-    function maskNumber(number) {
-        if (!number) return '';
-        if (number.includes('@')) return number;
-        return '•••• ' + number.slice(-4);
-    }
-
-    function calculateWithdraw() {
-        const amount = parseFloat(document.getElementById('withdrawAmount').value) || 0;
-        
-        if (!selectedAccount || amount === 0) {
-            document.getElementById('withdrawCalculationBox').style.display = 'none';
-            document.getElementById('withdrawBtn').disabled = true;
-            return;
-        }
-
-        const fee = Math.min(amount * 0.02, 500);
-        const net = amount - fee;
-
-        document.getElementById('withdrawCalculationBox').style.display = 'block';
-        document.getElementById('withdrawRequestAmount').textContent = amount.toLocaleString() + ' FCFA';
-        document.getElementById('withdrawFee').textContent = fee.toLocaleString() + ' FCFA';
-        document.getElementById('withdrawNet').textContent = net.toLocaleString() + ' FCFA';
-
-        document.getElementById('withdrawBtn').disabled = amount > userBalance;
-    }
-
-    async function processWithdraw() {
-        if (!selectedAccount) {
-            alert('Sélectionnez un compte');
-            return;
-        }
-
-        const amount = parseFloat(document.getElementById('withdrawAmount').value);
-        
-        if (amount > userBalance) {
-            alert('Solde insuffisant');
-            return;
-        }
-
-        const fee = Math.min(amount * 0.02, 500);
-        const net = amount - fee;
-
-        try {
-            await db.collection('transactions').add({
-                userId: currentUser.uid,
-                type: 'withdraw',
-                amount: -amount,
-                fee: fee,
-                netAmount: -net,
-                accountId: selectedAccount.id,
-                accountType: selectedAccount.type,
-                status: 'pending',
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            await db.collection('users').doc(currentUser.uid).update({
-                balance: firebase.firestore.FieldValue.increment(-amount)
-            });
-
-            alert('✅ Demande de retrait envoyée');
-            
-            document.getElementById('withdrawAmount').value = '';
-            document.getElementById('withdrawCalculationBox').style.display = 'none';
-            selectedAccount = null;
-
-        } catch (error) {
-            alert('❌ Erreur: ' + error.message);
-        }
-    }
-
-    function showAddAccountForm() {
-        navigateTo('compte.html');
-    }
-
-    // ========== RECHARGES ==========
+    // ========== RECHARGER ==========
     function switchRechargeTab(tab) {
-        document.querySelectorAll('#viewRecharge .filter-chip').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        event.currentTarget.classList.add('active');
-        
+        document.querySelectorAll('#viewRecharger .recharge-tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
         document.getElementById('rechargeMoi').classList.toggle('active', tab === 'moi');
         document.getElementById('rechargeAmi').classList.toggle('active', tab === 'ami');
     }
 
-    function selectPaymentMethod(method, element) {
-        currentPaymentMethod = method;
-        document.querySelectorAll('#rechargeMoi .method-item').forEach(el => {
-            el.classList.remove('selected');
-        });
-        element.classList.add('selected');
+    function selectRechargeMethod(method, el) {
+        currentRechargeMethod = method;
+        document.querySelectorAll('#viewRecharger .method-item').forEach(i => i.classList.remove('selected'));
+        el.classList.add('selected');
     }
 
-    function calculateRecharge() {
-        const amount = parseFloat(document.getElementById('rechargeAmount').value) || 0;
-        
-        if (amount === 0) {
-            document.getElementById('rechargeCalculationBox').style.display = 'none';
-            return;
-        }
-
+    function calculateRechargeMoi() {
+        const amount = parseFloat(document.getElementById('rechargeAmountMoi').value) || 0;
         const fee = Math.min(amount * 0.02, 1000);
-        const total = amount + fee;
-
-        document.getElementById('rechargeCalculationBox').style.display = 'block';
-        document.getElementById('rechargeAmount').textContent = amount.toLocaleString() + ' FCFA';
-        document.getElementById('rechargeFee').textContent = fee.toLocaleString() + ' FCFA';
-        document.getElementById('rechargeTotal').textContent = total.toLocaleString() + ' FCFA';
+        document.getElementById('rechargeFeeMoi').innerText = `Frais: ${fee} FCFA • Total: ${amount + fee} FCFA`;
     }
 
-    function processRecharge() {
-        const amount = parseFloat(document.getElementById('rechargeAmount').value);
-        alert(`✅ Redirection vers CinetPay pour ${amount} FCFA`);
-        // xxxxxxx - Intégration CinetPay ici
+    function processRechargeMoi() {
+        alert('Redirection vers CinetPay (xxxxxxx)');
     }
 
-    function setRechargeSource(source) {
-        currentRechargeSource = source;
-        document.querySelectorAll('#rechargeAmi .filter-chip').forEach(btn => {
-            btn.classList.toggle('active', btn.textContent.includes(source === 'internal' ? 'Solde' : 'Carte'));
+    function setRechargeSource(src) {
+        currentRechargeSource = src;
+        document.querySelectorAll('#viewRecharger .source-btn').forEach(b => b.classList.toggle('active', b.innerText.includes(src === 'internal' ? 'OminiPay' : 'Externe')));
+        document.getElementById('extZone').classList.toggle('hidden', src === 'internal');
+    }
+
+    function calculateRechargeAmi() {
+        const amount = parseFloat(document.getElementById('rechargeAmountAmi').value) || 0;
+        const fee = currentRechargeSource === 'internal' ? 0 : Math.min(amount * 0.02, 1000);
+        document.getElementById('rechargeFeeAmi').innerText = `Frais: ${fee} FCFA • Total: ${amount + fee} FCFA`;
+        document.getElementById('btnAmi').disabled = !(amount > 0 && document.getElementById('recipientId').value && document.getElementById('checkAmi').checked);
+    }
+
+    function processRechargeAmi() {
+        alert('Envoi à un ami');
+    }
+
+    // ========== ACHETER (Reloadly) ==========
+    function openShopMode(mode) {
+        document.getElementById('modeSelector').style.display = 'none';
+        document.getElementById('catalogView').style.display = 'block';
+    }
+
+    function closeShopMode() {
+        document.getElementById('modeSelector').style.display = 'grid';
+        document.getElementById('catalogView').style.display = 'none';
+    }
+
+    // ========== PROFIL ==========
+    function loadProfil() {
+        document.getElementById('profilName').innerText = currentUser.displayName || '';
+        document.getElementById('profilEmail').innerText = currentUser.email || '';
+        document.getElementById('profilDisplayName').value = currentUser.displayName || '';
+    }
+
+    function updateProfil() {
+        const name = document.getElementById('profilDisplayName').value;
+        currentUser.updateProfile({ displayName: name }).then(() => {
+            db.collection('users').doc(currentUser.uid).update({ name: name });
+            alert('Profil mis à jour');
         });
     }
 
-    function calculateFriendRecharge() {
-        const amount = parseFloat(document.getElementById('friendAmount').value) || 0;
-        
-        if (amount === 0) {
-            document.getElementById('friendCalculationBox').style.display = 'none';
-            return;
-        }
-
-        const fee = currentRechargeSource === 'internal' ? 0 : Math.min(amount * 0.02, 1000);
-        const total = amount + fee;
-
-        document.getElementById('friendCalculationBox').style.display = 'block';
-        document.getElementById('friendAmount').textContent = amount.toLocaleString() + ' FCFA';
-        document.getElementById('friendFee').textContent = fee.toLocaleString() + ' FCFA';
-        document.getElementById('friendTotal').textContent = total.toLocaleString() + ' FCFA';
-
-        toggleFriendButton();
+    // ========== CADEAUX ==========
+    function loadGifts() {
+        // À implémenter
+        document.getElementById('giftsList').innerHTML = '<div class="empty-state">Aucun cadeau</div>';
     }
 
-    function toggleFriendButton() {
-        const checked = document.getElementById('friendConfirm').checked;
-        const amount = parseFloat(document.getElementById('friendAmount').value) || 0;
-        const id = document.getElementById('friendId').value;
-        
-        document.getElementById('friendBtn').disabled = !(checked && amount > 0 && id.length > 0);
-    }
-
-    async function processFriendRecharge() {
-        const amount = parseFloat(document.getElementById('friendAmount').value);
-        const id = document.getElementById('friendId').value;
-        const motif = document.getElementById('friendMotif').value;
-
-        if (currentRechargeSource === 'internal') {
-            if (amount > userBalance) {
-                alert('Solde insuffisant');
-                return;
+    // ========== PARRAINAGE ==========
+    function loadReferral() {
+        db.collection('users').doc(currentUser.uid).get().then(doc => {
+            if (doc.exists) {
+                document.getElementById('referralCount').innerText = doc.data().referralCount || 0;
+                document.getElementById('referralEarnings').innerText = (doc.data().referralEarnings || 0).toLocaleString() + ' FCFA';
+                const link = `${window.location.origin}/?ref=${currentUser.uid}`;
+                document.getElementById('referralLink').value = link;
             }
+        });
+    }
 
-            try {
-                await db.collection('transactions').add({
-                    userId: currentUser.uid,
-                    type: 'transfer_sent',
-                    amount: -amount,
-                    recipientId: id,
-                    motif: motif,
-                    status: 'approved',
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    // ========== HISTORIQUE COMPLET ==========
+    function loadFullHistory() {
+        db.collection('transactions').where('userId', '==', currentUser.uid).orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+            let html = '';
+            snapshot.forEach(doc => {
+                const tx = doc.data();
+                const date = tx.timestamp?.toDate() || new Date();
+                html += `<div class="transaction-item">...</div>`;
+            });
+            document.getElementById('fullHistoryList').innerHTML = html || '<div class="empty-state">Aucune transaction</div>';
+        });
+    }
+
+    // ========== FAQ ==========
+    function loadFaq() {
+        db.collection('faq').orderBy('order').get().then(snapshot => {
+            let html = '';
+            snapshot.forEach(doc => {
+                const item = doc.data();
+                html += `<div class="faq-item"><button class="faq-question">${item.question}</button><div class="faq-answer">${item.answer}</div></div>`;
+            });
+            document.getElementById('faqContainer').innerHTML = html;
+        });
+    }
+
+    // ========== À PROPOS ==========
+    function loadAbout() {
+        db.collection('appInfo').doc('about').get().then(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                let html = `<div class="intro-text">${data.intro}</div>`;
+                data.sections.forEach(s => {
+                    html += `<div class="section-label">${s.title}</div><div class="ui-group">`;
+                    s.items.forEach(i => html += `<div class="ui-item"><button class="ui-button">${i.title}</button><div class="ui-content">${i.description}</div></div>`);
+                    html += `</div>`;
                 });
-
-                await db.collection('users').doc(currentUser.uid).update({
-                    balance: firebase.firestore.FieldValue.increment(-amount)
-                });
-
-                alert('✅ Transfert effectué !');
-                
-                document.getElementById('friendAmount').value = '';
-                document.getElementById('friendId').value = '';
-                document.getElementById('friendMotif').value = '';
-                document.getElementById('friendConfirm').checked = false;
-                document.getElementById('friendCalculationBox').style.display = 'none';
-
-            } catch (error) {
-                alert('❌ Erreur: ' + error.message);
+                document.getElementById('aboutContent').innerHTML = html;
             }
-        } else {
-            alert(`✅ Redirection vers CinetPay pour ${amount} FCFA vers ${id}`);
-            // xxxxxxx - Intégration CinetPay ici
+        });
+    }
+
+    // ========== CONFIDENTIALITÉ ==========
+    function loadPrivacy() {
+        db.collection('appInfo').doc('privacy').get().then(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                let html = `<div class="intro-box">${data.intro}</div>`;
+                data.sections.forEach(s => {
+                    html += `<div class="section-label">${s.title}</div><div class="ui-group">`;
+                    s.items.forEach(i => html += `<div class="ui-item"><button class="ui-button">${i.question}</button><div class="ui-content">${i.answer}</div></div>`);
+                    html += `</div>`;
+                });
+                document.getElementById('privacyContent').innerHTML = html;
+            }
+        });
+    }
+
+    // ========== SÉCURITÉ ==========
+    function loadSecurity() {
+        db.collection('appInfo').doc('security').get().then(doc => {
+            if (doc.exists) {
+                const data = doc.data();
+                let html = `<div class="intro-card">${data.intro}</div>`;
+                data.sections.forEach(s => {
+                    html += `<div class="section-label">${s.title}</div><div class="ui-group">`;
+                    s.items.forEach(i => html += `<div class="ui-item"><button class="ui-button">${i.question}</button><div class="ui-content">${i.answer}</div></div>`);
+                    html += `</div>`;
+                });
+                document.getElementById('securityContent').innerHTML = html;
+            }
+        });
+    }
+
+    // ========== CONTACT ==========
+    function openMessageForm() {
+        const msg = prompt('Votre message :');
+        if (msg) {
+            db.collection('support_messages').add({
+                userId: currentUser.uid,
+                userEmail: currentUser.email,
+                message: msg,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => alert('Message envoyé'));
         }
     }
 
-    // ========== UTILITAIRES ==========
-    function formatDate(date) {
-        const now = new Date();
-        const diff = now - date;
-        
-        if (diff < 60000) return 'À l\'instant';
-        if (diff < 3600000) return `Il y a ${Math.floor(diff/60000)} min`;
-        if (diff < 86400000) return `Il y a ${Math.floor(diff/3600000)}h`;
-        if (diff < 604800000) return `Il y a ${Math.floor(diff/86400000)}j`;
-        return date.toLocaleDateString('fr-FR');
-    }
-
+    // ========== DÉCONNEXION ==========
     function logout() {
-        auth.signOut();
-        window.location.href = 'inscription.html';
-    }
-
-    function toggleTheme() {
-        document.body.classList.toggle('dark-theme');
-        const icon = document.getElementById('themeIcon');
-        if (icon) {
-            icon.setAttribute('data-lucide', document.body.classList.contains('dark-theme') ? 'sun' : 'moon');
-            lucide.createIcons();
-        }
+        auth.signOut().then(() => window.location.href = 'index.html');
     }
 
     // Initialisation des icônes
