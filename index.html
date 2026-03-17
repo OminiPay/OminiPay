@@ -344,17 +344,7 @@
         }
 
         /* ========== STYLES SPÉCIFIQUES ========== */
-        /* Inclure tous les styles des différentes pages */
-        .wallet-container, .recharge-menu, .buy-menu, .form-container, .account-selector, .image-upload-section, .cards-dropdown, .quick-actions, .stats-grid, .orders-filter, .notifications-list, .faq-group, .intro-box, .ui-group, .contact-group, .security-score, .balance-card, .quick-stats, .action-grid, .recent-transactions, .saved-accounts, .history-section, .card-selector, .selected-card-preview, .upload-buttons, .calculation-box, .filter-tabs, .transaction-detail, .cart-panel, .purchase-modal, .mode-selector, .mode-card, .search-area, #reloadlyGrid, .empty-msg, .dropdown-list, .dropdown-header, .account-option, .radio-indicator, .add-account-btn, .quick-amount, .withdraw-btn, .fee-info, .back-home, .section-label, .loader {
-            /* Les styles sont repris dans les sections ci-dessous, on les fusionnera */
-        }
-
-        /* On va importer les styles essentiels des différentes pages pour éviter les doublons */
-        /* Pour gagner de la place, je vais inclure une version condensée des styles nécessaires */
-        /* Mais dans un souci de lisibilité, je vais garder la structure et ajouter les classes manquantes */
-
-        /* ========== IMPORT DES STYLES DE TOUTES LES PAGES ========== */
-        /* Styles de l'accueil (interface.html) */
+        /* (Les styles de toutes les pages sont regroupés ici) */
         .search-bar {
             display: flex;
             align-items: center;
@@ -414,7 +404,6 @@
         .card-category { font-size: 10px; color: var(--ui-text-sub); }
         #no-result-msg { display: none; text-align: center; color: var(--ui-text-sub); margin-top: 40px; }
 
-        /* Styles de wallet */
         .wallet-container {
             background: var(--ui-card);
             border-radius: var(--ui-radius);
@@ -452,7 +441,6 @@
         .amount-positive { color: var(--ui-success); }
         .amount-negative { color: var(--ui-danger); }
 
-        /* Styles de retirer, compte, recharger, etc. */
         .form-container, .account-selector, .withdraw-form, .image-upload-section, .card-selector {
             background: var(--ui-card);
             border-radius: 30px;
@@ -562,7 +550,8 @@
     </button>
     <img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/a1b7da54-63d4-402a-bc11-1ab5aaf9206e.png" alt="OminiPay" class="logo-img">
     <div style="display: flex; gap: 5px;">
-        <button class="btn-header" onclick="showView('wallet')">
+        <!-- Correction : fermer le menu avant d'afficher le wallet -->
+        <button class="btn-header" onclick="closeMenu(); showView('wallet')">
             <i data-lucide="wallet"></i>
         </button>
         <button class="btn-header" onclick="showView('notifications')">
@@ -595,26 +584,26 @@
     <div class="menu-content">
         <div class="menu-group">
             <p class="group-title">Mon Compte</p>
-            <button class="menu-item" onclick="showView('profil')">
+            <button class="menu-item" onclick="closeMenu(); showView('profil')">
                 <div class="item-left"><i data-lucide="user"></i> Mon profil</div>
                 <div class="item-right"><i data-lucide="chevron-right"></i></div>
             </button>
-            <button class="menu-item" onclick="showView('cadeaux')">
+            <button class="menu-item" onclick="closeMenu(); showView('cadeaux')">
                 <div class="item-left"><i data-lucide="gift"></i> Mes cadeaux</div>
                 <div class="item-right"><i data-lucide="chevron-right"></i></div>
             </button>
-            <button class="menu-item" onclick="showView('parrainage')">
+            <button class="menu-item" onclick="closeMenu(); showView('parrainage')">
                 <div class="item-left"><i data-lucide="users"></i> Parrainage</div>
                 <div class="item-right"><i data-lucide="chevron-right"></i></div>
             </button>
-            <button class="menu-item" onclick="showView('historique')">
+            <button class="menu-item" onclick="closeMenu(); showView('historique')">
                 <div class="item-left"><i data-lucide="history"></i> Historique</div>
                 <div class="item-right"><i data-lucide="chevron-right"></i></div>
             </button>
         </div>
         <div class="menu-group">
             <p class="group-title">Préférences</p>
-            <button class="menu-item" onclick="showView('parametres')">
+            <button class="menu-item" onclick="closeMenu(); showView('parametres')">
                 <div class="item-left"><i data-lucide="settings"></i> Paramètres</div>
                 <div class="item-right"><i data-lucide="chevron-right"></i></div>
             </button>
@@ -622,26 +611,26 @@
                 <div class="item-left"><i data-lucide="moon"></i> Mode Sombre</div>
                 <div class="item-right"><div class="switch" style="width:40px;height:22px;background:#ccc;border-radius:20px;"></div></div>
             </button>
-            <button class="menu-item" onclick="showView('langue')">
+            <button class="menu-item" onclick="closeMenu(); showView('langue')">
                 <div class="item-left"><i data-lucide="languages"></i> Langue</div>
                 <div class="item-right">Français</div>
             </button>
         </div>
         <div class="menu-group">
             <p class="group-title">Assistance & Légal</p>
-            <button class="menu-item" onclick="showView('faq')">
+            <button class="menu-item" onclick="closeMenu(); showView('faq')">
                 <div class="item-left"><i data-lucide="help-circle"></i> FAQ</div>
             </button>
-            <button class="menu-item" onclick="showView('contact')">
+            <button class="menu-item" onclick="closeMenu(); showView('contact')">
                 <div class="item-left"><i data-lucide="mail"></i> Contact</div>
             </button>
-            <button class="menu-item" onclick="showView('apropos')">
+            <button class="menu-item" onclick="closeMenu(); showView('apropos')">
                 <div class="item-left"><i data-lucide="info"></i> À propos</div>
             </button>
-            <button class="menu-item" onclick="showView('confidentialite')">
+            <button class="menu-item" onclick="closeMenu(); showView('confidentialite')">
                 <div class="item-left"><i data-lucide="shield-check"></i> Confidentialité</div>
             </button>
-            <button class="menu-item" onclick="showView('securite')">
+            <button class="menu-item" onclick="closeMenu(); showView('securite')">
                 <div class="item-left"><i data-lucide="lock"></i> Sécurité</div>
             </button>
         </div>
@@ -658,7 +647,6 @@
 <main class="main-content" id="mainContent">
     <!-- VUE ACCUEIL -->
     <div id="viewHome" class="view active">
-        <!-- Ici on met le contenu de l'interface principale (accueil) -->
         <div class="welcome-card" style="background:var(--ui-card); border-radius:30px; padding:25px; margin-bottom:20px;">
             <div class="welcome-title" style="font-size:22px; font-weight:700;">Bienvenue sur OminiPay</div>
             <div class="welcome-subtitle" id="welcomeUser">Chargement...</div>
@@ -743,9 +731,8 @@
         <div id="notificationsList" class="notifications-list"><div class="loader"></div></div>
     </div>
 
-    <!-- VUE WALLET -->
+    <!-- VUE WALLET (complète) -->
     <div id="viewWallet" class="view">
-        <!-- Même contenu que le wallet intégré dans l'accueil, mais en version complète -->
         <div class="wallet-container">
             <div class="balance-section">
                 <div class="balance-label">Solde OminiPay</div>
@@ -811,7 +798,6 @@
             <div id="accountsContainer"></div>
         </div>
         <div class="payment-menu" style="display:flex; flex-direction:column; gap:12px;">
-            <!-- Les boutons des méthodes -->
             <div class="method-btn" onclick="showAccountForm('carte')"><img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/eef31e83-7616-4491-a9a6-06730c0b9d27.jpg"><span>Carte Bancaire</span><i data-lucide="chevron-right"></i></div>
             <div class="method-btn" onclick="showAccountForm('paypal')"><img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/b8d06d9a-4981-480e-aa82-5a5303405121.jpg"><span>PayPal</span><i data-lucide="chevron-right"></i></div>
             <div class="method-btn" onclick="showAccountForm('orange')"><img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/afb1295e-8769-4c03-a67e-25ed4a568dd9.jpg"><span>Orange Money</span><i data-lucide="chevron-right"></i></div>
@@ -819,13 +805,12 @@
             <div class="method-btn" onclick="showAccountForm('moov')"><img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/ddf26487-f953-441c-8e21-3b5011212ecc.jpg"><span>Moov Money</span><i data-lucide="chevron-right"></i></div>
             <div class="method-btn" onclick="showAccountForm('wave')"><img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/c22b5c6e-a563-4822-ab7e-1483589ea6c8.jpg"><span>Wave</span><i data-lucide="chevron-right"></i></div>
         </div>
-        <!-- Formulaire caché pour ajouter un compte -->
         <div id="accountFormContainer" class="form-container" style="display:none;"></div>
     </div>
 
     <!-- VUE RECHARGER -->
     <div id="viewRecharger" class="view">
-        <div class="recharge-menu" style="background:var(--oneui-bg); backdrop-filter:blur(40px); border-radius:35px; padding:28px;">
+        <div class="recharge-menu" style="background:rgba(255,255,255,0.25); backdrop-filter:blur(40px); border-radius:35px; padding:28px;">
             <div class="recharge-tabs" style="display:flex; background:rgba(0,0,0,0.07); border-radius:25px; padding:5px; margin-bottom:30px;">
                 <div class="recharge-tab active" onclick="switchRechargeTab('moi')">Mon compte</div>
                 <div class="recharge-tab" onclick="switchRechargeTab('ami')">Pour un ami</div>
@@ -1138,6 +1123,11 @@
         document.getElementById('menuBlur').classList.toggle('open');
     }
 
+    function closeMenu() {
+        document.getElementById('sideMenu').classList.remove('open');
+        document.getElementById('menuBlur').classList.remove('open');
+    }
+
     // ========== THÈME ==========
     function toggleTheme() {
         document.body.classList.toggle('dark-theme');
@@ -1278,7 +1268,7 @@
             moov: 'https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/ddf26487-f953-441c-8e21-3b5011212ecc.jpg',
             wave: 'https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/c22b5c6e-a563-4822-ab7e-1483589ea6c8.jpg'
         };
-        return map[acc.type] || '';
+        return map[type] || '';
     }
 
     function maskNumber(num) {
