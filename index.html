@@ -12,7 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
     <script>
-        // 🔐 Configuration Firebase réelle (API key valide)
+        // 🔐 Configuration Firebase réelle
         const firebaseConfig = {
             apiKey: "AIzaSyD5L5U5JaamySXxE_1OyPpzRGgyBTxtd_M",
             authDomain: "ominipay.firebaseapp.com",
@@ -39,7 +39,7 @@
         const GAS_SOURCING_TAUX = 'https://script.google.com/macros/s/AKfycbyjjgFcuXmHy8u4XUv9RTlZyoY-ypCJgRU875XxnJcWrkkqVHOuNOODvTt6898p90Wg/exec';
     </script>
     <style>
-        /* ========== STYLES GLOBAUX ========== */
+        /* ========== STYLES GLOBAUX (inchangés, gardés complets) ========== */
         :root {
             --bg-page: #ffffff;
             --accent: #007AFF;
@@ -50,136 +50,40 @@
             --ui-sub: #777777;
             --ui-radius: 35px;
         }
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, system-ui, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-        body {
-            background-color: var(--bg-page);
-            color: var(--text-main);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-page); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         .reactive-click:active { transform: scale(0.96); transition: transform 0.1s ease; }
 
         /* Header */
-        .header {
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 5%;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-light);
-            position: fixed; top: 0; width: 100%; z-index: 1000;
-        }
+        .header { height: 70px; display: flex; align-items: center; justify-content: space-between; padding: 0 5%; background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-light); position: fixed; top: 0; width: 100%; z-index: 1000; }
         .logo-img { height: 42px; width: auto; }
-        .btn-header {
-            background: none; border: none; cursor: pointer;
-            padding: 8px; color: var(--text-main);
-            display: flex; align-items: center;
-            position: relative;
-        }
-        .notif-badge {
-            position: absolute;
-            top: 4px; right: 4px;
-            width: 9px; height: 9px;
-            background: #ff3b30;
-            border-radius: 50%;
-            border: 1.5px solid #fff;
-            display: none;
-        }
+        .btn-header { background: none; border: none; cursor: pointer; padding: 8px; color: var(--text-main); display: flex; align-items: center; position: relative; }
+        .notif-badge { position: absolute; top: 4px; right: 4px; width: 9px; height: 9px; background: #ff3b30; border-radius: 50%; border: 1.5px solid #fff; display: none; }
         .notif-badge.visible { display: block; }
 
         /* Panneau Wallet */
-        #walletPanel {
-            position: fixed;
-            top: 70px;
-            left: 0;
-            width: 100%;
-            z-index: 999;
-            transform: translateY(-110%);
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        #walletPanel { position: fixed; top: 70px; left: 0; width: 100%; z-index: 999; transform: translateY(-110%); transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); }
         #walletPanel.visible { transform: translateY(0); }
-        .wallet-container {
-            width: 100%;
-            background: var(--ui-bg);
-            backdrop-filter: blur(25px);
-            border-bottom-left-radius: var(--ui-radius);
-            border-bottom-right-radius: var(--ui-radius);
-            padding: 35px 0 25px 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        .wallet-container { width: 100%; background: var(--ui-bg); backdrop-filter: blur(25px); border-bottom-left-radius: var(--ui-radius); border-bottom-right-radius: var(--ui-radius); padding: 35px 0 25px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; }
         .balance-section { text-align: center; margin-bottom: 30px; }
         .balance-label { font-size: 13px; font-weight: 700; color: var(--ui-sub); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
         .balance-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
         #balanceAmount { font-size: 34px; font-weight: 800; letter-spacing: -1px; color: var(--ui-text); }
         .eye-toggle { background: none; border: none; cursor: pointer; padding: 5px; color: var(--ui-text); display: flex; transition: transform 0.1s ease; }
         .eye-toggle:active { transform: scale(0.8); }
-        .action-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            width: 100%; max-width: 450px;
-            padding: 0 10px;
-            gap: 10px;
-        }
-        .action-btn {
-            display: flex; flex-direction: column;
-            align-items: center; text-decoration: none;
-            color: var(--ui-text); gap: 10px;
-            cursor: pointer; background: none; border: none;
-        }
+        .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); width: 100%; max-width: 450px; padding: 0 10px; gap: 10px; }
+        .action-btn { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--ui-text); gap: 10px; cursor: pointer; background: none; border: none; }
         .action-btn:active { transform: scale(0.85); }
-        .icon-circle {
-            width: 60px; height: 60px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 50%; display: flex;
-            align-items: center; justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-        }
+        .icon-circle { width: 60px; height: 60px; background: rgba(255,255,255,0.95); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
         .action-text { font-size: 12px; font-weight: 600; }
-        .handle {
-            width: 40px; height: 5px;
-            background: rgba(0,0,0,0.1);
-            border-radius: 10px; margin-top: 25px; cursor: pointer;
-        }
-        #wallet-overlay {
-            position: fixed; inset: 0; top: 70px;
-            background: rgba(0,0,0,0.2);
-            z-index: 998; display: none;
-        }
+        .handle { width: 40px; height: 5px; background: rgba(0,0,0,0.1); border-radius: 10px; margin-top: 25px; cursor: pointer; }
+        #wallet-overlay { position: fixed; inset: 0; top: 70px; background: rgba(0,0,0,0.2); z-index: 998; display: none; }
         #wallet-overlay.visible { display: block; }
 
         /* Menu latéral */
-        #menuPanel {
-            position: fixed; top: 0; left: 0;
-            width: 100%; max-width: 380px; height: 100%;
-            z-index: 3000;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(30px);
-            border-right: 1px solid rgba(0,0,0,0.06);
-            box-shadow: 10px 0 30px rgba(0,0,0,0.08);
-            display: flex; flex-direction: column;
-            transform: translateX(-110%);
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        #menuPanel { position: fixed; top: 0; left: 0; width: 100%; max-width: 380px; height: 100%; z-index: 3000; background: rgba(255,255,255,0.95); backdrop-filter: blur(30px); border-right: 1px solid rgba(0,0,0,0.06); box-shadow: 10px 0 30px rgba(0,0,0,0.08); display: flex; flex-direction: column; transform: translateX(-110%); transition: transform 0.4s cubic-bezier(0.4,0,0.2,1); }
         #menuPanel.visible { transform: translateX(0); }
-        #menu-overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.25);
-            backdrop-filter: blur(4px);
-            z-index: 2999; display: none;
-        }
+        #menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.25); backdrop-filter: blur(4px); z-index: 2999; display: none; }
         #menu-overlay.visible { display: block; }
         .close-area { padding: 20px; display: flex; justify-content: flex-start; }
         .btn-close { background: none; border: none; cursor: pointer; color: var(--text-main); padding: 8px; display: flex; align-items: center; transition: transform 0.1s ease; }
@@ -191,15 +95,8 @@
         .menu-content { flex: 1; overflow-y: auto; padding: 0 15px 40px 15px; }
         .menu-group { margin-bottom: 25px; }
         .group-title { font-size: 11px; font-weight: 700; color: #8e8e93; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 10px 15px; }
-        .menu-item {
-            width: 100%; display: flex; align-items: center;
-            justify-content: space-between;
-            padding: 14px 15px; background: transparent;
-            border: none; border-radius: 12px; cursor: pointer;
-            transition: all 0.2s ease; color: var(--text-main);
-            margin-bottom: 2px;
-        }
-        .menu-item:active { background: rgba(0, 122, 255, 0.08); transform: scale(0.98); }
+        .menu-item { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px 15px; background: transparent; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s ease; color: var(--text-main); margin-bottom: 2px; }
+        .menu-item:active { background: rgba(0,122,255,0.08); transform: scale(0.98); }
         .item-left { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; }
         .item-right { color: #8e8e93; }
         .menu-footer { padding: 20px; border-top: 1px solid rgba(0,0,0,0.06); text-align: center; }
@@ -208,7 +105,7 @@
         /* Panneaux génériques */
         .faq-panel, .securite-panel, .apropos-panel, .confidentialite-panel, .contact-panel {
             position: fixed; inset: 0; background: #f4f4f4; z-index: 4000; overflow-y: auto;
-            transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
             padding: 20px;
         }
         .faq-panel.visible, .securite-panel.visible, .apropos-panel.visible, .confidentialite-panel.visible, .contact-panel.visible { transform: translateX(0); }
@@ -216,18 +113,8 @@
         .back-btn { background: none; border: none; cursor: pointer; padding: 8px; }
 
         /* Footer */
-        .footer {
-            height: 75px; background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(25px); border-top: 1px solid var(--border-light);
-            display: flex; justify-content: space-around; align-items: center;
-            position: fixed; bottom: 0; width: 100%; z-index: 1000;
-        }
-        .nav-link {
-            display: flex; flex-direction: column; align-items: center;
-            text-decoration: none; color: #8e8e93;
-            font-size: 11px; font-weight: 500; gap: 5px; cursor: pointer;
-            background: none; border: none;
-        }
+        .footer { height: 75px; background: rgba(255,255,255,0.9); backdrop-filter: blur(25px); border-top: 1px solid var(--border-light); display: flex; justify-content: space-around; align-items: center; position: fixed; bottom: 0; width: 100%; z-index: 1000; }
+        .nav-link { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #8e8e93; font-size: 11px; font-weight: 500; gap: 5px; cursor: pointer; background: none; border: none; }
         .nav-link.active { color: var(--accent); }
 
         /* Contenu principal */
@@ -250,17 +137,9 @@
         @keyframes fadeInOut { 0%{opacity:0;transform:translateX(-50%) translateY(10px)}15%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1}100%{opacity:0} }
 
         /* Écran de connexion */
-        #authScreen {
-            position: fixed; inset: 0; background: #fff; z-index: 10000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px;
-        }
+        #authScreen { position: fixed; inset: 0; background: #fff; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .auth-logo { width: 80px; height: 80px; margin-bottom: 30px; }
-        .google-btn {
-            background: #000; color: #fff; border: none; border-radius: 30px;
-            padding: 16px 32px; font-size: 16px; font-weight: 600;
-            display: flex; align-items: center; gap: 12px; cursor: pointer;
-        }
+        .google-btn { background: #000; color: #fff; border: none; border-radius: 30px; padding: 16px 32px; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -364,7 +243,7 @@
             </div>
         </div>
 
-        <!-- PANNEAUX DE COMMANDES, HISTORIQUE, ETC. (version simplifiée pour lisibilité) -->
+        <!-- PANNEAUX DE COMMANDES, HISTORIQUE, ETC. (version simplifiée mais fonctionnelle) -->
         <div id="commandesPanel" class="faq-panel"><div class="back-header"><button class="back-btn" onclick="closeCommandes()"><i data-lucide="arrow-left"></i></button><span>Commandes</span></div><div id="commandesList">Chargement…</div></div>
         <div id="historiquePanel" class="faq-panel"><div class="back-header"><button class="back-btn" onclick="closeHistorique()"><i data-lucide="arrow-left"></i></button><span>Historique</span></div><div id="historiqueList">Chargement…</div></div>
         <div id="rechargePanel" style="position:fixed; inset:0; top:70px; background:#f0f2f5; z-index:1500; overflow-y:auto; transform:translateX(100%); transition:transform 0.4s; padding:20px;"><div class="back-header"><button class="back-btn" onclick="closeRecharge()"><i data-lucide="arrow-left"></i></button><span>Recharger</span></div><div style="max-width:400px; margin:0 auto; background:white; border-radius:28px; padding:24px;"><select id="rechargeMethod" style="width:100%; padding:16px; border-radius:20px; margin-bottom:20px;"></select><input type="number" id="rechargeAmount" placeholder="Montant (FCFA)" style="width:100%; padding:16px; border-radius:20px; margin-bottom:20px;"><button onclick="doRecharge()" style="width:100%; background:#000; color:#fff; border:none; padding:18px; border-radius:30px;">Recharger</button></div></div>
@@ -430,16 +309,19 @@
         let achatMode = 'moi';
         let offrirTarget = { id: '', motif: '' };
 
-        // Authentification Google
+        // === AUTHENTIFICATION AVEC GESTION D'ERREUR ===
         function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).then(userCred => {
-                currentUser = userCred.user;
-                initUser();
-            }).catch(err => {
-                console.error(err);
-                alert('Erreur connexion: ' + err.message);
-            });
+            auth.signInWithPopup(provider)
+                .then(userCred => {
+                    console.log("Authentification réussie :", userCred.user);
+                    currentUser = userCred.user;
+                    initUser();
+                })
+                .catch(err => {
+                    console.error("Erreur auth :", err);
+                    alert("Erreur de connexion : " + err.message + "\nVérifiez que votre domaine est autorisé dans Firebase (Authentication > Settings).");
+                });
         }
 
         async function initUser() {
@@ -447,28 +329,42 @@
             const publicId = 'OP-' + uid.substring(0,8).toUpperCase();
             document.getElementById('firebase-name').innerText = currentUser.displayName || 'Utilisateur';
             document.getElementById('firebase-email').innerHTML = `${currentUser.email}<br>ID: ${publicId}`;
-            
-            const userDoc = await db.collection('users').doc(uid).get();
-            if (userDoc.exists) {
-                currentBalance = userDoc.data().balance || 0;
-                userGrade = userDoc.data().grade || 'Standard';
-                userPin = userDoc.data().pin || null;
-                registeredMethods = userDoc.data().paymentMethods || [];
-            } else {
-                await db.collection('users').doc(uid).set({ balance: 0, grade: 'Standard', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+
+            try {
+                const userDoc = await db.collection('users').doc(uid).get();
+                if (userDoc.exists) {
+                    currentBalance = userDoc.data().balance || 0;
+                    userGrade = userDoc.data().grade || 'Standard';
+                    userPin = userDoc.data().pin || null;
+                    registeredMethods = userDoc.data().paymentMethods || [];
+                } else {
+                    await db.collection('users').doc(uid).set({ 
+                        balance: 0, 
+                        grade: 'Standard', 
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+                    });
+                }
+                renderBalance();
+                loadExchangeRates();
+                loadDingCatalog();
+                listenTransactions();
+                listenNotifications();
+                checkDevice();
+                
+                // Afficher l'interface principale
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                renderPaymentMethodsList();
+                console.log("Interface chargée avec succès");
+            } catch (error) {
+                console.error("Erreur lors de l'initialisation :", error);
+                alert("Erreur de chargement du compte : " + error.message + "\nVérifiez vos règles Firestore (autoriser lecture/écriture pour l'utilisateur).");
+                // Déconnexion pour permettre de réessayer
+                auth.signOut();
             }
-            renderBalance();
-            loadExchangeRates();
-            loadDingCatalog();
-            listenTransactions();
-            listenNotifications();
-            checkDevice();
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-            renderPaymentMethodsList();
         }
 
-        // Taux de change
+        // Taux de change (Realtime Database)
         async function loadExchangeRates() {
             rtdb.ref('exchangeRates').on('value', (snap) => {
                 if (snap.exists()) exchangeRates = snap.val();
@@ -521,12 +417,15 @@
                     prices: p.ValidDenominations || []
                 }));
                 renderDingGrid();
-            } catch(e) { document.getElementById('dingGrid').innerHTML = '<div>Erreur chargement</div>'; }
+            } catch(e) { 
+                console.error(e);
+                document.getElementById('dingGrid').innerHTML = '<div>Erreur chargement catalogue</div>'; 
+            }
         }
         function renderDingGrid() {
             const grid = document.getElementById('dingGrid');
             if (!dingProducts.length) { grid.innerHTML = '<div>Aucun produit</div>'; return; }
-            grid.innerHTML = dingProducts.map((p, idx) => `<div class="ding-card" onclick="selectProduct(${idx})">${p.logo ? `<img src="${p.logo}" style="width:50px;">` : '<i data-lucide="credit-card"></i>'}<div>${p.name}</div><div>${p.prices.length ? p.prices[0] + ' USD' : ''}</div></div>`).join('');
+            grid.innerHTML = dingProducts.map((p, idx) => `<div class="ding-card" onclick="selectProduct(${idx})" style="background:white; border-radius:16px; padding:12px; text-align:center; cursor:pointer;">${p.logo ? `<img src="${p.logo}" style="width:50px;">` : '<i data-lucide="credit-card"></i>'}<div>${p.name}</div><div>${p.prices.length ? p.prices[0] + ' USD' : ''}</div></div>`).join('');
             lucide.createIcons();
         }
         function selectProduct(idx) {
@@ -543,6 +442,7 @@
                 if (!destId.match(/^OP-[A-Z0-9]{8}$/i)) { alert('ID invalide'); return; }
                 if (motif.length < 5) { alert('Motif trop court'); return; }
                 alert(`Cadeau envoyé à ${destId} : ${p.name} (${priceXOF} FCFA)`);
+                // Ici on pourrait enregistrer la transaction
             } else if (achatMode === 'demande') {
                 const link = `https://ominipay.com/cadeau?carte=${encodeURIComponent(p.id)}&montant=${priceUSD}`;
                 navigator.clipboard.writeText(link);
@@ -558,7 +458,7 @@
             const picker = document.getElementById('countryPicker');
             picker.style.transform = 'translateY(0)';
             const countryList = ['France', 'USA', 'Canada', 'Côte d\'Ivoire', 'Sénégal', 'Cameroun', 'Mali', 'Burkina'];
-            document.getElementById('countryList').innerHTML = countryList.map(c => `<div onclick="selectCountry('${c}')" style="padding:12px; border-bottom:1px solid #eee;">${c}</div>`).join('');
+            document.getElementById('countryList').innerHTML = countryList.map(c => `<div onclick="selectCountry('${c}')" style="padding:12px; border-bottom:1px solid #eee; cursor:pointer;">${c}</div>`).join('');
         }
         function selectCountry(c) { selectedCountry = c; document.getElementById('selectCountryBtn').innerText = c; closeCountryPicker(); }
         function closeCountryPicker() { document.getElementById('countryPicker').style.transform = 'translateY(100%)'; }
@@ -576,11 +476,11 @@
             const amountToCredit = computeSellPrice(faceValue);
             const payload = { userId: currentUser.uid, publicId: 'OP-'+currentUser.uid.substring(0,8).toUpperCase(), country: selectedCountry, cardType, faceValue, cardCode, proofUrl, amountToCredit };
             await fetch(GAS_VERIF_VENTE, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            alert('Votre vente a été soumise.');
+            alert('Votre vente a été soumise. Un administrateur la validera.');
             closeVente();
         }
 
-        // Sécurité IP/PIN
+        // Sécurité IP/PIN (simplifiée mais fonctionnelle)
         async function checkDevice() {
             const ipRes = await fetch('https://api.ipify.org?format=json');
             const ipData = await ipRes.json();
@@ -593,7 +493,7 @@
                     db.collection('users').doc(currentUser.uid).collection('devices').doc(deviceId).set({ ip: currentIp, lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
                 });
             } else {
-                devicesSnap.ref?.update({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
+                if(devicesSnap.exists) devicesSnap.ref.update({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
             }
         }
         function showPinScreen(onSuccess) {
@@ -603,7 +503,7 @@
             function updateDots() { document.getElementById('pinDots').innerHTML = Array(4).fill(0).map((_,i)=>`<div style="width:18px;height:18px;border-radius:50%;background:${i<pinBuffer.length?'#fff':'#333'}"></div>`).join(''); }
             function renderKeypad() {
                 const keys = ['1','2','3','4','5','6','7','8','9','0','⌫'];
-                document.getElementById('pinKeypad').innerHTML = keys.map(k => `<button onclick="pinKeyPress('${k}')" style="background:#222; border:none; color:#fff; font-size:24px; padding:16px; border-radius:50%;">${k}</button>`).join('');
+                document.getElementById('pinKeypad').innerHTML = keys.map(k => `<button onclick="pinKeyPress('${k}')" style="background:#222; border:none; color:#fff; font-size:24px; padding:16px; border-radius:50%; cursor:pointer;">${k}</button>`).join('');
             }
             window.pinKeyPress = (k) => {
                 if (k === '⌫') pinBuffer = pinBuffer.slice(0,-1);
@@ -611,7 +511,7 @@
                 updateDots();
                 if (pinBuffer.length === 4) {
                     if (pinBuffer === userPin) { screen.style.display = 'none'; onSuccess(); }
-                    else { pinAttempts++; if(pinAttempts>=5) db.collection('users').doc(currentUser.uid).update({ isSuspended: true }).then(()=>alert('Compte suspendu')); else document.getElementById('pinError').innerText = `Code incorrect (${pinAttempts}/5)`; pinBuffer=''; updateDots(); }
+                    else { pinAttempts++; if(pinAttempts>=5) db.collection('users').doc(currentUser.uid).update({ isSuspended: true }).then(()=>alert('Compte suspendu pour sécurité.')); else document.getElementById('pinError').innerText = `Code incorrect (${pinAttempts}/5)`; pinBuffer=''; updateDots(); }
                 }
             };
             updateDots(); renderKeypad();
@@ -634,7 +534,7 @@
                 document.getElementById('notifBadge').classList.toggle('visible', unread>0);
                 const container = document.getElementById('notifList');
                 if (!snap.size) container.innerHTML = '<div>Aucune notification</div>';
-                else container.innerHTML = snap.docs.map(d => `<div onclick="markRead('${d.id}')">${d.data().title} - ${d.data().message}</div>`).join('');
+                else container.innerHTML = snap.docs.map(d => `<div onclick="markRead('${d.id}')" style="padding:10px; border-bottom:1px solid #eee;">${d.data().title} - ${d.data().message}</div>`).join('');
             });
         }
         function markRead(id) { db.collection('users').doc(currentUser.uid).collection('notifications').doc(id).update({read:true}); }
@@ -701,9 +601,9 @@
         // Recharge
         function openRecharge() { document.getElementById('rechargePanel').style.transform = 'translateX(0)'; }
         function closeRecharge() { document.getElementById('rechargePanel').style.transform = 'translateX(100%)'; }
-        async function doRecharge() { /* redirection CinetPay */ alert('Recharge en développement'); }
+        async function doRecharge() { alert('Recharge via CinetPay à intégrer.'); }
 
-        // Autres panneaux
+        // Fermeture des panneaux
         function closeCompte() { document.getElementById('comptePanel').style.transform = 'translateX(100%)'; }
         function closeAchat() { document.getElementById('achatPanel').style.transform = 'translateY(100%)'; }
         function closeVente() { document.getElementById('ventePanel').style.transform = 'translateY(100%)'; }
