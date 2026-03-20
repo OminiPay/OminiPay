@@ -6,30 +6,32 @@
     <title>OminiPay - Échange de cartes cadeaux</title>
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
     <script>
-        // 🔐 Configuration Firebase réelle
+        // 🔐 Configuration Firebase réelle (API key valide)
         const firebaseConfig = {
-            apiKey: "GOOGLE_API_KEY",
+            apiKey: "AIzaSyD5L5U5JaamySXxE_1OyPpzRGgyBTxtd_M",
             authDomain: "ominipay.firebaseapp.com",
+            databaseURL: "https://ominipay-default-rtdb.firebaseio.com",
             projectId: "ominipay",
             storageBucket: "ominipay.firebasestorage.app",
             messagingSenderId: "320469451881",
-            appId: "1:320469451881:web:3417a0ac61ef0307218ef8"
+            appId: "1:320469451881:web:3417a0ac61ef0307218ef8",
+            measurementId: "G-YB449VY632"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
         const rtdb = firebase.database();
 
-        // 🔑 Clés API réelles
+        // 🔑 Clés API réelles (DingConnect, ImgBB)
         const DING_API_KEY = '1eOlUXCawoo6oGPMvHhbZc';
         const IMGBB_API_KEY = 'dbb09490f16803a2e0d17a535e54578a';
-        const CINETPAY_API_KEY = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'; // Remplacez par votre clé réelle
+        const CINETPAY_API_KEY = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'; // Remplacez par votre clé CinetPay
         const CINETPAY_SITE_ID = 'XXXXXXXX'; // Remplacez par votre site_id
 
         // 🌍 URLs Google Apps Script
@@ -203,7 +205,7 @@
         .menu-footer { padding: 20px; border-top: 1px solid rgba(0,0,0,0.06); text-align: center; }
         .btn-logout { color: #ff3b30; font-weight: 600; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; background: none; border: none; cursor: pointer; }
 
-        /* Autres panneaux (FAQ, Sécurité, etc.) - styles simplifiés */
+        /* Panneaux génériques */
         .faq-panel, .securite-panel, .apropos-panel, .confidentialite-panel, .contact-panel {
             position: fixed; inset: 0; background: #f4f4f4; z-index: 4000; overflow-y: auto;
             transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -274,7 +276,9 @@
     </div>
 
     <!-- Interface principale (cachée tant que non connecté) -->
-    <div id="mainApp" style="display: none;">        <!-- ========== HEADER ========== -->
+    <div id="mainApp" style="display: none;">
+
+        <!-- HEADER -->
         <header class="header">
             <button class="btn-header reactive-click" onclick="toggleMenu()"><i data-lucide="menu"></i></button>
             <img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/a1b7da54-63d4-402a-bc11-1ab5aaf9206e.png" alt="OminiPay" class="logo-img">
@@ -287,7 +291,7 @@
             </div>
         </header>
 
-        <!-- ========== PANEL WALLET ========== -->
+        <!-- PANEL WALLET -->
         <div id="walletPanel">
             <div class="wallet-container">
                 <div class="balance-section">
@@ -310,7 +314,7 @@
         </div>
         <div id="wallet-overlay" onclick="toggleWallet()"></div>
 
-        <!-- ========== MENU LATÉRAL (avec logos) ========== -->
+        <!-- MENU LATÉRAL -->
         <div id="menu-overlay" onclick="toggleMenu()"></div>
         <div id="menuPanel">
             <div class="close-area">
@@ -343,7 +347,6 @@
                     <button class="menu-item" onclick="openConfidentialite(); toggleMenu();"><div class="item-left"><i data-lucide="shield-check"></i> Confidentialité</div><div class="item-right"><i data-lucide="chevron-right"></i></div></button>
                     <button class="menu-item" onclick="openSecurite()"><div class="item-left"><i data-lucide="lock"></i> Sécurité</div><div class="item-right"><i data-lucide="chevron-right"></i></div></button>
                 </div>
-                <!-- Ajout des deux logos dans le menu -->
                 <div class="menu-group">
                     <p class="group-title">Support</p>
                     <a href="https://wa.me/qr/UWYBOFF7GXRSB1" class="menu-item" style="text-decoration: none;">
@@ -361,137 +364,28 @@
             </div>
         </div>
 
-        <!-- ========== PANEL COMMANDES (achats) ========== -->
-        <div id="commandesPanel" class="faq-panel">
-            <div class="back-header"><button class="back-btn" onclick="closeCommandes()"><i data-lucide="arrow-left"></i></button><span>Commandes</span></div>
-            <div id="commandesList" style="padding: 10px;">Chargement…</div>
-        </div>
-
-        <!-- ========== PANEL HISTORIQUE FINANCIER ========== -->
-        <div id="historiquePanel" class="faq-panel">
-            <div class="back-header"><button class="back-btn" onclick="closeHistorique()"><i data-lucide="arrow-left"></i></button><span>Historique</span></div>
-            <div id="historiqueList">Chargement…</div>
-        </div>
-
-        <!-- ========== PANEL RECHARGE ========== -->
-        <div id="rechargePanel" style="position:fixed; inset:0; top:70px; background:#f0f2f5; z-index:1500; overflow-y:auto; transform:translateX(100%); transition:transform 0.4s; padding:20px;">
-            <div class="back-header"><button class="back-btn" onclick="closeRecharge()"><i data-lucide="arrow-left"></i></button><span>Recharger</span></div>
-            <div style="max-width:400px; margin:0 auto; background:white; border-radius:28px; padding:24px;">
-                <select id="rechargeMethod" style="width:100%; padding:16px; border-radius:20px; margin-bottom:20px;">
-                    <option value="">Choisir un moyen</option>
-                </select>
-                <input type="number" id="rechargeAmount" placeholder="Montant (FCFA)" style="width:100%; padding:16px; border-radius:20px; margin-bottom:20px;">
-                <button onclick="doRecharge()" style="width:100%; background:#000; color:#fff; border:none; padding:18px; border-radius:30px; font-weight:bold;">Recharger</button>
-            </div>
-        </div>
-
-        <!-- ========== PANEL COMPTE (moyens de paiement) ========== -->
-        <div id="comptePanel" style="position:fixed; inset:0; top:70px; background:#f0f2f5; z-index:1500; overflow-y:auto; transform:translateX(100%); transition:transform 0.4s; padding:20px;">
-            <div class="back-header"><button class="back-btn" onclick="closeCompte()"><i data-lucide="arrow-left"></i></button><span>Moyens de paiement</span></div>
-            <div style="max-width:450px; margin:0 auto;">
-                <div id="paymentMethodsList"></div>
-                <button onclick="showAddMethodForm()" style="width:100%; background:#000; color:#fff; border:none; padding:16px; border-radius:30px; margin-top:20px;">+ Ajouter un moyen</button>
-                <div id="addMethodForm" style="display:none; margin-top:20px; background:white; border-radius:28px; padding:20px;">
-                    <select id="methodType" style="width:100%; padding:12px; border-radius:16px; margin-bottom:12px;">
-                        <option value="orange">Orange Money</option><option value="mtn">MTN MoMo</option><option value="moov">Moov Money</option><option value="wave">Wave</option><option value="paypal">PayPal</option><option value="carte">Carte bancaire</option>
-                    </select>
-                    <input type="text" id="methodValue" placeholder="Numéro / Email" style="width:100%; padding:12px; border-radius:16px; margin-bottom:12px;">
-                    <button onclick="savePaymentMethod()" style="background:#000; color:#fff; border:none; padding:12px; border-radius:20px;">Enregistrer</button>
-                    <button onclick="hideAddMethodForm()" style="background:#eee; border:none; padding:12px; border-radius:20px; margin-top:8px;">Annuler</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========== PANEL RETRAIT ========== -->
-        <div id="retraitPanel" style="position:fixed; inset:0; top:70px; background:#f0f2f5; z-index:1500; overflow-y:auto; transform:translateX(100%); transition:transform 0.4s; padding:20px;">
-            <div class="back-header"><button class="back-btn" onclick="closeRetrait()"><i data-lucide="arrow-left"></i></button><span>Retirer</span></div>
-            <div style="max-width:400px; margin:0 auto; background:white; border-radius:28px; padding:24px;">
-                <div style="margin-bottom:20px;"><strong>Solde :</strong> <span id="retraitBalance">0 FCFA</span></div>
-                <select id="retraitMethodSelect" style="width:100%; padding:16px; border-radius:20px; margin-bottom:20px;"></select>
-                <input type="number" id="retraitAmountInput" placeholder="Montant (FCFA)" style="width:100%; padding:16px; border-radius:20px; margin-bottom:20px;">
-                <button onclick="doRetrait()" style="width:100%; background:#000; color:#fff; border:none; padding:18px; border-radius:30px;">Retirer</button>
-                <div id="retraitStatus" style="margin-top:12px; text-align:center;"></div>
-            </div>
-        </div>
-
-        <!-- ========== PANEL ACHAT (catalogue DingConnect) ========== -->
-        <div id="achatPanel" style="position:fixed; inset:0; top:70px; background:#f5f7fa; z-index:1500; overflow-y:auto; transform:translateY(100%); transition:transform 0.4s; padding:20px;">
-            <div class="back-header"><button class="back-btn" onclick="closeAchat()"><i data-lucide="arrow-left"></i></button><span>Boutique</span></div>
-            <div style="max-width:800px; margin:0 auto;">
-                <div id="modeSelector" style="display:flex; gap:12px; margin-bottom:20px;">
-                    <button onclick="setAchatMode('moi')" class="mode-btn" style="flex:1; padding:16px; background:#fff; border-radius:28px;">Pour moi</button>
-                    <button onclick="setAchatMode('offrir')" class="mode-btn" style="flex:1; padding:16px; background:#fff; border-radius:28px;">Offrir</button>
-                    <button onclick="setAchatMode('demande')" class="mode-btn" style="flex:1; padding:16px; background:#fff; border-radius:28px;">Demander un cadeau</button>
-                </div>
-                <div id="offrirFields" style="display:none; background:#fff; border-radius:28px; padding:20px; margin-bottom:20px;">
-                    <input type="text" id="offrirId" placeholder="ID du destinataire (OP-XXXXXXXX)" style="width:100%; padding:16px; border-radius:20px; margin-bottom:12px;">
-                    <input type="text" id="offrirMotif" placeholder="Message" style="width:100%; padding:16px; border-radius:20px; margin-bottom:12px;">
-                </div>
-                <div id="catalogView">
-                    <input type="text" id="searchAchat" placeholder="Rechercher..." style="width:100%; padding:14px; border-radius:20px; margin-bottom:16px;">
-                    <div id="dingGrid" class="ding-grid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px;"></div>
-                </div>
-                <div id="cartSummary" style="margin-top:20px; background:#fff; border-radius:28px; padding:16px; display:flex; justify-content:space-between;">
-                    <span>Panier: <span id="cartCount">0</span> article(s)</span>
-                    <button onclick="openCart()" style="background:#000; color:#fff; border:none; padding:8px 16px; border-radius:20px;">Voir panier</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========== PANEL VENTE ========== -->
-        <div id="ventePanel" style="position:fixed; inset:0; top:70px; background:#f0f2f5; z-index:1500; overflow-y:auto; transform:translateY(100%); transition:transform 0.4s; padding:20px;">
-            <div class="back-header"><button class="back-btn" onclick="closeVente()"><i data-lucide="arrow-left"></i></button><span>Vendre une carte</span></div>
-            <div style="max-width:450px; margin:0 auto; background:white; border-radius:28px; padding:24px;">
-                <div class="form-group" style="margin-bottom:20px;">
-                    <label>Pays de la carte</label>
-                    <button id="selectCountryBtn" onclick="openCountryPicker()" style="width:100%; padding:14px; border-radius:20px; background:#f5f5f7; border:none; text-align:left;">Choisir un pays</button>
-                    <input type="hidden" id="selectedCountry" value="">
-                </div>
-                <div class="form-group"><label>Type de carte</label><input type="text" id="cardType" placeholder="Ex: Amazon, Steam" style="width:100%; padding:14px; border-radius:20px;"></div>
-                <div class="form-group"><label>Montant facial (FCFA)</label><input type="number" id="faceValue" placeholder="Montant en FCFA" style="width:100%; padding:14px; border-radius:20px;"></div>
-                <div class="form-group"><label>Code de la carte</label><input type="text" id="cardCode" placeholder="Code (ex: XXXX-XXXX-XXXX)" style="width:100%; padding:14px; border-radius:20px;"></div>
-                <div class="form-group"><label>Preuve (capture d'écran)</label><input type="file" id="proofImage" accept="image/*" style="margin-bottom:12px;"><div id="proofStatus" style="font-size:12px; color:#666;"></div></div>
-                <button onclick="submitSell()" style="width:100%; background:#000; color:#fff; border:none; padding:18px; border-radius:30px;">Soumettre pour validation</button>
-            </div>
-        </div>
-
-        <!-- ========== PANEL CONTACT, FAQ, À PROPOS, CONFIDENTIALITÉ, SÉCURITÉ ========== -->
+        <!-- PANNEAUX DE COMMANDES, HISTORIQUE, ETC. (version simplifiée pour lisibilité) -->
+        <div id="commandesPanel" class="faq-panel"><div class="back-header"><button class="back-btn" onclick="closeCommandes()"><i data-lucide="arrow-left"></i></button><span>Commandes</span></div><div id="commandesList">Chargement…</div></div>
+        <div id="historiquePanel" class="faq-panel"><div class="back-header"><button class="back-btn" onclick="closeHistorique()"><i data-lucide="arrow-left"></i></button><span>Historique</span></div><div id="historiqueList">Chargement…</div></div>
+        <div id="rechargePanel" style="position:fixed; inset:0; top:70px; background:#f0f2f5; z-index:1500; overflow-y:auto; transform:translateX(100%); transition:transform 0.4s; padding:20px;"><div class="back-header"><button class="back-btn" onclick="closeRecharge()"><i data-lucide="arrow-left"></i></button><span>Recharger</span></div><div style="max-width:400px; margin:0 auto; background:white; border-radius:28px; padding:24px;"><select id="rechargeMethod" style="width:100%; padding:16px; border-radius:20px; margin-bottom:20px;"></select><input type="number" id="rechargeAmount" placeholder="Montant (FCFA)" style="width:100%; padding:16px; border-radius:20px; margin-bottom:20px;"><button onclick="doRecharge()" style="width:100%; background:#000; color:#fff; border:none; padding:18px; border-radius:30px;">Recharger</button></div></div>
+        <div id="comptePanel" style="position:fixed; inset:0; top:70px; background:#f0f2f5; z-index:1500; overflow-y:auto; transform:translateX(100%); transition:transform 0.4s; padding:20px;"><div class="back-header"><button class="back-btn" onclick="closeCompte()"><i data-lucide="arrow-left"></i></button><span>Moyens de paiement</span></div><div id="paymentMethodsList"></div><button onclick="showAddMethodForm()" style="width:100%; background:#000; color:#fff; border:none; padding:16px; border-radius:30px; margin-top:20px;">+ Ajouter un moyen</button><div id="addMethodForm" style="display:none; margin-top:20px; background:white; border-radius:28px; padding:20px;"><select id="methodType"><option value="orange">Orange Money</option><option value="mtn">MTN MoMo</option><option value="moov">Moov Money</option><option value="wave">Wave</option><option value="paypal">PayPal</option><option value="carte">Carte bancaire</option></select><input type="text" id="methodValue" placeholder="Numéro / Email"><button onclick="savePaymentMethod()">Enregistrer</button><button onclick="hideAddMethodForm()">Annuler</button></div></div>
+        <div id="retraitPanel" style="position:fixed; inset:0; top:70px; background:#f0f2f5; z-index:1500; overflow-y:auto; transform:translateX(100%); transition:transform 0.4s; padding:20px;"><div class="back-header"><button class="back-btn" onclick="closeRetrait()"><i data-lucide="arrow-left"></i></button><span>Retirer</span></div><div style="max-width:400px; margin:0 auto; background:white; border-radius:28px; padding:24px;"><div><strong>Solde :</strong> <span id="retraitBalance">0 FCFA</span></div><select id="retraitMethodSelect" style="width:100%; padding:16px; border-radius:20px; margin-bottom:20px;"></select><input type="number" id="retraitAmountInput" placeholder="Montant (FCFA)" style="width:100%; padding:16px; border-radius:20px; margin-bottom:20px;"><button onclick="doRetrait()" style="width:100%; background:#000; color:#fff; border:none; padding:18px; border-radius:30px;">Retirer</button><div id="retraitStatus"></div></div></div>
+        <div id="achatPanel" style="position:fixed; inset:0; top:70px; background:#f5f7fa; z-index:1500; overflow-y:auto; transform:translateY(100%); transition:transform 0.4s; padding:20px;"><div class="back-header"><button class="back-btn" onclick="closeAchat()"><i data-lucide="arrow-left"></i></button><span>Boutique</span></div><div style="max-width:800px; margin:0 auto;"><div id="modeSelector" style="display:flex; gap:12px; margin-bottom:20px;"><button onclick="setAchatMode('moi')" class="mode-btn" style="flex:1; padding:16px; background:#fff; border-radius:28px;">Pour moi</button><button onclick="setAchatMode('offrir')" class="mode-btn" style="flex:1; padding:16px; background:#fff; border-radius:28px;">Offrir</button><button onclick="setAchatMode('demande')" class="mode-btn" style="flex:1; padding:16px; background:#fff; border-radius:28px;">Demander un cadeau</button></div><div id="offrirFields" style="display:none; background:#fff; border-radius:28px; padding:20px; margin-bottom:20px;"><input type="text" id="offrirId" placeholder="ID du destinataire (OP-XXXXXXXX)"><input type="text" id="offrirMotif" placeholder="Message"></div><div id="catalogView"><input type="text" id="searchAchat" placeholder="Rechercher..."><div id="dingGrid" class="ding-grid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px;"></div></div><div id="cartSummary" style="margin-top:20px; background:#fff; border-radius:28px; padding:16px; display:flex; justify-content:space-between;"><span>Panier: <span id="cartCount">0</span> article(s)</span><button onclick="openCart()" style="background:#000; color:#fff; border:none; padding:8px 16px; border-radius:20px;">Voir panier</button></div></div></div>
+        <div id="ventePanel" style="position:fixed; inset:0; top:70px; background:#f0f2f5; z-index:1500; overflow-y:auto; transform:translateY(100%); transition:transform 0.4s; padding:20px;"><div class="back-header"><button class="back-btn" onclick="closeVente()"><i data-lucide="arrow-left"></i></button><span>Vendre une carte</span></div><div style="max-width:450px; margin:0 auto; background:white; border-radius:28px; padding:24px;"><div class="form-group"><label>Pays de la carte</label><button id="selectCountryBtn" onclick="openCountryPicker()" style="width:100%; padding:14px; border-radius:20px;">Choisir un pays</button><input type="hidden" id="selectedCountry"></div><div><label>Type de carte</label><input type="text" id="cardType" placeholder="Ex: Amazon, Steam"></div><div><label>Montant facial (FCFA)</label><input type="number" id="faceValue" placeholder="Montant en FCFA"></div><div><label>Code de la carte</label><input type="text" id="cardCode" placeholder="Code (ex: XXXX-XXXX-XXXX)"></div><div><label>Preuve (capture d'écran)</label><input type="file" id="proofImage" accept="image/*"><div id="proofStatus"></div></div><button onclick="submitSell()" style="width:100%; background:#000; color:#fff; border:none; padding:18px; border-radius:30px;">Soumettre pour validation</button></div></div>
         <div id="contactPanel" class="contact-panel"><div class="back-header"><button class="back-btn" onclick="closeContact()"><i data-lucide="arrow-left"></i></button><span>Contact</span></div><div style="text-align:center;"><img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/371cca54-7671-48b7-b726-908e7f728344.png" style="width:80px;"><h3>OminiPay</h3><p>Email: ominipay.help@gmail.com<br>WhatsApp: +225 00000000</p></div></div>
         <div id="faqPanel" class="faq-panel"><div class="back-header"><button class="back-btn" onclick="closeFAQ()"><i data-lucide="arrow-left"></i></button><span>FAQ</span></div><div style="padding:20px;"><h3>Questions fréquentes</h3><p>...</p></div></div>
         <div id="aproposPanel" class="apropos-panel"><div class="back-header"><button class="back-btn" onclick="closeApropos()"><i data-lucide="arrow-left"></i></button><span>À propos</span></div><div><p>OminiPay - Plateforme d'échange de cartes cadeaux.</p></div></div>
         <div id="confidentialitePanel" class="confidentialite-panel"><div class="back-header"><button class="back-btn" onclick="closeConfidentialite()"><i data-lucide="arrow-left"></i></button><span>Confidentialité</span></div><div><p>Politique de confidentialité...</p></div></div>
         <div id="securitePanel" class="securite-panel"><div class="back-header"><button class="back-btn" onclick="closeSecurite()"><i data-lucide="arrow-left"></i></button><span>Sécurité</span></div><div><p>Informations de sécurité...</p></div></div>
-
-        <!-- ========== PANEL NOTIFICATIONS ========== -->
         <div id="notifPanel" class="faq-panel"><div class="back-header"><button class="back-btn" onclick="closeNotifications()"><i data-lucide="arrow-left"></i></button><span>Notifications</span><button onclick="markAllNotifRead()" style="margin-left:auto;">Tout lire</button></div><div id="notifList"></div></div>
-
-        <!-- ========== PANEL PARRAINAGE ========== -->
         <div id="parrainagePanel" class="faq-panel"><div class="back-header"><button class="back-btn" onclick="closeParrainage()"><i data-lucide="arrow-left"></i></button><span>Parrainage</span></div><div id="parrainageContent" style="padding:20px;"></div></div>
-
-        <!-- ========== PANEL MES CADEAUX ========== -->
         <div id="mesCadeauxPanel" class="faq-panel"><div class="back-header"><button class="back-btn" onclick="closeMesCadeaux()"><i data-lucide="arrow-left"></i></button><span>Mes cadeaux</span></div><div id="cadeauxContent" style="padding:20px;"></div></div>
-
-        <!-- ========== PANEL HISTORIQUE CONNEXIONS ========== -->
         <div id="connexionPanel" class="faq-panel"><div class="back-header"><button class="back-btn" onclick="closeConnexionPanel()"><i data-lucide="arrow-left"></i></button><span>Historique des connexions</span></div><div id="connexionList" style="padding:20px;"></div></div>
-
-        <!-- ========== PANEL PARAMÈTRES ========== -->
         <div id="parametresPanel" class="faq-panel"><div class="back-header"><button class="back-btn" onclick="closeParametres()"><i data-lucide="arrow-left"></i></button><span>Paramètres</span></div><div style="padding:20px;"><div><strong>Code PIN</strong> <span id="pinStatus"></span> <button onclick="startPinSetup()">Modifier</button></div><div><strong>Comptes enregistrés</strong> <div id="savedAccountsList"></div></div></div></div>
+        <div id="pinScreen" style="position:fixed; inset:0; background:#000; z-index:10000; display:none; flex-direction:column; align-items:center; justify-content:center; color:#fff;"><div style="font-size:24px;">Code PIN</div><div id="pinDots" style="display:flex; gap:15px;"></div><div id="pinKeypad" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; max-width:260px;"></div><div id="pinError"></div></div>
+        <div id="countryPicker" style="position:fixed; bottom:0; left:0; right:0; background:#fff; border-radius:28px 28px 0 0; z-index:11000; transform:translateY(100%); transition:transform 0.3s; max-height:70vh; overflow-y:auto; padding:20px;"><div style="display:flex; justify-content:space-between;"><span>Choisissez un pays</span><button onclick="closeCountryPicker()">✕</button></div><div id="countryList"></div></div>
 
-        <!-- ========== PIN SCREEN ========== -->
-        <div id="pinScreen" style="position:fixed; inset:0; background:#000; z-index:10000; display:none; flex-direction:column; align-items:center; justify-content:center; color:#fff;">
-            <div style="font-size:24px; margin-bottom:20px;">Code PIN</div>
-            <div id="pinDots" style="display:flex; gap:15px; margin-bottom:30px;"></div>
-            <div id="pinKeypad" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; max-width:260px;"></div>
-            <div id="pinError" style="color:#ff3b30; margin-top:20px;"></div>
-        </div>
-
-        <!-- ========== COUNTRY PICKER (pop-up) ========== -->
-        <div id="countryPicker" style="position:fixed; bottom:0; left:0; right:0; background:#fff; border-radius:28px 28px 0 0; z-index:11000; transform:translateY(100%); transition:transform 0.3s; max-height:70vh; overflow-y:auto; padding:20px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:16px;"><span>Choisissez un pays</span><button onclick="closeCountryPicker()">✕</button></div>
-            <div id="countryList"></div>
-        </div>
-
-        <!-- ========== CONTENU PRINCIPAL ========== -->
+        <!-- CONTENU PRINCIPAL -->
         <div class="top-nav-area">
             <div class="search-bar"><i data-lucide="search"></i><input type="text" id="searchInput" placeholder="Rechercher une carte..." onkeyup="filterCards()"></div>
             <div class="categories-wrapper">
@@ -510,7 +404,6 @@
             </div>
         </main>
 
-        <!-- ========== FOOTER ========== -->
         <footer class="footer">
             <button class="nav-link active" onclick="setActiveNav(this)"><i data-lucide="home"></i><span>Accueil</span></button>
             <button class="nav-link" onclick="openVente(); setActiveNav(this)"><i data-lucide="badge-dollar-sign"></i><span>Vendre</span></button>
@@ -522,28 +415,31 @@
     <script>
         lucide.createIcons();
 
-        // ========== ÉTAT GLOBAL ==========
+        // État global
         let currentUser = null;
         let currentBalance = 0;
         let balanceHidden = false;
-        let exchangeRates = { USD: 1, XOF: 1 }; // taux depuis RTDB
-        let userGrade = 'Standard'; // Premium, Ambassadeur
-        let userPin = null; // hashé
+        let exchangeRates = { USD: 1, XOF: 1 };
+        let userGrade = 'Standard';
+        let userPin = null;
         let pinAttempts = 0;
         let currentDeviceId = null;
-        let registeredMethods = []; // [{type, value}]
+        let registeredMethods = [];
         let dingProducts = [];
         let cart = [];
         let achatMode = 'moi';
         let offrirTarget = { id: '', motif: '' };
 
-        // ========== AUTHENTIFICATION ==========
+        // Authentification Google
         function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider).then(userCred => {
                 currentUser = userCred.user;
                 initUser();
-            }).catch(err => { alert('Erreur connexion: ' + err.message); });
+            }).catch(err => {
+                console.error(err);
+                alert('Erreur connexion: ' + err.message);
+            });
         }
 
         async function initUser() {
@@ -552,7 +448,6 @@
             document.getElementById('firebase-name').innerText = currentUser.displayName || 'Utilisateur';
             document.getElementById('firebase-email').innerHTML = `${currentUser.email}<br>ID: ${publicId}`;
             
-            // Charger données utilisateur
             const userDoc = await db.collection('users').doc(uid).get();
             if (userDoc.exists) {
                 currentBalance = userDoc.data().balance || 0;
@@ -568,13 +463,12 @@
             listenTransactions();
             listenNotifications();
             checkDevice();
-            // Afficher l'interface principale
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             renderPaymentMethodsList();
         }
 
-        // ========== TAUX DE CHANGE ==========
+        // Taux de change
         async function loadExchangeRates() {
             rtdb.ref('exchangeRates').on('value', (snap) => {
                 if (snap.exists()) exchangeRates = snap.val();
@@ -590,29 +484,24 @@
             } catch(e) { console.warn('Taux non dispo'); }
         }
 
-        // ========== MOTEUR DE CALCUL ==========
+        // Calculs
         function convert(amount, fromCurrency, toCurrency = 'XOF') {
             const rateFrom = exchangeRates[fromCurrency] || 1;
             const rateTo = exchangeRates[toCurrency] || 1;
             return (amount / rateFrom) * rateTo;
         }
-
         function computeSellPrice(faceValueFCFA) {
-            // Rachat: 80% de la valeur, puis -3% de marge, puis grade
-            let net = faceValueFCFA * 0.80;
-            net = net * 0.97;
+            let net = faceValueFCFA * 0.80 * 0.97;
             if (userGrade === 'Premium') net *= 1.005;
             else if (userGrade === 'Ambassadeur') net *= 1.012;
             return Math.floor(net);
         }
-
         function computeBuyPrice(dingPriceUSD) {
             let priceXOF = convert(dingPriceUSD, 'USD', 'XOF');
-            priceXOF = priceXOF * 1.05; // +5% commission
+            priceXOF = priceXOF * 1.05;
             return Math.floor(priceXOF);
         }
 
-        // ========== AFFICHAGE SOLDE ==========
         function renderBalance() {
             const el = document.getElementById('balanceAmount');
             if (balanceHidden) el.innerText = '••••••';
@@ -620,7 +509,7 @@
         }
         function toggleBalance() { balanceHidden = !balanceHidden; renderBalance(); }
 
-        // ========== CATALOGUE DINGCONNECT ==========
+        // Catalogue DingConnect
         async function loadDingCatalog() {
             try {
                 const res = await fetch('https://api.dingconnect.com/api/V1/GetProducts', {
@@ -634,26 +523,18 @@
                 renderDingGrid();
             } catch(e) { document.getElementById('dingGrid').innerHTML = '<div>Erreur chargement</div>'; }
         }
-
         function renderDingGrid() {
             const grid = document.getElementById('dingGrid');
             if (!dingProducts.length) { grid.innerHTML = '<div>Aucun produit</div>'; return; }
-            grid.innerHTML = dingProducts.map((p, idx) => `
-                <div class="ding-card" onclick="selectProduct(${idx})">
-                    ${p.logo ? `<img src="${p.logo}" style="width:50px;height:50px;">` : '<i data-lucide="credit-card"></i>'}
-                    <div>${p.name}</div>
-                    <div>${p.prices.length ? p.prices[0] + ' USD' : ''}</div>
-                </div>
-            `).join('');
+            grid.innerHTML = dingProducts.map((p, idx) => `<div class="ding-card" onclick="selectProduct(${idx})">${p.logo ? `<img src="${p.logo}" style="width:50px;">` : '<i data-lucide="credit-card"></i>'}<div>${p.name}</div><div>${p.prices.length ? p.prices[0] + ' USD' : ''}</div></div>`).join('');
             lucide.createIcons();
         }
-
         function selectProduct(idx) {
             const p = dingProducts[idx];
             const priceUSD = p.prices[0];
             const priceXOF = computeBuyPrice(priceUSD);
             if (achatMode === 'moi') {
-                cart.push({ id: p.id, name: p.name, price: priceXOF, sku: p.id });
+                cart.push({ id: p.id, name: p.name, price: priceXOF });
                 updateCartUI();
                 showToast(`${p.name} ajouté au panier`);
             } else if (achatMode === 'offrir') {
@@ -661,112 +542,65 @@
                 const motif = document.getElementById('offrirMotif').value.trim();
                 if (!destId.match(/^OP-[A-Z0-9]{8}$/i)) { alert('ID invalide'); return; }
                 if (motif.length < 5) { alert('Motif trop court'); return; }
-                // Envoyer le cadeau directement (simplifié)
                 alert(`Cadeau envoyé à ${destId} : ${p.name} (${priceXOF} FCFA)`);
-                // Ici on pourrait débiter le solde et créer une notification
             } else if (achatMode === 'demande') {
                 const link = `https://ominipay.com/cadeau?carte=${encodeURIComponent(p.id)}&montant=${priceUSD}`;
                 navigator.clipboard.writeText(link);
                 alert('Lien cadeau copié !');
             }
         }
+        function updateCartUI() { document.getElementById('cartCount').innerText = cart.length; }
+        function openCart() { let total = cart.reduce((s,i)=>s+i.price,0); alert(`Panier:\n${cart.map(i=>`${i.name} ${i.price} FCFA`).join('\n')}\nTotal: ${total} FCFA`); }
 
-        // ========== PANIER ==========
-        function updateCartUI() {
-            document.getElementById('cartCount').innerText = cart.length;
-        }
-        function openCart() {
-            let total = cart.reduce((s,i)=>s+i.price,0);
-            alert(`Panier:\n${cart.map(i=>`${i.name} ${i.price} FCFA`).join('\n')}\nTotal: ${total} FCFA`);
-            // Ici on pourrait lancer le paiement CinetPay
-        }
-
-        // ========== VENTE ==========
+        // Vente
         let selectedCountry = '';
         function openCountryPicker() {
             const picker = document.getElementById('countryPicker');
             picker.style.transform = 'translateY(0)';
-            // Remplir la liste des pays (exemple)
-            const countryList = ['France', 'USA', 'Canada', 'Côte d\'Ivoire', 'Sénégal'];
+            const countryList = ['France', 'USA', 'Canada', 'Côte d\'Ivoire', 'Sénégal', 'Cameroun', 'Mali', 'Burkina'];
             document.getElementById('countryList').innerHTML = countryList.map(c => `<div onclick="selectCountry('${c}')" style="padding:12px; border-bottom:1px solid #eee;">${c}</div>`).join('');
         }
-        function selectCountry(c) {
-            selectedCountry = c;
-            document.getElementById('selectCountryBtn').innerText = c;
-            closeCountryPicker();
-        }
+        function selectCountry(c) { selectedCountry = c; document.getElementById('selectCountryBtn').innerText = c; closeCountryPicker(); }
         function closeCountryPicker() { document.getElementById('countryPicker').style.transform = 'translateY(100%)'; }
-
         async function submitSell() {
             const cardType = document.getElementById('cardType').value.trim();
             const faceValue = parseFloat(document.getElementById('faceValue').value);
             const cardCode = document.getElementById('cardCode').value.trim();
             const proofFile = document.getElementById('proofImage').files[0];
-            if (!selectedCountry || !cardType || !faceValue || !cardCode || !proofFile) {
-                alert('Veuillez remplir tous les champs et ajouter une preuve');
-                return;
-            }
-            // Upload preuve vers ImgBB
+            if (!selectedCountry || !cardType || !faceValue || !cardCode || !proofFile) { alert('Veuillez remplir tous les champs'); return; }
             const formData = new FormData();
             formData.append('image', proofFile);
             const uploadRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
             const uploadData = await uploadRes.json();
             const proofUrl = uploadData.data.url;
-            // Calcul du montant à créditer
             const amountToCredit = computeSellPrice(faceValue);
-            // Envoi à Google Apps Script pour validation
-            const payload = {
-                userId: currentUser.uid,
-                publicId: 'OP-' + currentUser.uid.substring(0,8).toUpperCase(),
-                country: selectedCountry,
-                cardType,
-                faceValue,
-                cardCode,
-                proofUrl,
-                amountToCredit
-            };
-            const response = await fetch(GAS_VERIF_VENTE, {
-                method: 'POST',
-                mode: 'no-cors', // en attendant CORS
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            alert('Votre vente a été soumise. Un administrateur la validera sous 24h.');
+            const payload = { userId: currentUser.uid, publicId: 'OP-'+currentUser.uid.substring(0,8).toUpperCase(), country: selectedCountry, cardType, faceValue, cardCode, proofUrl, amountToCredit };
+            await fetch(GAS_VERIF_VENTE, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            alert('Votre vente a été soumise.');
             closeVente();
         }
 
-        // ========== SÉCURITÉ IP / PIN ==========
+        // Sécurité IP/PIN
         async function checkDevice() {
             const ipRes = await fetch('https://api.ipify.org?format=json');
             const ipData = await ipRes.json();
             const currentIp = ipData.ip;
             const deviceId = btoa(currentIp + navigator.userAgent).replace(/[^a-zA-Z0-9]/g, '').substring(0,20);
             currentDeviceId = deviceId;
-            const userRef = db.collection('users').doc(currentUser.uid);
-            const devicesSnap = await userRef.collection('devices').doc(deviceId).get();
-            if (!devicesSnap.exists) {
-                // Nouvel appareil -> demander PIN
-                if (userPin) {
-                    showPinScreen(() => {
-                        userRef.collection('devices').doc(deviceId).set({ ip: currentIp, lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
-                    });
-                } else {
-                    // Pas de PIN, on enregistre quand même
-                    userRef.collection('devices').doc(deviceId).set({ ip: currentIp, lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
-                }
+            const devicesSnap = await db.collection('users').doc(currentUser.uid).collection('devices').doc(deviceId).get();
+            if (!devicesSnap.exists && userPin) {
+                showPinScreen(() => {
+                    db.collection('users').doc(currentUser.uid).collection('devices').doc(deviceId).set({ ip: currentIp, lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
+                });
             } else {
-                // Mise à jour dernière connexion
-                devicesSnap.ref.update({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
+                devicesSnap.ref?.update({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
             }
         }
-
         function showPinScreen(onSuccess) {
             const screen = document.getElementById('pinScreen');
             screen.style.display = 'flex';
             let pinBuffer = '';
-            function updateDots() {
-                document.getElementById('pinDots').innerHTML = Array(4).fill(0).map((_,i) => `<div style="width:18px;height:18px;border-radius:50%;background:${i < pinBuffer.length ? '#fff' : '#333'}"></div>`).join('');
-            }
+            function updateDots() { document.getElementById('pinDots').innerHTML = Array(4).fill(0).map((_,i)=>`<div style="width:18px;height:18px;border-radius:50%;background:${i<pinBuffer.length?'#fff':'#333'}"></div>`).join(''); }
             function renderKeypad() {
                 const keys = ['1','2','3','4','5','6','7','8','9','0','⌫'];
                 document.getElementById('pinKeypad').innerHTML = keys.map(k => `<button onclick="pinKeyPress('${k}')" style="background:#222; border:none; color:#fff; font-size:24px; padding:16px; border-radius:50%;">${k}</button>`).join('');
@@ -776,73 +610,45 @@
                 else if (pinBuffer.length < 4) pinBuffer += k;
                 updateDots();
                 if (pinBuffer.length === 4) {
-                    if (pinBuffer === userPin) {
-                        screen.style.display = 'none';
-                        onSuccess();
-                    } else {
-                        pinAttempts++;
-                        if (pinAttempts >= 5) {
-                            db.collection('users').doc(currentUser.uid).update({ isSuspended: true });
-                            alert('Compte suspendu pour sécurité. Contactez le support.');
-                            logoutUser();
-                        } else {
-                            document.getElementById('pinError').innerText = 'Code incorrect. Tentative ' + pinAttempts + '/5';
-                            pinBuffer = '';
-                            updateDots();
-                        }
-                    }
+                    if (pinBuffer === userPin) { screen.style.display = 'none'; onSuccess(); }
+                    else { pinAttempts++; if(pinAttempts>=5) db.collection('users').doc(currentUser.uid).update({ isSuspended: true }).then(()=>alert('Compte suspendu')); else document.getElementById('pinError').innerText = `Code incorrect (${pinAttempts}/5)`; pinBuffer=''; updateDots(); }
                 }
             };
-            updateDots();
-            renderKeypad();
+            updateDots(); renderKeypad();
         }
 
-        // ========== PARRAINAGE ==========
+        // Parrainage
         async function loadParrainage() {
             const uid = currentUser.uid;
             const parrainageSnap = await db.collection('users').doc(uid).collection('parrainages').get();
-            let totalGains = 0;
-            let filleuls = [];
-            parrainageSnap.forEach(d => {
-                totalGains += d.data().gains || 0;
-                filleuls.push(d.data());
-            });
-            document.getElementById('parrainageContent').innerHTML = `
-                <div><strong>Votre lien:</strong> https://ominipay.com/rejoindre?ref=OP-${uid.substring(0,8)}</div>
-                <div><strong>Gains totaux:</strong> ${totalGains.toLocaleString()} FCFA</div>
-                <div><strong>Filleuls (${filleuls.length})</strong></div>
-                <div>${filleuls.map(f => `<div>${f.id} - +${f.gains} FCFA</div>`).join('')}</div>
-                <button onclick="copyParrainLink()">Copier le lien</button>
-            `;
+            let totalGains = 0; let filleuls = [];
+            parrainageSnap.forEach(d => { totalGains += d.data().gains || 0; filleuls.push(d.data()); });
+            document.getElementById('parrainageContent').innerHTML = `<div><strong>Votre lien:</strong> https://ominipay.com/rejoindre?ref=OP-${uid.substring(0,8)}</div><div><strong>Gains totaux:</strong> ${totalGains.toLocaleString()} FCFA</div><div><strong>Filleuls (${filleuls.length})</strong></div><div>${filleuls.map(f=>`<div>${f.id} - +${f.gains} FCFA</div>`).join('')}</div><button onclick="copyParrainLink()">Copier le lien</button>`;
         }
+        function copyParrainLink() { navigator.clipboard.writeText(`https://ominipay.com/rejoindre?ref=OP-${currentUser.uid.substring(0,8)}`); showToast('Lien copié'); }
 
-        // ========== NOTIFICATIONS ==========
+        // Notifications
         function listenNotifications() {
-            db.collection('users').doc(currentUser.uid).collection('notifications')
-                .orderBy('date','desc').limit(20)
-                .onSnapshot(snap => {
-                    const unread = snap.docs.filter(d => !d.data().read).length;
-                    document.getElementById('notifBadge').classList.toggle('visible', unread>0);
-                    renderNotifications(snap.docs);
-                });
+            db.collection('users').doc(currentUser.uid).collection('notifications').orderBy('date','desc').limit(20).onSnapshot(snap => {
+                const unread = snap.docs.filter(d => !d.data().read).length;
+                document.getElementById('notifBadge').classList.toggle('visible', unread>0);
+                const container = document.getElementById('notifList');
+                if (!snap.size) container.innerHTML = '<div>Aucune notification</div>';
+                else container.innerHTML = snap.docs.map(d => `<div onclick="markRead('${d.id}')">${d.data().title} - ${d.data().message}</div>`).join('');
+            });
         }
-        function renderNotifications(docs) {
-            const container = document.getElementById('notifList');
-            if (!docs.length) { container.innerHTML = '<div>Aucune notification</div>'; return; }
-            container.innerHTML = docs.map(d => `<div class="notif-item" onclick="markRead('${d.id}')">${d.data().title} - ${d.data().message}</div>`).join('');
-        }
+        function markRead(id) { db.collection('users').doc(currentUser.uid).collection('notifications').doc(id).update({read:true}); }
+        function markAllNotifRead() {}
 
-        // ========== HISTORIQUE FINANCIER ==========
+        // Historique transactions
         function listenTransactions() {
-            db.collection('users').doc(currentUser.uid).collection('transactions')
-                .orderBy('date','desc').limit(50)
-                .onSnapshot(snap => {
-                    const container = document.getElementById('historiqueList');
-                    container.innerHTML = snap.docs.map(d => `<div>${d.data().date?.toDate().toLocaleString()} - ${d.data().label} - ${d.data().amount} FCFA - ${d.data().status}</div>`).join('');
-                });
+            db.collection('users').doc(currentUser.uid).collection('transactions').orderBy('date','desc').limit(50).onSnapshot(snap => {
+                const container = document.getElementById('historiqueList');
+                container.innerHTML = snap.docs.map(d => `<div>${d.data().date?.toDate().toLocaleString()} - ${d.data().label} - ${d.data().amount} FCFA - ${d.data().status}</div>`).join('');
+            });
         }
 
-        // ========== GESTION DES MOYENS DE PAIEMENT ==========
+        // Gestion des moyens de paiement
         function renderPaymentMethodsList() {
             const list = document.getElementById('paymentMethodsList');
             if (!registeredMethods.length) list.innerHTML = '<div>Aucun moyen enregistré</div>';
@@ -858,13 +664,11 @@
             hideAddMethodForm();
             showToast('Moyen ajouté');
         }
-        function deleteMethod(idx) {
-            registeredMethods.splice(idx,1);
-            db.collection('users').doc(currentUser.uid).update({ paymentMethods: registeredMethods });
-            renderPaymentMethodsList();
-        }
+        function deleteMethod(idx) { registeredMethods.splice(idx,1); db.collection('users').doc(currentUser.uid).update({ paymentMethods: registeredMethods }); renderPaymentMethodsList(); }
+        function showAddMethodForm() { document.getElementById('addMethodForm').style.display = 'block'; }
+        function hideAddMethodForm() { document.getElementById('addMethodForm').style.display = 'none'; }
 
-        // ========== RETRAIT ==========
+        // Retrait
         function openRetrait() {
             document.getElementById('retraitBalance').innerText = currentBalance.toLocaleString() + ' FCFA';
             const select = document.getElementById('retraitMethodSelect');
@@ -875,78 +679,48 @@
             const amount = parseFloat(document.getElementById('retraitAmountInput').value);
             const methodType = document.getElementById('retraitMethodSelect').value;
             const method = registeredMethods.find(m => m.type === methodType);
-            if (!method || amount <= 0 || amount > currentBalance) {
-                document.getElementById('retraitStatus').innerText = 'Montant invalide';
-                return;
-            }
-            // Appel CinetPay (placeholder)
+            if (!method || amount <= 0 || amount > currentBalance) { document.getElementById('retraitStatus').innerText = 'Montant invalide'; return; }
             document.getElementById('retraitStatus').innerText = 'Traitement...';
             try {
                 const response = await fetch('https://client.cinetpay.com/v1/transfer/money/send/contact', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CINETPAY_API_KEY}` },
-                    body: JSON.stringify({
-                        apikey: CINETPAY_API_KEY,
-                        site_id: CINETPAY_SITE_ID,
-                        transaction_id: 'OPR' + Date.now(),
-                        amount: amount,
-                        currency: 'XOF',
-                        description: 'Retrait OminiPay',
-                        receiver_phone: method.value,
-                        payment_method: methodType.toUpperCase()
-                    })
+                    body: JSON.stringify({ apikey: CINETPAY_API_KEY, site_id: CINETPAY_SITE_ID, transaction_id: 'OPR'+Date.now(), amount, currency: 'XOF', description: 'Retrait OminiPay', receiver_phone: method.value, payment_method: methodType.toUpperCase() })
                 });
                 const data = await response.json();
                 if (data.code === '00') {
                     currentBalance -= amount;
                     await db.collection('users').doc(currentUser.uid).update({ balance: currentBalance });
                     renderBalance();
-                    document.getElementById('retraitStatus').innerText = 'Retrait effectué avec succès';
+                    document.getElementById('retraitStatus').innerText = 'Retrait effectué';
                 } else throw new Error(data.message);
-            } catch(e) {
-                document.getElementById('retraitStatus').innerText = 'Erreur, réessayez';
-            }
+            } catch(e) { document.getElementById('retraitStatus').innerText = 'Erreur, réessayez'; }
         }
-
-        // ========== RECHARGE ==========
-        async function doRecharge() {
-            const methodType = document.getElementById('rechargeMethod').value;
-            const amount = parseFloat(document.getElementById('rechargeAmount').value);
-            if (!methodType || amount <= 0) return;
-            // Rediriger vers CinetPay Checkout
-            const checkoutUrl = `https://client.cinetpay.com/v1/payment?apikey=${CINETPAY_API_KEY}&site_id=${CINETPAY_SITE_ID}&transaction_id=TOP${Date.now()}&amount=${amount}&currency=XOF&description=Recharge`;
-            window.location.href = checkoutUrl;
-        }
-
-        // ========== UTILITAIRES ==========
-        function showToast(msg) {
-            const toast = document.createElement('div');
-            toast.innerText = msg;
-            toast.style.cssText = 'position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:#000; color:#fff; padding:12px 20px; border-radius:20px; z-index:9999; animation:fadeInOut 2s forwards;';
-            document.body.appendChild(toast);
-            setTimeout(()=>toast.remove(),2000);
-        }
-
-        // ========== FERMETURE DES PANNEAUX ==========
-        function closeRecharge() { document.getElementById('rechargePanel').style.transform = 'translateX(100%)'; }
-        function closeCompte() { document.getElementById('comptePanel').style.transform = 'translateX(100%)'; }
         function closeRetrait() { document.getElementById('retraitPanel').style.transform = 'translateX(100%)'; }
+
+        // Recharge
+        function openRecharge() { document.getElementById('rechargePanel').style.transform = 'translateX(0)'; }
+        function closeRecharge() { document.getElementById('rechargePanel').style.transform = 'translateX(100%)'; }
+        async function doRecharge() { /* redirection CinetPay */ alert('Recharge en développement'); }
+
+        // Autres panneaux
+        function closeCompte() { document.getElementById('comptePanel').style.transform = 'translateX(100%)'; }
         function closeAchat() { document.getElementById('achatPanel').style.transform = 'translateY(100%)'; }
         function closeVente() { document.getElementById('ventePanel').style.transform = 'translateY(100%)'; }
-        function closeCommandes() { document.getElementById('commandesPanel').classList.remove('visible'); }
-        function closeHistorique() { document.getElementById('historiquePanel').classList.remove('visible'); }
-        function closeNotifications() { document.getElementById('notifPanel').classList.remove('visible'); }
-        function closeParrainage() { document.getElementById('parrainagePanel').classList.remove('visible'); }
-        function closeMesCadeaux() { document.getElementById('mesCadeauxPanel').classList.remove('visible'); }
-        function closeConnexionPanel() { document.getElementById('connexionPanel').classList.remove('visible'); }
-        function closeParametres() { document.getElementById('parametresPanel').classList.remove('visible'); }
         function openCommandes() { document.getElementById('commandesPanel').classList.add('visible'); }
+        function closeCommandes() { document.getElementById('commandesPanel').classList.remove('visible'); }
         function openHistorique() { document.getElementById('historiquePanel').classList.add('visible'); }
+        function closeHistorique() { document.getElementById('historiquePanel').classList.remove('visible'); }
         function openNotifications() { document.getElementById('notifPanel').classList.add('visible'); }
+        function closeNotifications() { document.getElementById('notifPanel').classList.remove('visible'); }
         function openParrainage() { loadParrainage(); document.getElementById('parrainagePanel').classList.add('visible'); }
+        function closeParrainage() { document.getElementById('parrainagePanel').classList.remove('visible'); }
         function openMesCadeaux() { document.getElementById('mesCadeauxPanel').classList.add('visible'); }
+        function closeMesCadeaux() { document.getElementById('mesCadeauxPanel').classList.remove('visible'); }
         function openHistoriqueConnexions() { document.getElementById('connexionPanel').classList.add('visible'); }
+        function closeConnexionPanel() { document.getElementById('connexionPanel').classList.remove('visible'); }
         function openParametres() { document.getElementById('parametresPanel').classList.add('visible'); }
+        function closeParametres() { document.getElementById('parametresPanel').classList.remove('visible'); }
         function openVente() { document.getElementById('ventePanel').style.transform = 'translateY(0)'; }
         function openAchat() { document.getElementById('achatPanel').style.transform = 'translateY(0)'; }
         function setAchatMode(mode) { achatMode = mode; document.getElementById('offrirFields').style.display = mode==='offrir' ? 'block' : 'none'; }
@@ -967,18 +741,8 @@
         function closeSecurite() { document.getElementById('securitePanel').classList.remove('visible'); }
         function openTawk() { if(window.Tawk_API) Tawk_API.toggle(); }
         function toggleTheme(btn) { btn.classList.toggle('dark-mode-active'); }
-        function copyParrainLink() { navigator.clipboard.writeText(`https://ominipay.com/rejoindre?ref=OP-${currentUser.uid.substring(0,8)}`); showToast('Lien copié'); }
-        function markRead(id) { db.collection('users').doc(currentUser.uid).collection('notifications').doc(id).update({read:true}); }
-        function markAllNotifRead() { /* à implémenter */ }
-        function showAddMethodForm() { document.getElementById('addMethodForm').style.display = 'block'; }
-        function hideAddMethodForm() { document.getElementById('addMethodForm').style.display = 'none'; }
-        function logoutUser() {
-            auth.signOut().then(() => {
-                document.getElementById('authScreen').style.display = 'flex';
-                document.getElementById('mainApp').style.display = 'none';
-                currentUser = null;
-            });
-        }
+        function showToast(msg) { let toast=document.createElement('div'); toast.innerText=msg; toast.style.cssText='position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:#000; color:#fff; padding:12px 20px; border-radius:20px; z-index:9999; animation:fadeInOut 2s forwards;'; document.body.appendChild(toast); setTimeout(()=>toast.remove(),2000); }
+        function logoutUser() { auth.signOut().then(()=>{ document.getElementById('authScreen').style.display='flex'; document.getElementById('mainApp').style.display='none'; currentUser=null; }); }
 
         // Tawk.to Script
         var Tawk_API = Tawk_API || {};
