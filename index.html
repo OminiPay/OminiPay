@@ -1,1244 +1,293 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>OminiPay Pro - Pure Interface</title>
-        <script src="https://unpkg.com/lucide@latest"></script>
-        <style>
-            :root {
-                --bg-page: #ffffff;
-                --accent: #007aff;
-                --text-main: #1d1d1f;
-                --border-light: rgba(0, 0, 0, 0.08);
-                --ui-bg: rgba(255, 255, 255, 0.85);
-                --ui-text: #000000;
-                --ui-sub: #777777;
-                --ui-radius: 35px;
-            }
-
-            * {
-                box-sizing: border-box;
-                margin: 0;
-                padding: 0;
-                font-family: -apple-system, system-ui, sans-serif;
-                -webkit-tap-highlight-color: transparent;
-                -webkit-touch-callout: none;
-                outline: none;
-            }
-
-            body {
-                background-color: var(--bg-page);
-                color: var(--text-main);
-                height: 100vh;
-                display: flex;
-                flex-direction: column;
-                overflow: hidden;
-            }
-
-            .reactive-click:active {
-                transform: scale(0.96);
-                transition: transform 0.1s ease;
-            }
-
-            .header {
-                height: 70px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 0 5%;
-                background: rgba(255, 255, 255, 0.8);
-                backdrop-filter: blur(20px);
-                border-bottom: 1px solid var(--border-light);
-                position: fixed;
-                top: 0;
-                width: 100%;
-                z-index: 1000;
-            }
-
-            .logo-img {
-                height: 42px;
-                width: auto;
-            }
-
-            .btn-header {
-                background: none;
-                border: none;
-                cursor: pointer;
-                padding: 8px;
-                color: var(--text-main);
-                display: flex;
-                align-items: center;
-            }
-
-            /* ===== WALLET PANEL ===== */
-            #walletPanel {
-                position: fixed;
-                top: 70px;
-                left: 0;
-                width: 100%;
-                z-index: 999;
-                transform: translateY(-110%);
-                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-
-            #walletPanel.visible {
-                transform: translateY(0);
-            }
-
-            .wallet-container {
-                width: 100%;
-                background: var(--ui-bg);
-                backdrop-filter: blur(25px);
-                -webkit-backdrop-filter: blur(25px);
-                border-bottom-left-radius: var(--ui-radius);
-                border-bottom-right-radius: var(--ui-radius);
-                padding: 35px 0 25px 0;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .balance-section {
-                text-align: center;
-                margin-bottom: 30px;
-            }
-
-            .balance-label {
-                font-size: 13px;
-                font-weight: 700;
-                color: var(--ui-sub);
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                margin-bottom: 8px;
-            }
-
-            .balance-row {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 12px;
-            }
-
-            #balanceAmount {
-                font-size: 34px;
-                font-weight: 800;
-                letter-spacing: -1px;
-                color: var(--ui-text);
-            }
-
-            .eye-toggle {
-                background: none;
-                border: none;
-                cursor: pointer;
-                padding: 5px;
-                color: var(--ui-text);
-                display: flex;
-                transition: transform 0.1s ease;
-            }
-
-            .eye-toggle:active {
-                transform: scale(0.8);
-            }
-
-            .action-grid {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                width: 100%;
-                max-width: 450px;
-                padding: 0 10px;
-                box-sizing: border-box;
-            }
-
-            .action-btn {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                text-decoration: none;
-                color: var(--ui-text);
-                gap: 10px;
-                transition: transform 0.1s cubic-bezier(0.2, 0, 0, 1);
-                cursor: pointer;
-                background: none;
-                border: none;
-            }
-
-            .action-btn:active {
-                transform: scale(0.85);
-            }
-
-            .icon-circle {
-                width: 60px;
-                height: 60px;
-                background: rgba(255, 255, 255, 0.95);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-            }
-
-            .action-text {
-                font-size: 12px;
-                font-weight: 600;
-            }
-
-            .handle {
-                width: 40px;
-                height: 5px;
-                background: rgba(0, 0, 0, 0.1);
-                border-radius: 10px;
-                margin-top: 25px;
-                cursor: pointer;
-            }
-            /* ===== FIN WALLET PANEL ===== */
-
-            #wallet-overlay {
-                position: fixed;
-                inset: 0;
-                top: 70px;
-                background: rgba(0, 0, 0, 0.2);
-                z-index: 998;
-                display: none;
-            }
-            #wallet-overlay.visible {
-                display: block;
-            }
-
-            /* ===== COMPTE PANEL (Moyens de Paiement) ===== */
-            #comptePanel {
-                position: fixed;
-                inset: 0;
-                top: 70px;
-                background: #f0f2f5;
-                z-index: 1500;
-                overflow-y: auto;
-                transform: translateX(100%);
-                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                padding: 20px;
-                display: flex;
-                justify-content: center;
-            }
-
-            #comptePanel.visible {
-                transform: translateX(0);
-            }
-
-            .compte-inner {
-                width: 100%;
-                max-width: 450px;
-            }
-
-            .compte-header {
-                padding: 20px 10px 25px 10px;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-            }
-
-            .compte-back-btn {
-                background: none;
-                border: none;
-                cursor: pointer;
-                padding: 8px;
-                color: var(--text-main);
-                display: flex;
-                align-items: center;
-                transition: transform 0.1s ease;
-            }
-
-            .compte-back-btn:active {
-                transform: scale(0.85);
-            }
-
-            .compte-title {
-                font-size: 22px;
-                font-weight: 700;
-            }
-
-            .payment-menu {
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-                background: rgba(255, 255, 255, 0.85);
-                backdrop-filter: blur(10px);
-                padding: 15px;
-                border-radius: 30px;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
-            }
-
-            .method-btn {
-                width: 100%;
-                background: rgba(255, 255, 255, 0.5);
-                border: 1px solid rgba(0, 0, 0, 0.05);
-                border-radius: 20px;
-                padding: 15px;
-                display: flex;
-                align-items: center;
-                cursor: pointer;
-                transition: all 0.2s ease;
-            }
-
-            .method-btn:active {
-                transform: scale(0.97);
-                background: #eee;
-            }
-
-            .method-btn img {
-                width: 40px;
-                height: 40px;
-                border-radius: 10px;
-                object-fit: cover;
-                margin-right: 15px;
-            }
-
-            .method-btn span {
-                font-size: 16px;
-                font-weight: 600;
-                flex-grow: 1;
-                text-align: left;
-            }
-
-            .form-container {
-                display: none;
-                margin-top: 20px;
-                background: rgba(255, 255, 255, 0.85);
-                backdrop-filter: blur(10px);
-                padding: 25px;
-                border-radius: 30px;
-                animation: slideUp 0.3s ease-out;
-            }
-
-            @keyframes slideUp {
-                from {
-                    transform: translateY(20px);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateY(0);
-                    opacity: 1;
-                }
-            }
-
-            .form-container.active {
-                display: block;
-            }
-
-            .form-title {
-                font-size: 18px;
-                font-weight: 700;
-                margin-bottom: 20px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-
-            .form-input {
-                width: 100%;
-                padding: 18px;
-                border-radius: 18px;
-                border: 1px solid #ddd;
-                background: #f9f9f9;
-                box-sizing: border-box;
-                font-size: 16px;
-                margin-bottom: 15px;
-                transition: border 0.2s;
-            }
-
-            .form-input:focus {
-                border-color: #000;
-            }
-
-            .save-btn {
-                width: 100%;
-                background: #000;
-                color: white;
-                border: none;
-                padding: 20px;
-                border-radius: 25px;
-                font-size: 18px;
-                font-weight: 700;
-                margin-top: 30px;
-                cursor: pointer;
-                transition: opacity 0.2s;
-            }
-
-            .save-btn:active {
-                opacity: 0.8;
-            }
-
-            .back-btn-form {
-                background: none;
-                border: none;
-                color: #666;
-                cursor: pointer;
-                padding: 0;
-                margin-bottom: 15px;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-                font-size: 14px;
-            }
-            /* ===== FIN COMPTE PANEL ===== */
-
-            /* ===== RECHARGE PANEL ===== */
-            #rechargePanel {
-                position: fixed;
-                inset: 0;
-                top: 70px;
-                background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-                z-index: 1500;
-                overflow-y: auto;
-                transform: translateX(100%);
-                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                padding: 30px 20px 100px 20px;
-            }
-
-            #rechargePanel.visible {
-                transform: translateX(0);
-            }
-
-            .recharge-back-header {
-                width: 100%;
-                max-width: 400px;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                margin-bottom: 20px;
-            }
-
-            .recharge-back-btn {
-                background: none;
-                border: none;
-                cursor: pointer;
-                padding: 8px;
-                color: var(--text-main);
-                display: flex;
-                align-items: center;
-                transition: transform 0.1s ease;
-            }
-
-            .recharge-back-btn:active {
-                transform: scale(0.85);
-            }
-
-            .recharge-panel-title {
-                font-size: 22px;
-                font-weight: 700;
-            }
-
-            .recharge-menu {
-                width: 100%;
-                max-width: 400px;
-                background: rgba(255, 255, 255, 0.25);
-                backdrop-filter: blur(40px) saturate(200%);
-                -webkit-backdrop-filter: blur(40px) saturate(200%);
-                border-radius: 35px;
-                border: 1px solid rgba(255, 255, 255, 0.5);
-                padding: 28px;
-                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.06);
-            }
-
-            .logo-container {
-                display: flex;
-                justify-content: center;
-                margin-bottom: 25px;
-            }
-
-            .app-logo {
-                height: 50px;
-                width: auto;
-                object-fit: contain;
-            }
-
-            .recharge-tabs {
-                display: flex;
-                background: rgba(0, 0, 0, 0.07);
-                border-radius: 25px;
-                padding: 5px;
-                margin-bottom: 30px;
-            }
-
-            .recharge-tab {
-                flex: 1;
-                padding: 14px;
-                text-align: center;
-                border-radius: 20px;
-                font-size: 14px;
-                font-weight: 700;
-                color: rgba(0, 0, 0, 0.55);
-                cursor: pointer;
-                transition: transform 0.2s cubic-bezier(0.3, 0, 0.2, 1);
-            }
-
-            .recharge-tab:active {
-                transform: scale(0.94);
-            }
-
-            .recharge-tab.active {
-                background: white;
-                color: #000;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            }
-
-            .source-selector {
-                display: flex;
-                gap: 12px;
-                margin-bottom: 20px;
-            }
-
-            .source-btn {
-                flex: 1;
-                padding: 16px;
-                border-radius: 22px;
-                border: 1px solid rgba(0, 0, 0, 0.04);
-                background: rgba(255, 255, 255, 0.5);
-                font-size: 13px;
-                font-weight: 700;
-                text-align: center;
-                cursor: pointer;
-                transition: transform 0.2s cubic-bezier(0.3, 0, 0.2, 1);
-            }
-
-            .source-btn:active {
-                transform: scale(0.94);
-            }
-            .source-btn.active {
-                background: #000;
-                color: #fff;
-            }
-
-            .payment-zone {
-                display: flex;
-                gap: 15px;
-                margin-bottom: 25px;
-            }
-
-            .method-item {
-                width: 55px;
-                height: 55px;
-                border-radius: 50%;
-                background: rgba(255, 255, 255, 0.7);
-                border: 1px solid rgba(0, 0, 0, 0.05);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                transition: transform 0.2s cubic-bezier(0.3, 0, 0.2, 1);
-            }
-
-            .method-item:active {
-                transform: scale(0.94);
-            }
-            .method-item.selected {
-                background: #000;
-                color: #fff;
-            }
-
-            .r-field {
-                margin-bottom: 22px;
-            }
-
-            .r-field label {
-                display: block;
-                font-size: 13px;
-                font-weight: 700;
-                margin: 0 0 10px 15px;
-                color: rgba(0, 0, 0, 0.55);
-            }
-
-            .r-field input,
-            .r-field textarea {
-                width: 100%;
-                padding: 18px;
-                border-radius: 24px;
-                border: 1px solid rgba(0, 0, 0, 0.05);
-                background: rgba(255, 255, 255, 0.8);
-                font-size: 16px;
-                box-sizing: border-box;
-                outline: none;
-                margin-bottom: 0;
-            }
-
-            .r-field textarea {
-                height: 110px;
-                resize: none;
-                font-family: inherit;
-            }
-
-            .confirm-zone {
-                display: flex;
-                align-items: center;
-                gap: 14px;
-                margin: 25px 15px;
-                font-size: 13px;
-                font-weight: 600;
-            }
-
-            .confirm-zone input[type="checkbox"] {
-                width: 24px;
-                height: 24px;
-                accent-color: #000;
-            }
-
-            .recharge-btn {
-                width: 100%;
-                padding: 22px;
-                border-radius: 30px;
-                border: none;
-                background: #000;
-                color: #fff;
-                font-size: 18px;
-                font-weight: 700;
-                cursor: pointer;
-                transition: transform 0.2s cubic-bezier(0.3, 0, 0.2, 1);
-            }
-
-            .recharge-btn:active:not(:disabled) {
-                transform: scale(0.94);
-            }
-            .recharge-btn:disabled {
-                background: rgba(0, 0, 0, 0.1);
-                color: rgba(0, 0, 0, 0.3);
-                cursor: default;
-            }
-
-            .option-content {
-                display: none;
-            }
-            .option-content.active {
-                display: block;
-            }
-            /* ===== FIN RECHARGE PANEL ===== */
-
-            /* ===== ACHAT PANEL (Boutique) ===== */
-            #achatPanel {
-                position: fixed;
-                inset: 0;
-                top: 70px;
-                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-                z-index: 1500;
-                overflow-y: auto;
-                transform: translateY(100%);
-                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                padding: 30px 20px 100px 20px;
-            }
-
-            #achatPanel.visible {
-                transform: translateY(0);
-            }
-
-            .achat-back-header {
-                width: 100%;
-                max-width: 800px;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                margin-bottom: 20px;
-            }
-
-            .achat-back-btn {
-                background: none;
-                border: none;
-                cursor: pointer;
-                padding: 8px;
-                color: var(--text-main);
-                display: flex;
-                align-items: center;
-                transition: transform 0.1s ease;
-            }
-
-            .achat-back-btn:active {
-                transform: scale(0.85);
-            }
-
-            .achat-panel-title {
-                font-size: 22px;
-                font-weight: 700;
-            }
-
-            .buy-menu {
-                width: 100%;
-                max-width: 800px;
-                background: rgba(255, 255, 255, 0.25);
-                backdrop-filter: blur(35px) saturate(180%);
-                -webkit-backdrop-filter: blur(35px) saturate(180%);
-                border-radius: 28px;
-                padding: 22px;
-                border: 0.5px solid rgba(255, 255, 255, 0.4);
-                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
-            }
-
-            .buy-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 15px;
-                padding-bottom: 10px;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            }
-
-            .cart-trigger {
-                background: #000;
-                color: #fff;
-                padding: 8px 14px;
-                border-radius: 18px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                font-size: 14px;
-            }
-
-            .mode-selector {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-                gap: 12px;
-                margin-top: 20px;
-            }
-
-            .mode-card {
-                background: rgba(255, 255, 255, 0.5);
-                padding: 18px;
-                border-radius: 22px;
-                text-align: center;
-                cursor: pointer;
-                border: 0.5px solid rgba(0, 0, 0, 0.05);
-                transition: 0.2s cubic-bezier(0.2, 0, 0.2, 1);
-            }
-            .mode-card:active {
-                transform: scale(0.96);
-            }
-            .mode-card h3 {
-                margin: 8px 0 2px;
-                font-size: 14px;
-                font-weight: 700;
-            }
-            .mode-card .notice {
-                font-size: 11px;
-                color: rgba(0, 0, 0, 0.5);
-                font-weight: 500;
-            }
-
-            #catalogView {
-                display: none;
-            }
-
-            .search-area-achat {
-                margin: 15px 0;
-            }
-            .search-area-achat input {
-                width: 100%;
-                padding: 14px 18px;
-                border-radius: 18px;
-                border: 1px solid rgba(0, 0, 0, 0.08);
-                background: #fff;
-                font-size: 15px;
-                outline: none;
-                box-sizing: border-box;
-            }
-
-            #reloadlyGrid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-                gap: 12px;
-                min-height: 200px;
-                padding: 10px 0;
-            }
-
-            .empty-msg {
-                grid-column: 1 / -1;
-                text-align: center;
-                padding: 40px 20px;
-                color: rgba(0, 0, 0, 0.5);
-                font-size: 14px;
-                font-weight: 500;
-            }
-
-            .catalog-back-btn {
-                margin-top: 15px;
-                border: none;
-                background: rgba(0, 0, 0, 0.05);
-                padding: 10px 20px;
-                border-radius: 15px;
-                font-size: 13px;
-                font-weight: 700;
-                cursor: pointer;
-            }
-            /* ===== FIN ACHAT PANEL ===== */
-
-            /* ===== MENU PROFIL (Side Panel) ===== */
-            #menuPanel {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                max-width: 380px;
-                height: 100%;
-                z-index: 3000;
-                background: rgba(255, 255, 255, 0.85);
-                backdrop-filter: blur(30px) saturate(180%);
-                -webkit-backdrop-filter: blur(30px) saturate(180%);
-                border-right: 1px solid rgba(0, 0, 0, 0.06);
-                box-shadow: 10px 0 30px rgba(0, 0, 0, 0.08);
-                display: flex;
-                flex-direction: column;
-                transform: translateX(-110%);
-                transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-
-            #menuPanel.visible {
-                transform: translateX(0);
-            }
-
-            #menu-overlay {
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.25);
-                backdrop-filter: blur(4px);
-                z-index: 2999;
-                display: none;
-            }
-
-            #menu-overlay.visible {
-                display: block;
-            }
-
-            .close-area {
-                padding: 20px;
-                display: flex;
-                justify-content: flex-start;
-            }
-
-            .btn-close {
-                background: none;
-                border: none;
-                cursor: pointer;
-                color: var(--text-main);
-                padding: 8px;
-                display: flex;
-                align-items: center;
-                transition: transform 0.1s ease;
-            }
-
-            .btn-close:active {
-                transform: scale(0.85);
-            }
-
-            .profile-header {
-                padding: 10px 25px 30px 25px;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-            }
-
-            .avatar-circle {
-                width: 60px;
-                height: 60px;
-                border-radius: 50%;
-                background: #fff;
-                border: 1px solid rgba(0, 0, 0, 0.06);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: var(--accent);
-            }
-
-            .user-info h2 {
-                font-size: 18px;
-                font-weight: 700;
-                color: var(--text-main);
-            }
-            .user-info p {
-                font-size: 13px;
-                color: #8e8e93;
-            }
-
-            .menu-content {
-                flex: 1;
-                overflow-y: auto;
-                padding: 0 15px 40px 15px;
-            }
-
-            .menu-group {
-                margin-bottom: 25px;
-            }
-
-            .group-title {
-                font-size: 11px;
-                font-weight: 700;
-                color: #8e8e93;
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                margin: 0 0 10px 15px;
-            }
-
-            .menu-item {
-                width: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 14px 15px;
-                background: transparent;
-                border: none;
-                border-radius: 12px;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                color: var(--text-main);
-                margin-bottom: 2px;
-            }
-
-            .menu-item:active {
-                background: rgba(0, 122, 255, 0.08);
-                transform: scale(0.98);
-            }
-
-            .item-left {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                font-size: 15px;
-                font-weight: 500;
-            }
-
-            .item-right {
-                color: #8e8e93;
-            }
-
-            .switch {
-                width: 40px;
-                height: 22px;
-                background: #e9e9eb;
-                border-radius: 20px;
-                position: relative;
-                transition: 0.3s;
-            }
-
-            .switch::after {
-                content: "";
-                position: absolute;
-                top: 2px;
-                left: 2px;
-                width: 18px;
-                height: 18px;
-                background: #fff;
-                border-radius: 50%;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                transition: 0.3s;
-            }
-
-            .dark-mode-active .switch {
-                background: #34c759;
-            }
-            .dark-mode-active .switch::after {
-                left: 20px;
-            }
-
-            .menu-footer {
-                padding: 20px;
-                border-top: 1px solid rgba(0, 0, 0, 0.06);
-                text-align: center;
-            }
-
-            .btn-logout {
-                color: #ff3b30;
-                font-weight: 600;
-                font-size: 15px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                width: 100%;
-                padding: 12px;
-                background: none;
-                border: none;
-                cursor: pointer;
-            }
-            /* ===== FIN MENU PROFIL ===== */
-
-            .top-nav-area {
-                margin-top: 90px;
-                padding: 0 5%;
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
-                width: 100%;
-                max-width: 1200px;
-                align-self: center;
-            }
-
-            .search-bar {
-                display: flex;
-                align-items: center;
-                background: #fff;
-                border: 1.5px solid var(--border-light);
-                border-radius: 12px;
-                padding: 12px 18px;
-            }
-            .search-bar input {
-                border: none;
-                background: none;
-                width: 100%;
-                margin-left: 12px;
-                font-size: 16px;
-            }
-
-            .categories-wrapper {
-                width: 100%;
-                overflow-x: auto;
-                display: flex;
-                gap: 10px;
-                padding-bottom: 5px;
-                scrollbar-width: none;
-            }
-            .categories-wrapper::-webkit-scrollbar {
-                display: none;
-            }
-
-            .cat-btn {
-                white-space: nowrap;
-                padding: 8px 18px;
-                border-radius: 20px;
-                background: #f5f5f7;
-                color: #8e8e93;
-                font-size: 13px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                border: none;
-            }
-            .cat-btn.active {
-                background: var(--accent);
-                color: #ffffff;
-            }
-
-            .main-scroll {
-                flex: 1;
-                overflow-y: auto;
-                padding: 20px 5% 100px 5%;
-                position: relative;
-            }
-
-            #no-result-msg {
-                display: none;
-                text-align: center;
-                color: #8e8e93;
-                font-size: 14px;
-                margin-top: 40px;
-            }
-
-            .cards-grid {
-                display: grid;
-                width: 100%;
-                max-width: 1200px;
-                margin: 0 auto;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 15px;
-            }
-
-            .card-slot {
-                aspect-ratio: 1.6 / 1;
-                background: transparent;
-                border: 1px solid var(--border-light);
-                border-radius: 16px;
-                transition: border-color 0.3s ease;
-            }
-            .card-slot:hover {
-                border-color: var(--accent);
-            }
-            .card-slot.hidden {
-                display: none;
-            }
-
-            @media (max-width: 900px) {
-                .cards-grid {
-                    grid-template-columns: repeat(2, 1fr);
-                }
-            }
-
-            .footer {
-                height: 75px;
-                background: rgba(255, 255, 255, 0.9);
-                backdrop-filter: blur(25px);
-                border-top: 1px solid var(--border-light);
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-                position: fixed;
-                bottom: 0;
-                width: 100%;
-                z-index: 1000;
-                padding-bottom: 10px;
-            }
-
-            .nav-link {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                text-decoration: none;
-                color: #8e8e93;
-                font-size: 11px;
-                font-weight: 500;
-                gap: 5px;
-            }
-            .nav-link.active {
-                color: var(--accent);
-            }
-
-            #menu-blur {
-                position: fixed;
-                inset: 0;
-                background: rgba(255, 255, 255, 0.4);
-                backdrop-filter: blur(25px);
-                display: none;
-                z-index: 2000;
-            }
-        </style>
-    </head>
-    <body>
-        <!-- ===== MENU PROFIL (Side Panel) — caché par défaut ===== -->
-        <div id="menu-overlay" onclick="toggleMenu()"></div>
-        <div id="menuPanel">
-            <div class="close-area">
-                <button class="btn-close" onclick="toggleMenu()">
-                    <i data-lucide="x"></i>
-                </button>
-            </div>
-
-            <div class="profile-header">
-                <div class="avatar-circle">
-                    <i data-lucide="user" size="30"></i>
-                </div>
-                <div class="user-info">
-                    <h2 id="firebase-name">Utilisateur Omini</h2>
-                    <p id="firebase-email">ID: #00000000</p>
-                </div>
-            </div>
-
-            <div class="menu-content">
-                <div class="menu-group">
-                    <p class="group-title">Mon Compte</p>
-                    <button class="menu-item">
-                        <div class="item-left">
-                            <i data-lucide="gift" size="20"></i> Mes cadeaux
-                        </div>
-                        <div class="item-right">
-                            <i data-lucide="chevron-right" size="16"></i>
-                        </div>
-                    </button>
-                    <button class="menu-item">
-                        <div class="item-left">
-                            <i data-lucide="users" size="20"></i> Parrainage
-                        </div>
-                        <div class="item-right">
-                            <i data-lucide="chevron-right" size="16"></i>
-                        </div>
-                    </button>
-                    <button class="menu-item">
-                        <div class="item-left">
-                            <i data-lucide="history" size="20"></i> Historique
-                        </div>
-                        <div class="item-right">
-                            <i data-lucide="chevron-right" size="16"></i>
-                        </div>
-                    </button>
-                </div>
-
-                <div class="menu-group">
-                    <p class="group-title">Préférences</p>
-                    <button class="menu-item">
-                        <div class="item-left">
-                            <i data-lucide="settings" size="20"></i> Paramètres
-                        </div>
-                        <div class="item-right">
-                            <i data-lucide="chevron-right" size="16"></i>
-                        </div>
-                    </button>
-                    <button class="menu-item" onclick="toggleTheme(this)">
-                        <div class="item-left">
-                            <i data-lucide="moon" size="20"></i> Mode Sombre
-                        </div>
-                        <div class="item-right"><div class="switch"></div></div>
-                    </button>
-                    <button class="menu-item">
-                        <div class="item-left">
-                            <i data-lucide="languages" size="20"></i> Langue
-                        </div>
-                        <div class="item-right" style="font-size: 13px">
-                            Français
-                        </div>
-                    </button>
-                </div>
-
-                <div class="menu-group">
-                    <p class="group-title">Assistance & Légal</p>
-                    <button class="menu-item">
-                        <div class="item-left">
-                            <i data-lucide="help-circle" size="20"></i> FAQ
-                        </div>
-                    </button>
-                    <button class="menu-item">
-                        <div class="item-left">
-                            <i data-lucide="mail" size="20"></i> Contact
-                        </div>
-                    </button>
-                    <button class="menu-item">
-                        <div class="item-left">
-                            <i data-lucide="info" size="20"></i> À propos
-                        </div>
-                    </button>
-                    <button class="menu-item">
-                        <div class="item-left">
-                            <i data-lucide="shield-check" size="20"></i>
-                            Confidentialité
-                        </div>
-                    </button>
-                    <button class="menu-item">
-                        <div class="item-left">
-                            <i data-lucide="lock" size="20"></i> Sécurité
-                        </div>
-                    </button>
-                </div>
-            </div>
-
-            <div class="menu-footer">
-                <button class="btn-logout">
-                    <i data-lucide="log-out" size="20"></i> Déconnexion
-                </button>
-            </div>
-        </div>
-        <!-- ===== FIN MENU PROFIL ===== -->
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>OminiPay - Échange de cartes cadeaux</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <script>
+        // 🔐 Configuration Firebase réelle
+        const firebaseConfig = {
+            apiKey: "GOOGLE_API_KEY",
+            authDomain: "ominipay.firebaseapp.com",
+            projectId: "ominipay",
+            storageBucket: "ominipay.firebasestorage.app",
+            messagingSenderId: "320469451881",
+            appId: "1:320469451881:web:3417a0ac61ef0307218ef8"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        const rtdb = firebase.database();
+
+        // 🔑 Clés API réelles
+        const DING_API_KEY = '1eOlUXCawoo6oGPMvHhbZc';
+        const IMGBB_API_KEY = 'dbb09490f16803a2e0d17a535e54578a';
+        const CINETPAY_API_KEY = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'; // Remplacez par votre clé réelle
+        const CINETPAY_SITE_ID = 'XXXXXXXX'; // Remplacez par votre site_id
+
+        // 🌍 URLs Google Apps Script
+        const GAS_VERIF_VENTE = 'https://script.google.com/macros/s/AKfycbyILS7SXCN7-dzshWEbD723tvGAXfrZW5ME815AfMUilPLeIeAQ5_L_He6WUUpQxCre/exec';
+        const GAS_SOURCING_TAUX = 'https://script.google.com/macros/s/AKfycbyjjgFcuXmHy8u4XUv9RTlZyoY-ypCJgRU875XxnJcWrkkqVHOuNOODvTt6898p90Wg/exec';
+    </script>
+    <style>
+        /* ========== STYLES GLOBAUX ========== */
+        :root {
+            --bg-page: #ffffff;
+            --accent: #007AFF;
+            --text-main: #1d1d1f;
+            --border-light: rgba(0, 0, 0, 0.08);
+            --ui-bg: rgba(255, 255, 255, 0.85);
+            --ui-text: #000000;
+            --ui-sub: #777777;
+            --ui-radius: 35px;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, system-ui, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .reactive-click:active { transform: scale(0.96); transition: transform 0.1s ease; }
+
+        /* Header */
+        .header {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-light);
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+        }
+        .logo-img { height: 42px; width: auto; }
+        .btn-header {
+            background: none; border: none; cursor: pointer;
+            padding: 8px; color: var(--text-main);
+            display: flex; align-items: center;
+            position: relative;
+        }
+        .notif-badge {
+            position: absolute;
+            top: 4px; right: 4px;
+            width: 9px; height: 9px;
+            background: #ff3b30;
+            border-radius: 50%;
+            border: 1.5px solid #fff;
+            display: none;
+        }
+        .notif-badge.visible { display: block; }
+
+        /* Panneau Wallet */
+        #walletPanel {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            z-index: 999;
+            transform: translateY(-110%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #walletPanel.visible { transform: translateY(0); }
+        .wallet-container {
+            width: 100%;
+            background: var(--ui-bg);
+            backdrop-filter: blur(25px);
+            border-bottom-left-radius: var(--ui-radius);
+            border-bottom-right-radius: var(--ui-radius);
+            padding: 35px 0 25px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .balance-section { text-align: center; margin-bottom: 30px; }
+        .balance-label { font-size: 13px; font-weight: 700; color: var(--ui-sub); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .balance-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
+        #balanceAmount { font-size: 34px; font-weight: 800; letter-spacing: -1px; color: var(--ui-text); }
+        .eye-toggle { background: none; border: none; cursor: pointer; padding: 5px; color: var(--ui-text); display: flex; transition: transform 0.1s ease; }
+        .eye-toggle:active { transform: scale(0.8); }
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            width: 100%; max-width: 450px;
+            padding: 0 10px;
+            gap: 10px;
+        }
+        .action-btn {
+            display: flex; flex-direction: column;
+            align-items: center; text-decoration: none;
+            color: var(--ui-text); gap: 10px;
+            cursor: pointer; background: none; border: none;
+        }
+        .action-btn:active { transform: scale(0.85); }
+        .icon-circle {
+            width: 60px; height: 60px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%; display: flex;
+            align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        .action-text { font-size: 12px; font-weight: 600; }
+        .handle {
+            width: 40px; height: 5px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px; margin-top: 25px; cursor: pointer;
+        }
+        #wallet-overlay {
+            position: fixed; inset: 0; top: 70px;
+            background: rgba(0,0,0,0.2);
+            z-index: 998; display: none;
+        }
+        #wallet-overlay.visible { display: block; }
+
+        /* Menu latéral */
+        #menuPanel {
+            position: fixed; top: 0; left: 0;
+            width: 100%; max-width: 380px; height: 100%;
+            z-index: 3000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(30px);
+            border-right: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 10px 0 30px rgba(0,0,0,0.08);
+            display: flex; flex-direction: column;
+            transform: translateX(-110%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #menuPanel.visible { transform: translateX(0); }
+        #menu-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.25);
+            backdrop-filter: blur(4px);
+            z-index: 2999; display: none;
+        }
+        #menu-overlay.visible { display: block; }
+        .close-area { padding: 20px; display: flex; justify-content: flex-start; }
+        .btn-close { background: none; border: none; cursor: pointer; color: var(--text-main); padding: 8px; display: flex; align-items: center; transition: transform 0.1s ease; }
+        .btn-close:active { transform: scale(0.85); }
+        .profile-header { padding: 10px 25px 30px 25px; display: flex; align-items: center; gap: 15px; }
+        .avatar-circle { width: 60px; height: 60px; border-radius: 50%; background: #fff; border: 1px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; color: var(--accent); }
+        .user-info h2 { font-size: 18px; font-weight: 700; color: var(--text-main); }
+        .user-info p { font-size: 13px; color: #8e8e93; }
+        .menu-content { flex: 1; overflow-y: auto; padding: 0 15px 40px 15px; }
+        .menu-group { margin-bottom: 25px; }
+        .group-title { font-size: 11px; font-weight: 700; color: #8e8e93; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 10px 15px; }
+        .menu-item {
+            width: 100%; display: flex; align-items: center;
+            justify-content: space-between;
+            padding: 14px 15px; background: transparent;
+            border: none; border-radius: 12px; cursor: pointer;
+            transition: all 0.2s ease; color: var(--text-main);
+            margin-bottom: 2px;
+        }
+        .menu-item:active { background: rgba(0, 122, 255, 0.08); transform: scale(0.98); }
+        .item-left { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; }
+        .item-right { color: #8e8e93; }
+        .menu-footer { padding: 20px; border-top: 1px solid rgba(0,0,0,0.06); text-align: center; }
+        .btn-logout { color: #ff3b30; font-weight: 600; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; background: none; border: none; cursor: pointer; }
+
+        /* Autres panneaux (FAQ, Sécurité, etc.) - styles simplifiés */
+        .faq-panel, .securite-panel, .apropos-panel, .confidentialite-panel, .contact-panel {
+            position: fixed; inset: 0; background: #f4f4f4; z-index: 4000; overflow-y: auto;
+            transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 20px;
+        }
+        .faq-panel.visible, .securite-panel.visible, .apropos-panel.visible, .confidentialite-panel.visible, .contact-panel.visible { transform: translateX(0); }
+        .back-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .back-btn { background: none; border: none; cursor: pointer; padding: 8px; }
+
+        /* Footer */
+        .footer {
+            height: 75px; background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(25px); border-top: 1px solid var(--border-light);
+            display: flex; justify-content: space-around; align-items: center;
+            position: fixed; bottom: 0; width: 100%; z-index: 1000;
+        }
+        .nav-link {
+            display: flex; flex-direction: column; align-items: center;
+            text-decoration: none; color: #8e8e93;
+            font-size: 11px; font-weight: 500; gap: 5px; cursor: pointer;
+            background: none; border: none;
+        }
+        .nav-link.active { color: var(--accent); }
+
+        /* Contenu principal */
+        .top-nav-area { margin-top: 90px; padding: 0 5%; display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 1200px; align-self: center; }
+        .search-bar { display: flex; align-items: center; background: #fff; border: 1.5px solid var(--border-light); border-radius: 12px; padding: 12px 18px; }
+        .search-bar input { border: none; background: none; width: 100%; margin-left: 12px; font-size: 16px; }
+        .categories-wrapper { width: 100%; overflow-x: auto; display: flex; gap: 10px; padding-bottom: 5px; scrollbar-width: none; }
+        .categories-wrapper::-webkit-scrollbar { display: none; }
+        .cat-btn { white-space: nowrap; padding: 8px 18px; border-radius: 20px; background: #f5f5f7; color: #8e8e93; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; border: none; }
+        .cat-btn.active { background: var(--accent); color: #ffffff; }
+        .main-scroll { flex: 1; overflow-y: auto; padding: 20px 5% 100px 5%; }
+        .cards-grid { display: grid; width: 100%; max-width: 1200px; margin: 0 auto; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .card-slot { aspect-ratio: 1.6 / 1; background: transparent; border: 1px solid var(--border-light); border-radius: 16px; transition: border-color 0.3s ease; }
+        .card-slot:hover { border-color: var(--accent); }
+        .card-slot.hidden { display: none; }
+        @media (max-width: 900px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+        #no-result-msg { display: none; text-align: center; color: #8e8e93; font-size: 14px; margin-top: 40px; }
+
+        /* Toast */
+        @keyframes fadeInOut { 0%{opacity:0;transform:translateX(-50%) translateY(10px)}15%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1}100%{opacity:0} }
+
+        /* Écran de connexion */
+        #authScreen {
+            position: fixed; inset: 0; background: #fff; z-index: 10000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .auth-logo { width: 80px; height: 80px; margin-bottom: 30px; }
+        .google-btn {
+            background: #000; color: #fff; border: none; border-radius: 30px;
+            padding: 16px 32px; font-size: 16px; font-weight: 600;
+            display: flex; align-items: center; gap: 12px; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Écran de connexion -->
+    <div id="authScreen">
+        <img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/371cca54-7671-48b7-b726-908e7f728344.png" alt="OminiPay" class="auth-logo">
+        <h1 style="margin-bottom: 10px;">OminiPay</h1>
+        <p style="margin-bottom: 30px; color: #666;">Connectez-vous pour accéder à votre compte</p>
+        <button class="google-btn" onclick="loginWithGoogle()">
+            <i data-lucide="chrome"></i> Se connecter avec Google
+        </button>
+    </div>
+
+    <!-- Interface principale (cachée tant que non connecté) -->
+    <div id="mainApp" style="display: none;">        <!-- ========== HEADER ========== -->
         <header class="header">
-            <button class="btn-header reactive-click" onclick="toggleMenu()">
-                <i data-lucide="menu"></i>
-            </button>
-            <img
-                src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/a1b7da54-63d4-402a-bc11-1ab5aaf9206e.png"
-                alt="OminiPay"
-                class="logo-img"
-            />
-            <div style="display: flex; gap: 5px">
-                <button
-                    class="btn-header reactive-click"
-                    onclick="toggleWallet()"
-                >
-                    <i data-lucide="wallet"></i>
-                </button>
-                <button class="btn-header reactive-click">
+            <button class="btn-header reactive-click" onclick="toggleMenu()"><i data-lucide="menu"></i></button>
+            <img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/a1b7da54-63d4-402a-bc11-1ab5aaf9206e.png" alt="OminiPay" class="logo-img">
+            <div style="display: flex; gap: 5px;">
+                <button class="btn-header reactive-click" onclick="toggleWallet()"><i data-lucide="wallet"></i></button>
+                <button class="btn-header reactive-click" onclick="openNotifications()">
                     <i data-lucide="bell"></i>
+                    <span class="notif-badge" id="notifBadge"></span>
                 </button>
             </div>
         </header>
 
-        <!-- WALLET PANEL -->
+        <!-- ========== PANEL WALLET ========== -->
         <div id="walletPanel">
             <div class="wallet-container">
                 <div class="balance-section">
@@ -1250,714 +299,695 @@
                         </button>
                     </div>
                 </div>
-
                 <div class="action-grid">
-                    <button class="action-btn">
-                        <div class="icon-circle">
-                            <i data-lucide="arrow-down-to-line"></i>
-                        </div>
-                        <span class="action-text">Retirer</span>
-                    </button>
-                    <!-- BOUTON COMPTE → ouvre le panneau Moyens de Paiement -->
-                    <button class="action-btn" onclick="openCompte()">
-                        <div class="icon-circle">
-                            <i data-lucide="user-round"></i>
-                        </div>
-                        <span class="action-text">Compte</span>
-                    </button>
-                    <button class="action-btn" onclick="openRecharge()">
-                        <div class="icon-circle">
-                            <i data-lucide="plus"></i>
-                        </div>
-                        <span class="action-text">Recharger</span>
-                    </button>
-                    <button class="action-btn">
-                        <div class="icon-circle">
-                            <i data-lucide="history"></i>
-                        </div>
-                        <span class="action-text">Historique</span>
-                    </button>
+                    <button class="action-btn" onclick="openRetrait()"><div class="icon-circle"><i data-lucide="arrow-down-to-line"></i></div><span class="action-text">Retirer</span></button>
+                    <button class="action-btn" onclick="openCompte()"><div class="icon-circle"><i data-lucide="user-round"></i></div><span class="action-text">Compte</span></button>
+                    <button class="action-btn" onclick="openRecharge()"><div class="icon-circle"><i data-lucide="plus"></i></div><span class="action-text">Recharger</span></button>
+                    <button class="action-btn" onclick="openHistorique()"><div class="icon-circle"><i data-lucide="history"></i></div><span class="action-text">Historique</span></button>
                 </div>
-
                 <div class="handle" onclick="toggleWallet()"></div>
             </div>
         </div>
-
-        <!-- Overlay derrière le wallet -->
         <div id="wallet-overlay" onclick="toggleWallet()"></div>
 
-        <!-- ===== ACHAT PANEL (Boutique) — caché par défaut ===== -->
-        <div id="achatPanel">
-            <div class="achat-back-header">
-                <button class="achat-back-btn" onclick="closeAchat()">
-                    <i data-lucide="arrow-left"></i>
-                </button>
-                <span class="achat-panel-title">Boutique OminiPay</span>
+        <!-- ========== MENU LATÉRAL (avec logos) ========== -->
+        <div id="menu-overlay" onclick="toggleMenu()"></div>
+        <div id="menuPanel">
+            <div class="close-area">
+                <button class="btn-close" onclick="toggleMenu()"><i data-lucide="x"></i></button>
             </div>
-
-            <div class="buy-menu">
-                <div class="logo-container">
-                    <img
-                        src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/371cca54-7671-48b7-b726-908e7f728344.png"
-                        alt="OminiPay"
-                        class="app-logo"
-                    />
+            <div class="profile-header">
+                <div class="avatar-circle"><i data-lucide="user" size="30"></i></div>
+                <div class="user-info">
+                    <h2 id="firebase-name">Utilisateur Omini</h2>
+                    <p id="firebase-email">ID: #00000000</p>
                 </div>
-
-                <div class="buy-header">
-                    <h2 style="font-size: 18px; margin: 0">
-                        Boutique OminiPay
-                    </h2>
-                    <div class="cart-trigger">
-                        <i data-lucide="shopping-bag" size="16"></i>
-                        <span
-                            id="cartCount"
-                            style="
-                                font-weight: 800;
-                                font-size: 12px;
-                                margin-left: 5px;
-                            "
-                            >0</span
-                        >
-                    </div>
+            </div>
+            <div class="menu-content">
+                <div class="menu-group">
+                    <p class="group-title">Mon Compte</p>
+                    <button class="menu-item" onclick="openMesCadeaux(); toggleMenu();"><div class="item-left"><i data-lucide="gift"></i> Mes cadeaux</div><div class="item-right"><i data-lucide="chevron-right"></i></div></button>
+                    <button class="menu-item" onclick="openParrainage(); toggleMenu();"><div class="item-left"><i data-lucide="users"></i> Parrainage</div><div class="item-right"><i data-lucide="chevron-right"></i></div></button>
+                    <button class="menu-item" onclick="openHistoriqueConnexions(); toggleMenu();"><div class="item-left"><i data-lucide="monitor-smartphone"></i> Historique connexions</div><div class="item-right"><i data-lucide="chevron-right"></i></div></button>
                 </div>
-
-                <div id="modeSelector" class="mode-selector">
-                    <div class="mode-card" onclick="openShop('Moi')">
-                        <i data-lucide="user" size="26"></i>
-                        <h3>Pour moi-même</h3>
-                        <div class="notice">Utilisation immédiate</div>
-                    </div>
-                    <div class="mode-card" onclick="openShop('Ami')">
-                        <i data-lucide="gift" size="26"></i>
-                        <h3>Offrir à un proche</h3>
-                        <div class="notice">Transfert à un compte</div>
-                    </div>
-                    <div class="mode-card" onclick="openShop('Demande')">
-                        <i data-lucide="mail" size="26"></i>
-                        <h3>Demander cadeau</h3>
-                        <div class="notice">Lien de paiement externe</div>
-                    </div>
+                <div class="menu-group">
+                    <p class="group-title">Préférences</p>
+                    <button class="menu-item" onclick="openParametres(); toggleMenu();"><div class="item-left"><i data-lucide="settings"></i> Paramètres</div><div class="item-right"><i data-lucide="chevron-right"></i></div></button>
+                    <button class="menu-item" onclick="toggleTheme(this)"><div class="item-left"><i data-lucide="moon"></i> Mode Sombre</div><div class="item-right"><div class="switch"></div></div></button>
                 </div>
+                <div class="menu-group">
+                    <p class="group-title">Assistance & Légal</p>
+                    <button class="menu-item" onclick="openFAQ()"><div class="item-left"><i data-lucide="help-circle"></i> FAQ</div><div class="item-right"><i data-lucide="chevron-right"></i></div></button>
+                    <button class="menu-item" onclick="openContact(); toggleMenu();"><div class="item-left"><i data-lucide="mail"></i> Contact</div><div class="item-right"><i data-lucide="chevron-right"></i></div></button>
+                    <button class="menu-item" onclick="openApropos(); toggleMenu();"><div class="item-left"><i data-lucide="info"></i> À propos</div><div class="item-right"><i data-lucide="chevron-right"></i></div></button>
+                    <button class="menu-item" onclick="openConfidentialite(); toggleMenu();"><div class="item-left"><i data-lucide="shield-check"></i> Confidentialité</div><div class="item-right"><i data-lucide="chevron-right"></i></div></button>
+                    <button class="menu-item" onclick="openSecurite()"><div class="item-left"><i data-lucide="lock"></i> Sécurité</div><div class="item-right"><i data-lucide="chevron-right"></i></div></button>
+                </div>
+                <!-- Ajout des deux logos dans le menu -->
+                <div class="menu-group">
+                    <p class="group-title">Support</p>
+                    <a href="https://wa.me/qr/UWYBOFF7GXRSB1" class="menu-item" style="text-decoration: none;">
+                        <div class="item-left"><i data-lucide="message-circle"></i> WhatsApp</div>
+                        <div class="item-right"><i data-lucide="external-link"></i></div>
+                    </a>
+                    <button class="menu-item" onclick="openTawk()">
+                        <div class="item-left"><i data-lucide="bot"></i> Assistant virtuel</div>
+                        <div class="item-right"><i data-lucide="message-square"></i></div>
+                    </button>
+                </div>
+            </div>
+            <div class="menu-footer">
+                <button class="btn-logout" onclick="logoutUser()"><i data-lucide="log-out"></i> Déconnexion</button>
+            </div>
+        </div>
 
+        <!-- ========== PANEL COMMANDES (achats) ========== -->
+        <div id="commandesPanel" class="faq-panel">
+            <div class="back-header"><button class="back-btn" onclick="closeCommandes()"><i data-lucide="arrow-left"></i></button><span>Commandes</span></div>
+            <div id="commandesList" style="padding: 10px;">Chargement…</div>
+        </div>
+
+        <!-- ========== PANEL HISTORIQUE FINANCIER ========== -->
+        <div id="historiquePanel" class="faq-panel">
+            <div class="back-header"><button class="back-btn" onclick="closeHistorique()"><i data-lucide="arrow-left"></i></button><span>Historique</span></div>
+            <div id="historiqueList">Chargement…</div>
+        </div>
+
+        <!-- ========== PANEL RECHARGE ========== -->
+        <div id="rechargePanel" style="position:fixed; inset:0; top:70px; background:#f0f2f5; z-index:1500; overflow-y:auto; transform:translateX(100%); transition:transform 0.4s; padding:20px;">
+            <div class="back-header"><button class="back-btn" onclick="closeRecharge()"><i data-lucide="arrow-left"></i></button><span>Recharger</span></div>
+            <div style="max-width:400px; margin:0 auto; background:white; border-radius:28px; padding:24px;">
+                <select id="rechargeMethod" style="width:100%; padding:16px; border-radius:20px; margin-bottom:20px;">
+                    <option value="">Choisir un moyen</option>
+                </select>
+                <input type="number" id="rechargeAmount" placeholder="Montant (FCFA)" style="width:100%; padding:16px; border-radius:20px; margin-bottom:20px;">
+                <button onclick="doRecharge()" style="width:100%; background:#000; color:#fff; border:none; padding:18px; border-radius:30px; font-weight:bold;">Recharger</button>
+            </div>
+        </div>
+
+        <!-- ========== PANEL COMPTE (moyens de paiement) ========== -->
+        <div id="comptePanel" style="position:fixed; inset:0; top:70px; background:#f0f2f5; z-index:1500; overflow-y:auto; transform:translateX(100%); transition:transform 0.4s; padding:20px;">
+            <div class="back-header"><button class="back-btn" onclick="closeCompte()"><i data-lucide="arrow-left"></i></button><span>Moyens de paiement</span></div>
+            <div style="max-width:450px; margin:0 auto;">
+                <div id="paymentMethodsList"></div>
+                <button onclick="showAddMethodForm()" style="width:100%; background:#000; color:#fff; border:none; padding:16px; border-radius:30px; margin-top:20px;">+ Ajouter un moyen</button>
+                <div id="addMethodForm" style="display:none; margin-top:20px; background:white; border-radius:28px; padding:20px;">
+                    <select id="methodType" style="width:100%; padding:12px; border-radius:16px; margin-bottom:12px;">
+                        <option value="orange">Orange Money</option><option value="mtn">MTN MoMo</option><option value="moov">Moov Money</option><option value="wave">Wave</option><option value="paypal">PayPal</option><option value="carte">Carte bancaire</option>
+                    </select>
+                    <input type="text" id="methodValue" placeholder="Numéro / Email" style="width:100%; padding:12px; border-radius:16px; margin-bottom:12px;">
+                    <button onclick="savePaymentMethod()" style="background:#000; color:#fff; border:none; padding:12px; border-radius:20px;">Enregistrer</button>
+                    <button onclick="hideAddMethodForm()" style="background:#eee; border:none; padding:12px; border-radius:20px; margin-top:8px;">Annuler</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== PANEL RETRAIT ========== -->
+        <div id="retraitPanel" style="position:fixed; inset:0; top:70px; background:#f0f2f5; z-index:1500; overflow-y:auto; transform:translateX(100%); transition:transform 0.4s; padding:20px;">
+            <div class="back-header"><button class="back-btn" onclick="closeRetrait()"><i data-lucide="arrow-left"></i></button><span>Retirer</span></div>
+            <div style="max-width:400px; margin:0 auto; background:white; border-radius:28px; padding:24px;">
+                <div style="margin-bottom:20px;"><strong>Solde :</strong> <span id="retraitBalance">0 FCFA</span></div>
+                <select id="retraitMethodSelect" style="width:100%; padding:16px; border-radius:20px; margin-bottom:20px;"></select>
+                <input type="number" id="retraitAmountInput" placeholder="Montant (FCFA)" style="width:100%; padding:16px; border-radius:20px; margin-bottom:20px;">
+                <button onclick="doRetrait()" style="width:100%; background:#000; color:#fff; border:none; padding:18px; border-radius:30px;">Retirer</button>
+                <div id="retraitStatus" style="margin-top:12px; text-align:center;"></div>
+            </div>
+        </div>
+
+        <!-- ========== PANEL ACHAT (catalogue DingConnect) ========== -->
+        <div id="achatPanel" style="position:fixed; inset:0; top:70px; background:#f5f7fa; z-index:1500; overflow-y:auto; transform:translateY(100%); transition:transform 0.4s; padding:20px;">
+            <div class="back-header"><button class="back-btn" onclick="closeAchat()"><i data-lucide="arrow-left"></i></button><span>Boutique</span></div>
+            <div style="max-width:800px; margin:0 auto;">
+                <div id="modeSelector" style="display:flex; gap:12px; margin-bottom:20px;">
+                    <button onclick="setAchatMode('moi')" class="mode-btn" style="flex:1; padding:16px; background:#fff; border-radius:28px;">Pour moi</button>
+                    <button onclick="setAchatMode('offrir')" class="mode-btn" style="flex:1; padding:16px; background:#fff; border-radius:28px;">Offrir</button>
+                    <button onclick="setAchatMode('demande')" class="mode-btn" style="flex:1; padding:16px; background:#fff; border-radius:28px;">Demander un cadeau</button>
+                </div>
+                <div id="offrirFields" style="display:none; background:#fff; border-radius:28px; padding:20px; margin-bottom:20px;">
+                    <input type="text" id="offrirId" placeholder="ID du destinataire (OP-XXXXXXXX)" style="width:100%; padding:16px; border-radius:20px; margin-bottom:12px;">
+                    <input type="text" id="offrirMotif" placeholder="Message" style="width:100%; padding:16px; border-radius:20px; margin-bottom:12px;">
+                </div>
                 <div id="catalogView">
-                    <div class="search-area-achat">
-                        <input
-                            type="text"
-                            id="searchAchat"
-                            placeholder="Rechercher une carte..."
-                            onkeyup="checkSearch()"
-                        />
-                    </div>
-                    <div id="reloadlyGrid">
-                        <div class="empty-msg" id="emptyMessage">
-                            <i
-                                data-lucide="search-x"
-                                size="32"
-                                style="margin-bottom: 10px; opacity: 0.5"
-                            ></i>
-                            <br />Désolé, aucun catalogue trouvé pour le moment.
-                        </div>
-                    </div>
-                    <button class="catalog-back-btn" onclick="closeShop()">
-                        ← Retour au menu
-                    </button>
+                    <input type="text" id="searchAchat" placeholder="Rechercher..." style="width:100%; padding:14px; border-radius:20px; margin-bottom:16px;">
+                    <div id="dingGrid" class="ding-grid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px;"></div>
+                </div>
+                <div id="cartSummary" style="margin-top:20px; background:#fff; border-radius:28px; padding:16px; display:flex; justify-content:space-between;">
+                    <span>Panier: <span id="cartCount">0</span> article(s)</span>
+                    <button onclick="openCart()" style="background:#000; color:#fff; border:none; padding:8px 16px; border-radius:20px;">Voir panier</button>
                 </div>
             </div>
         </div>
-        <!-- ===== FIN ACHAT PANEL ===== -->
 
-        <!-- ===== RECHARGE PANEL — caché par défaut ===== -->
-        <div id="rechargePanel">
-            <div class="recharge-back-header">
-                <button class="recharge-back-btn" onclick="closeRecharge()">
-                    <i data-lucide="arrow-left"></i>
-                </button>
-                <span class="recharge-panel-title">Recharger</span>
-            </div>
-
-            <div class="recharge-menu">
-                <div class="logo-container">
-                    <img
-                        src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/371cca54-7671-48b7-b726-908e7f728344.png"
-                        alt="OminiPay Logo"
-                        class="app-logo"
-                    />
+        <!-- ========== PANEL VENTE ========== -->
+        <div id="ventePanel" style="position:fixed; inset:0; top:70px; background:#f0f2f5; z-index:1500; overflow-y:auto; transform:translateY(100%); transition:transform 0.4s; padding:20px;">
+            <div class="back-header"><button class="back-btn" onclick="closeVente()"><i data-lucide="arrow-left"></i></button><span>Vendre une carte</span></div>
+            <div style="max-width:450px; margin:0 auto; background:white; border-radius:28px; padding:24px;">
+                <div class="form-group" style="margin-bottom:20px;">
+                    <label>Pays de la carte</label>
+                    <button id="selectCountryBtn" onclick="openCountryPicker()" style="width:100%; padding:14px; border-radius:20px; background:#f5f5f7; border:none; text-align:left;">Choisir un pays</button>
+                    <input type="hidden" id="selectedCountry" value="">
                 </div>
-
-                <div class="recharge-tabs">
-                    <div
-                        class="recharge-tab active"
-                        onclick="switchTab(event, 'moi')"
-                    >
-                        Mon compte
-                    </div>
-                    <div class="recharge-tab" onclick="switchTab(event, 'ami')">
-                        Pour un ami
-                    </div>
-                </div>
-
-                <div id="section-moi" class="option-content active">
-                    <div class="r-field">
-                        <label>Mode de paiement</label>
-                        <div class="payment-zone">
-                            <div class="method-item selected">
-                                <i data-lucide="credit-card"></i>
-                            </div>
-                            <div class="method-item">
-                                <i data-lucide="smartphone"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="r-field">
-                        <label>Montant (FCFA)</label>
-                        <input type="number" placeholder="Ex: 5 000" />
-                    </div>
-                    <button class="recharge-btn">Recharger</button>
-                </div>
-
-                <div id="section-ami" class="option-content">
-                    <div class="source-selector">
-                        <div
-                            class="source-btn active"
-                            id="src-int"
-                            onclick="setSource('internal')"
-                        >
-                            OminiPay
-                        </div>
-                        <div
-                            class="source-btn"
-                            id="src-ext"
-                            onclick="setSource('external')"
-                        >
-                            Externe
-                        </div>
-                    </div>
-
-                    <div id="ext-zone" class="r-field" style="display: none">
-                        <label>Moyen de paiement externe</label>
-                        <div class="payment-zone">
-                            <div class="method-item selected">
-                                <i data-lucide="credit-card"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="r-field">
-                        <label>ID OminiPay du bénéficiaire</label>
-                        <input type="text" placeholder="OM-990022" />
-                    </div>
-                    <div class="r-field">
-                        <label>Montant (FCFA)</label>
-                        <input type="number" placeholder="Somme à envoyer" />
-                    </div>
-                    <div class="r-field">
-                        <label>Motif de l'envoi (obligatoire)</label>
-                        <textarea
-                            placeholder="Pourquoi envoyez-vous cet argent ?"
-                        ></textarea>
-                    </div>
-                    <div class="confirm-zone">
-                        <input
-                            type="checkbox"
-                            id="checkAmi"
-                            onchange="document.getElementById('btnAmi').disabled = !this.checked"
-                        />
-                        <label for="checkAmi"
-                            >Je certifie l'ID du destinataire</label
-                        >
-                    </div>
-                    <button class="recharge-btn" id="btnAmi" disabled>
-                        Envoyer maintenant
-                    </button>
-                </div>
+                <div class="form-group"><label>Type de carte</label><input type="text" id="cardType" placeholder="Ex: Amazon, Steam" style="width:100%; padding:14px; border-radius:20px;"></div>
+                <div class="form-group"><label>Montant facial (FCFA)</label><input type="number" id="faceValue" placeholder="Montant en FCFA" style="width:100%; padding:14px; border-radius:20px;"></div>
+                <div class="form-group"><label>Code de la carte</label><input type="text" id="cardCode" placeholder="Code (ex: XXXX-XXXX-XXXX)" style="width:100%; padding:14px; border-radius:20px;"></div>
+                <div class="form-group"><label>Preuve (capture d'écran)</label><input type="file" id="proofImage" accept="image/*" style="margin-bottom:12px;"><div id="proofStatus" style="font-size:12px; color:#666;"></div></div>
+                <button onclick="submitSell()" style="width:100%; background:#000; color:#fff; border:none; padding:18px; border-radius:30px;">Soumettre pour validation</button>
             </div>
         </div>
-        <!-- ===== FIN RECHARGE PANEL ===== -->
 
-        <!-- ===== COMPTE PANEL (Moyens de Paiement) — caché par défaut ===== -->
-        <div id="comptePanel">
-            <div class="compte-inner">
-                <div class="compte-header">
-                    <button class="compte-back-btn" onclick="closeCompte()">
-                        <i data-lucide="arrow-left"></i>
-                    </button>
-                    <span class="compte-title">Moyens de Paiement</span>
-                </div>
+        <!-- ========== PANEL CONTACT, FAQ, À PROPOS, CONFIDENTIALITÉ, SÉCURITÉ ========== -->
+        <div id="contactPanel" class="contact-panel"><div class="back-header"><button class="back-btn" onclick="closeContact()"><i data-lucide="arrow-left"></i></button><span>Contact</span></div><div style="text-align:center;"><img src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/371cca54-7671-48b7-b726-908e7f728344.png" style="width:80px;"><h3>OminiPay</h3><p>Email: ominipay.help@gmail.com<br>WhatsApp: +225 00000000</p></div></div>
+        <div id="faqPanel" class="faq-panel"><div class="back-header"><button class="back-btn" onclick="closeFAQ()"><i data-lucide="arrow-left"></i></button><span>FAQ</span></div><div style="padding:20px;"><h3>Questions fréquentes</h3><p>...</p></div></div>
+        <div id="aproposPanel" class="apropos-panel"><div class="back-header"><button class="back-btn" onclick="closeApropos()"><i data-lucide="arrow-left"></i></button><span>À propos</span></div><div><p>OminiPay - Plateforme d'échange de cartes cadeaux.</p></div></div>
+        <div id="confidentialitePanel" class="confidentialite-panel"><div class="back-header"><button class="back-btn" onclick="closeConfidentialite()"><i data-lucide="arrow-left"></i></button><span>Confidentialité</span></div><div><p>Politique de confidentialité...</p></div></div>
+        <div id="securitePanel" class="securite-panel"><div class="back-header"><button class="back-btn" onclick="closeSecurite()"><i data-lucide="arrow-left"></i></button><span>Sécurité</span></div><div><p>Informations de sécurité...</p></div></div>
 
-                <div id="mainMenu" class="payment-menu">
-                    <div class="method-btn" onclick="showForm('form-carte')">
-                        <img
-                            src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/eef31e83-7616-4491-a9a6-06730c0b9d27.jpg"
-                        />
-                        <span>Carte Bancaire</span>
-                        <i data-lucide="chevron-right"></i>
-                    </div>
-                    <div class="method-btn" onclick="showForm('form-paypal')">
-                        <img
-                            src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/b8d06d9a-4981-480e-aa82-5a5303405121.jpg"
-                        />
-                        <span>PayPal</span>
-                        <i data-lucide="chevron-right"></i>
-                    </div>
-                    <div class="method-btn" onclick="showForm('form-orange')">
-                        <img
-                            src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/afb1295e-8769-4c03-a67e-25ed4a568dd9.jpg"
-                        />
-                        <span>Orange Money</span>
-                        <i data-lucide="chevron-right"></i>
-                    </div>
-                    <div class="method-btn" onclick="showForm('form-mtn')">
-                        <img
-                            src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/0b009beb-4e04-43e9-9de5-5a71c0b25e19.jpg"
-                        />
-                        <span>MTN MoMo</span>
-                        <i data-lucide="chevron-right"></i>
-                    </div>
-                    <div class="method-btn" onclick="showForm('form-moov')">
-                        <img
-                            src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/ddf26487-f953-441c-8e21-3b5011212ecc.jpg"
-                        />
-                        <span>Moov Money</span>
-                        <i data-lucide="chevron-right"></i>
-                    </div>
-                    <div class="method-btn" onclick="showForm('form-wave')">
-                        <img
-                            src="https://i.supaimg.com/ea4468b1-fe88-41fc-8e3b-2c3f403b206f/c22b5c6e-a563-4822-ab7e-1483589ea6c8.jpg"
-                        />
-                        <span>Wave</span>
-                        <i data-lucide="chevron-right"></i>
-                    </div>
-                </div>
+        <!-- ========== PANEL NOTIFICATIONS ========== -->
+        <div id="notifPanel" class="faq-panel"><div class="back-header"><button class="back-btn" onclick="closeNotifications()"><i data-lucide="arrow-left"></i></button><span>Notifications</span><button onclick="markAllNotifRead()" style="margin-left:auto;">Tout lire</button></div><div id="notifList"></div></div>
 
-                <form id="globalForm">
-                    <div id="form-carte" class="form-container">
-                        <button
-                            type="button"
-                            class="back-btn-form"
-                            onclick="closeForms()"
-                        >
-                            <i data-lucide="arrow-left"></i> Retour
-                        </button>
-                        <div class="form-title">Enregistrer une Carte</div>
-                        <input
-                            class="form-input"
-                            type="text"
-                            placeholder="Nom sur la carte"
-                        />
-                        <input
-                            class="form-input"
-                            type="number"
-                            placeholder="Numéro de carte"
-                        />
-                        <div style="display: flex; gap: 10px">
-                            <input
-                                class="form-input"
-                                type="text"
-                                placeholder="MM/YY"
-                                style="margin-bottom: 15px"
-                            />
-                            <input
-                                class="form-input"
-                                type="number"
-                                placeholder="CVC"
-                                style="margin-bottom: 15px"
-                            />
-                        </div>
-                    </div>
+        <!-- ========== PANEL PARRAINAGE ========== -->
+        <div id="parrainagePanel" class="faq-panel"><div class="back-header"><button class="back-btn" onclick="closeParrainage()"><i data-lucide="arrow-left"></i></button><span>Parrainage</span></div><div id="parrainageContent" style="padding:20px;"></div></div>
 
-                    <div id="form-paypal" class="form-container">
-                        <button
-                            type="button"
-                            class="back-btn-form"
-                            onclick="closeForms()"
-                        >
-                            <i data-lucide="arrow-left"></i> Retour
-                        </button>
-                        <div class="form-title">Lien PayPal</div>
-                        <input
-                            class="form-input"
-                            type="email"
-                            id="paypalEmail"
-                            placeholder="votre-email@paypal.com"
-                        />
-                    </div>
+        <!-- ========== PANEL MES CADEAUX ========== -->
+        <div id="mesCadeauxPanel" class="faq-panel"><div class="back-header"><button class="back-btn" onclick="closeMesCadeaux()"><i data-lucide="arrow-left"></i></button><span>Mes cadeaux</span></div><div id="cadeauxContent" style="padding:20px;"></div></div>
 
-                    <div id="form-orange" class="form-container">
-                        <button
-                            type="button"
-                            class="back-btn-form"
-                            onclick="closeForms()"
-                        >
-                            <i data-lucide="arrow-left"></i> Retour
-                        </button>
-                        <div class="form-title">Orange Money</div>
-                        <input
-                            class="form-input"
-                            type="tel"
-                            id="orangeNum"
-                            placeholder="Numéro Orange"
-                        />
-                    </div>
+        <!-- ========== PANEL HISTORIQUE CONNEXIONS ========== -->
+        <div id="connexionPanel" class="faq-panel"><div class="back-header"><button class="back-btn" onclick="closeConnexionPanel()"><i data-lucide="arrow-left"></i></button><span>Historique des connexions</span></div><div id="connexionList" style="padding:20px;"></div></div>
 
-                    <div id="form-mtn" class="form-container">
-                        <button
-                            type="button"
-                            class="back-btn-form"
-                            onclick="closeForms()"
-                        >
-                            <i data-lucide="arrow-left"></i> Retour
-                        </button>
-                        <div class="form-title">MTN MoMo</div>
-                        <input
-                            class="form-input"
-                            type="tel"
-                            id="mtnNum"
-                            placeholder="Numéro MTN"
-                        />
-                    </div>
+        <!-- ========== PANEL PARAMÈTRES ========== -->
+        <div id="parametresPanel" class="faq-panel"><div class="back-header"><button class="back-btn" onclick="closeParametres()"><i data-lucide="arrow-left"></i></button><span>Paramètres</span></div><div style="padding:20px;"><div><strong>Code PIN</strong> <span id="pinStatus"></span> <button onclick="startPinSetup()">Modifier</button></div><div><strong>Comptes enregistrés</strong> <div id="savedAccountsList"></div></div></div></div>
 
-                    <div id="form-moov" class="form-container">
-                        <button
-                            type="button"
-                            class="back-btn-form"
-                            onclick="closeForms()"
-                        >
-                            <i data-lucide="arrow-left"></i> Retour
-                        </button>
-                        <div class="form-title">Moov Money</div>
-                        <input
-                            class="form-input"
-                            type="tel"
-                            id="moovNum"
-                            placeholder="Numéro Moov"
-                        />
-                    </div>
-
-                    <div id="form-wave" class="form-container">
-                        <button
-                            type="button"
-                            class="back-btn-form"
-                            onclick="closeForms()"
-                        >
-                            <i data-lucide="arrow-left"></i> Retour
-                        </button>
-                        <div class="form-title">Wave</div>
-                        <input
-                            class="form-input"
-                            type="tel"
-                            id="waveNum"
-                            placeholder="Numéro Wave"
-                        />
-                    </div>
-
-                    <button type="submit" class="save-btn">Enregistrer</button>
-                </form>
-            </div>
+        <!-- ========== PIN SCREEN ========== -->
+        <div id="pinScreen" style="position:fixed; inset:0; background:#000; z-index:10000; display:none; flex-direction:column; align-items:center; justify-content:center; color:#fff;">
+            <div style="font-size:24px; margin-bottom:20px;">Code PIN</div>
+            <div id="pinDots" style="display:flex; gap:15px; margin-bottom:30px;"></div>
+            <div id="pinKeypad" style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; max-width:260px;"></div>
+            <div id="pinError" style="color:#ff3b30; margin-top:20px;"></div>
         </div>
-        <!-- ===== FIN COMPTE PANEL ===== -->
 
+        <!-- ========== COUNTRY PICKER (pop-up) ========== -->
+        <div id="countryPicker" style="position:fixed; bottom:0; left:0; right:0; background:#fff; border-radius:28px 28px 0 0; z-index:11000; transform:translateY(100%); transition:transform 0.3s; max-height:70vh; overflow-y:auto; padding:20px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:16px;"><span>Choisissez un pays</span><button onclick="closeCountryPicker()">✕</button></div>
+            <div id="countryList"></div>
+        </div>
+
+        <!-- ========== CONTENU PRINCIPAL ========== -->
         <div class="top-nav-area">
-            <div class="search-bar">
-                <i data-lucide="search" size="18" color="#8e8e93"></i>
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Rechercher une carte..."
-                    onkeyup="filterCards()"
-                />
-            </div>
-
+            <div class="search-bar"><i data-lucide="search"></i><input type="text" id="searchInput" placeholder="Rechercher une carte..." onkeyup="filterCards()"></div>
             <div class="categories-wrapper">
-                <button
-                    class="cat-btn active reactive-click"
-                    onclick="setActiveCat(this)"
-                >
-                    Tout
-                </button>
-                <button
-                    class="cat-btn reactive-click"
-                    onclick="setActiveCat(this)"
-                >
-                    Recharges
-                </button>
-                <button
-                    class="cat-btn reactive-click"
-                    onclick="setActiveCat(this)"
-                >
-                    Crypto
-                </button>
-                <button
-                    class="cat-btn reactive-click"
-                    onclick="setActiveCat(this)"
-                >
-                    Shopping
-                </button>
-                <button
-                    class="cat-btn reactive-click"
-                    onclick="setActiveCat(this)"
-                >
-                    Jeux Vidéo
-                </button>
+                <button class="cat-btn active" onclick="setActiveCat(this)">Tout</button>
+                <button class="cat-btn" onclick="setActiveCat(this)">Recharges</button>
+                <button class="cat-btn" onclick="setActiveCat(this)">Crypto</button>
+                <button class="cat-btn" onclick="setActiveCat(this)">Shopping</button>
+                <button class="cat-btn" onclick="setActiveCat(this)">Jeux Vidéo</button>
             </div>
         </div>
-
         <main class="main-scroll">
-            <div id="no-result-msg">Aucune carte n'est trouvée</div>
-
+            <div id="no-result-msg">Aucune carte trouvée</div>
             <div class="cards-grid" id="cardsGrid">
-                <div class="card-slot reactive-click" data-name="Paypal"></div>
-                <div class="card-slot reactive-click" data-name="Neosurf"></div>
-                <div class="card-slot reactive-click" data-name="PCS"></div>
-                <div
-                    class="card-slot reactive-click"
-                    data-name="Transcash"
-                ></div>
-                <div class="card-slot reactive-click" data-name="Amazon"></div>
-                <div class="card-slot reactive-click" data-name="Apple"></div>
-                <div class="card-slot reactive-click" data-name="Bitcoin"></div>
-                <div
-                    class="card-slot reactive-click"
-                    data-name="Playstation"
-                ></div>
+                <div class="card-slot" data-name="Paypal"></div><div class="card-slot" data-name="Neosurf"></div><div class="card-slot" data-name="PCS"></div><div class="card-slot" data-name="Transcash"></div>
+                <div class="card-slot" data-name="Amazon"></div><div class="card-slot" data-name="Apple"></div><div class="card-slot" data-name="Bitcoin"></div><div class="card-slot" data-name="Playstation"></div>
             </div>
         </main>
 
+        <!-- ========== FOOTER ========== -->
         <footer class="footer">
-            <a href="#" class="nav-link active reactive-click"
-                ><i data-lucide="home"></i><span>Accueil</span></a
-            >
-            <a href="#" class="nav-link reactive-click"
-                ><i data-lucide="badge-dollar-sign"></i><span>Vendre</span></a
-            >
-            <a href="#" class="nav-link reactive-click" onclick="openAchat()"
-                ><i data-lucide="shopping-cart"></i><span>Achat</span></a
-            >
-            <a href="#" class="nav-link reactive-click"
-                ><i data-lucide="list-ordered"></i><span>Commande</span></a
-            >
+            <button class="nav-link active" onclick="setActiveNav(this)"><i data-lucide="home"></i><span>Accueil</span></button>
+            <button class="nav-link" onclick="openVente(); setActiveNav(this)"><i data-lucide="badge-dollar-sign"></i><span>Vendre</span></button>
+            <button class="nav-link" onclick="openAchat(); setActiveNav(this)"><i data-lucide="shopping-cart"></i><span>Achat</span></button>
+            <button class="nav-link" onclick="openCommandes(); setActiveNav(this)"><i data-lucide="list-ordered"></i><span>Commande</span></button>
         </footer>
+    </div>
 
-        <script>
-            lucide.createIcons();
+    <script>
+        lucide.createIcons();
 
-            // ===== WALLET =====
-            let walletOpen = false;
-            let balanceHidden = false;
-            let currentBalance = 0;
+        // ========== ÉTAT GLOBAL ==========
+        let currentUser = null;
+        let currentBalance = 0;
+        let balanceHidden = false;
+        let exchangeRates = { USD: 1, XOF: 1 }; // taux depuis RTDB
+        let userGrade = 'Standard'; // Premium, Ambassadeur
+        let userPin = null; // hashé
+        let pinAttempts = 0;
+        let currentDeviceId = null;
+        let registeredMethods = []; // [{type, value}]
+        let dingProducts = [];
+        let cart = [];
+        let achatMode = 'moi';
+        let offrirTarget = { id: '', motif: '' };
 
-            function toggleWallet() {
-                walletOpen = !walletOpen;
-                document
-                    .getElementById("walletPanel")
-                    .classList.toggle("visible", walletOpen);
-                document
-                    .getElementById("wallet-overlay")
-                    .classList.toggle("visible", walletOpen);
+        // ========== AUTHENTIFICATION ==========
+        function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).then(userCred => {
+                currentUser = userCred.user;
+                initUser();
+            }).catch(err => { alert('Erreur connexion: ' + err.message); });
+        }
+
+        async function initUser() {
+            const uid = currentUser.uid;
+            const publicId = 'OP-' + uid.substring(0,8).toUpperCase();
+            document.getElementById('firebase-name').innerText = currentUser.displayName || 'Utilisateur';
+            document.getElementById('firebase-email').innerHTML = `${currentUser.email}<br>ID: ${publicId}`;
+            
+            // Charger données utilisateur
+            const userDoc = await db.collection('users').doc(uid).get();
+            if (userDoc.exists) {
+                currentBalance = userDoc.data().balance || 0;
+                userGrade = userDoc.data().grade || 'Standard';
+                userPin = userDoc.data().pin || null;
+                registeredMethods = userDoc.data().paymentMethods || [];
+            } else {
+                await db.collection('users').doc(uid).set({ balance: 0, grade: 'Standard', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
             }
+            renderBalance();
+            loadExchangeRates();
+            loadDingCatalog();
+            listenTransactions();
+            listenNotifications();
+            checkDevice();
+            // Afficher l'interface principale
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            renderPaymentMethodsList();
+        }
 
-            function toggleBalance() {
-                balanceHidden = !balanceHidden;
-                renderBalance();
-            }
-
-            function renderBalance() {
-                const amountDisplay = document.getElementById("balanceAmount");
-                const eyeIcon = document.getElementById("eyeIcon");
-                if (balanceHidden) {
-                    amountDisplay.innerText = "••••••";
-                    eyeIcon.setAttribute("data-lucide", "eye-off");
-                } else {
-                    amountDisplay.innerText =
-                        currentBalance.toLocaleString() + " FCFA";
-                    eyeIcon.setAttribute("data-lucide", "eye");
-                }
-                lucide.createIcons();
-            }
-
-            // ===== ACHAT (Boutique) =====
-            function openAchat() {
-                document.getElementById("achatPanel").classList.add("visible");
-                document
-                    .getElementById("modeSelector")
-                    .classList.remove("hidden");
-                document.getElementById("catalogView").style.display = "none";
-                lucide.createIcons();
-            }
-
-            function closeAchat() {
-                document
-                    .getElementById("achatPanel")
-                    .classList.remove("visible");
-                closeShop();
-            }
-
-            function openShop(mode) {
-                document.getElementById("modeSelector").classList.add("hidden");
-                document.getElementById("catalogView").style.display = "block";
-                document.getElementById("searchAchat").value = "";
-                checkSearch();
-            }
-
-            function closeShop() {
-                document
-                    .getElementById("modeSelector")
-                    .classList.remove("hidden");
-                document.getElementById("catalogView").style.display = "none";
-            }
-
-            function checkSearch() {
-                const query = document.getElementById("searchAchat").value;
-                const emptyMsg = document.getElementById("emptyMessage");
-                if (query.length > 0) {
-                    emptyMsg.innerHTML = `
-                    <i data-lucide="search-x" size="32" style="margin-bottom: 10px; opacity: 0.5;"></i>
-                    <br>Aucun résultat pour "<strong>${query}</strong>" dans le catalogue actuel.
-                `;
-                } else {
-                    emptyMsg.innerHTML = `
-                    <i data-lucide="search-x" size="32" style="margin-bottom: 10px; opacity: 0.5;"></i>
-                    <br>Désolé, aucun catalogue trouvé pour le moment.
-                `;
-                }
-                lucide.createIcons();
-            }
-            // ===== FIN ACHAT =====
-
-            // ===== RECHARGE =====
-            function openRecharge() {
-                toggleWallet();
-                document
-                    .getElementById("rechargePanel")
-                    .classList.add("visible");
-                lucide.createIcons();
-            }
-
-            function closeRecharge() {
-                document
-                    .getElementById("rechargePanel")
-                    .classList.remove("visible");
-            }
-
-            function switchTab(e, target) {
-                document
-                    .querySelectorAll(".recharge-tab")
-                    .forEach((t) => t.classList.remove("active"));
-                document
-                    .querySelectorAll(".option-content")
-                    .forEach((c) => c.classList.remove("active"));
-                e.currentTarget.classList.add("active");
-                document
-                    .getElementById("section-" + target)
-                    .classList.add("active");
-            }
-
-            function setSource(type) {
-                document
-                    .getElementById("src-int")
-                    .classList.toggle("active", type === "internal");
-                document
-                    .getElementById("src-ext")
-                    .classList.toggle("active", type === "external");
-                document.getElementById("ext-zone").style.display =
-                    type === "external" ? "block" : "none";
-            }
-            // ===== FIN RECHARGE =====
-
-            // ===== COMPTE (Moyens de Paiement) =====
-            function openCompte() {
-                toggleWallet();
-                document.getElementById("comptePanel").classList.add("visible");
-                lucide.createIcons();
-            }
-
-            function closeCompte() {
-                document
-                    .getElementById("comptePanel")
-                    .classList.remove("visible");
-                closeForms();
-            }
-
-            function showForm(formId) {
-                document.getElementById("mainMenu").style.display = "none";
-                document
-                    .querySelectorAll(".form-container")
-                    .forEach((f) => f.classList.remove("active"));
-                document.getElementById(formId).classList.add("active");
-                lucide.createIcons();
-            }
-
-            function closeForms() {
-                document.getElementById("mainMenu").style.display = "flex";
-                document
-                    .querySelectorAll(".form-container")
-                    .forEach((f) => f.classList.remove("active"));
-            }
-
-            document
-                .getElementById("globalForm")
-                .addEventListener("submit", function (e) {
-                    e.preventDefault();
-                    alert(
-                        "Informations sauvegardées avec succès sur OminiPay !",
-                    );
-                });
-            // ===== FIN COMPTE =====
-
-            function filterCards() {
-                let input = document
-                    .getElementById("searchInput")
-                    .value.toLowerCase();
-                let cards = document.querySelectorAll(".card-slot");
-                let found = false;
-                cards.forEach((card) => {
-                    let name = card.getAttribute("data-name").toLowerCase();
-                    if (name.includes(input)) {
-                        card.classList.remove("hidden");
-                        found = true;
-                    } else {
-                        card.classList.add("hidden");
-                    }
-                });
-                document.getElementById("no-result-msg").style.display = found
-                    ? "none"
-                    : "block";
-            }
-
-            function toggleMenu() {
-                document
-                    .getElementById("menuPanel")
-                    .classList.toggle("visible");
-                document
-                    .getElementById("menu-overlay")
-                    .classList.toggle("visible");
-                lucide.createIcons();
-            }
-
-            function toggleTheme(btn) {
-                btn.classList.toggle("dark-mode-active");
-            }
-
-            function setActiveCat(btn) {
-                document
-                    .querySelectorAll(".cat-btn")
-                    .forEach((b) => b.classList.remove("active"));
-                btn.classList.add("active");
-            }
-
-            const links = document.querySelectorAll(".nav-link");
-            links.forEach((link) => {
-                link.addEventListener("click", () => {
-                    links.forEach((l) => l.classList.remove("active"));
-                    link.classList.add("active");
-                });
+        // ========== TAUX DE CHANGE ==========
+        async function loadExchangeRates() {
+            rtdb.ref('exchangeRates').on('value', (snap) => {
+                if (snap.exists()) exchangeRates = snap.val();
+                else fetchRatesFromScript();
             });
+        }
+        async function fetchRatesFromScript() {
+            try {
+                const res = await fetch(GAS_SOURCING_TAUX);
+                const data = await res.json();
+                exchangeRates = data;
+                rtdb.ref('exchangeRates').set(data);
+            } catch(e) { console.warn('Taux non dispo'); }
+        }
 
-            window.onload = () => {
-                if (document.querySelectorAll(".card-slot").length === 0)
-                    document.getElementById("no-result-msg").style.display =
-                        "block";
+        // ========== MOTEUR DE CALCUL ==========
+        function convert(amount, fromCurrency, toCurrency = 'XOF') {
+            const rateFrom = exchangeRates[fromCurrency] || 1;
+            const rateTo = exchangeRates[toCurrency] || 1;
+            return (amount / rateFrom) * rateTo;
+        }
+
+        function computeSellPrice(faceValueFCFA) {
+            // Rachat: 80% de la valeur, puis -3% de marge, puis grade
+            let net = faceValueFCFA * 0.80;
+            net = net * 0.97;
+            if (userGrade === 'Premium') net *= 1.005;
+            else if (userGrade === 'Ambassadeur') net *= 1.012;
+            return Math.floor(net);
+        }
+
+        function computeBuyPrice(dingPriceUSD) {
+            let priceXOF = convert(dingPriceUSD, 'USD', 'XOF');
+            priceXOF = priceXOF * 1.05; // +5% commission
+            return Math.floor(priceXOF);
+        }
+
+        // ========== AFFICHAGE SOLDE ==========
+        function renderBalance() {
+            const el = document.getElementById('balanceAmount');
+            if (balanceHidden) el.innerText = '••••••';
+            else el.innerText = currentBalance.toLocaleString() + ' FCFA';
+        }
+        function toggleBalance() { balanceHidden = !balanceHidden; renderBalance(); }
+
+        // ========== CATALOGUE DINGCONNECT ==========
+        async function loadDingCatalog() {
+            try {
+                const res = await fetch('https://api.dingconnect.com/api/V1/GetProducts', {
+                    headers: { 'api_key': DING_API_KEY, 'Accept': 'application/json' }
+                });
+                const data = await res.json();
+                dingProducts = (data.Items || data.products || []).map(p => ({
+                    id: p.SkuCode, name: p.Description, logo: p.LogoUrl,
+                    prices: p.ValidDenominations || []
+                }));
+                renderDingGrid();
+            } catch(e) { document.getElementById('dingGrid').innerHTML = '<div>Erreur chargement</div>'; }
+        }
+
+        function renderDingGrid() {
+            const grid = document.getElementById('dingGrid');
+            if (!dingProducts.length) { grid.innerHTML = '<div>Aucun produit</div>'; return; }
+            grid.innerHTML = dingProducts.map((p, idx) => `
+                <div class="ding-card" onclick="selectProduct(${idx})">
+                    ${p.logo ? `<img src="${p.logo}" style="width:50px;height:50px;">` : '<i data-lucide="credit-card"></i>'}
+                    <div>${p.name}</div>
+                    <div>${p.prices.length ? p.prices[0] + ' USD' : ''}</div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function selectProduct(idx) {
+            const p = dingProducts[idx];
+            const priceUSD = p.prices[0];
+            const priceXOF = computeBuyPrice(priceUSD);
+            if (achatMode === 'moi') {
+                cart.push({ id: p.id, name: p.name, price: priceXOF, sku: p.id });
+                updateCartUI();
+                showToast(`${p.name} ajouté au panier`);
+            } else if (achatMode === 'offrir') {
+                const destId = document.getElementById('offrirId').value.trim();
+                const motif = document.getElementById('offrirMotif').value.trim();
+                if (!destId.match(/^OP-[A-Z0-9]{8}$/i)) { alert('ID invalide'); return; }
+                if (motif.length < 5) { alert('Motif trop court'); return; }
+                // Envoyer le cadeau directement (simplifié)
+                alert(`Cadeau envoyé à ${destId} : ${p.name} (${priceXOF} FCFA)`);
+                // Ici on pourrait débiter le solde et créer une notification
+            } else if (achatMode === 'demande') {
+                const link = `https://ominipay.com/cadeau?carte=${encodeURIComponent(p.id)}&montant=${priceUSD}`;
+                navigator.clipboard.writeText(link);
+                alert('Lien cadeau copié !');
+            }
+        }
+
+        // ========== PANIER ==========
+        function updateCartUI() {
+            document.getElementById('cartCount').innerText = cart.length;
+        }
+        function openCart() {
+            let total = cart.reduce((s,i)=>s+i.price,0);
+            alert(`Panier:\n${cart.map(i=>`${i.name} ${i.price} FCFA`).join('\n')}\nTotal: ${total} FCFA`);
+            // Ici on pourrait lancer le paiement CinetPay
+        }
+
+        // ========== VENTE ==========
+        let selectedCountry = '';
+        function openCountryPicker() {
+            const picker = document.getElementById('countryPicker');
+            picker.style.transform = 'translateY(0)';
+            // Remplir la liste des pays (exemple)
+            const countryList = ['France', 'USA', 'Canada', 'Côte d\'Ivoire', 'Sénégal'];
+            document.getElementById('countryList').innerHTML = countryList.map(c => `<div onclick="selectCountry('${c}')" style="padding:12px; border-bottom:1px solid #eee;">${c}</div>`).join('');
+        }
+        function selectCountry(c) {
+            selectedCountry = c;
+            document.getElementById('selectCountryBtn').innerText = c;
+            closeCountryPicker();
+        }
+        function closeCountryPicker() { document.getElementById('countryPicker').style.transform = 'translateY(100%)'; }
+
+        async function submitSell() {
+            const cardType = document.getElementById('cardType').value.trim();
+            const faceValue = parseFloat(document.getElementById('faceValue').value);
+            const cardCode = document.getElementById('cardCode').value.trim();
+            const proofFile = document.getElementById('proofImage').files[0];
+            if (!selectedCountry || !cardType || !faceValue || !cardCode || !proofFile) {
+                alert('Veuillez remplir tous les champs et ajouter une preuve');
+                return;
+            }
+            // Upload preuve vers ImgBB
+            const formData = new FormData();
+            formData.append('image', proofFile);
+            const uploadRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+            const uploadData = await uploadRes.json();
+            const proofUrl = uploadData.data.url;
+            // Calcul du montant à créditer
+            const amountToCredit = computeSellPrice(faceValue);
+            // Envoi à Google Apps Script pour validation
+            const payload = {
+                userId: currentUser.uid,
+                publicId: 'OP-' + currentUser.uid.substring(0,8).toUpperCase(),
+                country: selectedCountry,
+                cardType,
+                faceValue,
+                cardCode,
+                proofUrl,
+                amountToCredit
             };
-        </script>
-    </body>
+            const response = await fetch(GAS_VERIF_VENTE, {
+                method: 'POST',
+                mode: 'no-cors', // en attendant CORS
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            alert('Votre vente a été soumise. Un administrateur la validera sous 24h.');
+            closeVente();
+        }
+
+        // ========== SÉCURITÉ IP / PIN ==========
+        async function checkDevice() {
+            const ipRes = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipRes.json();
+            const currentIp = ipData.ip;
+            const deviceId = btoa(currentIp + navigator.userAgent).replace(/[^a-zA-Z0-9]/g, '').substring(0,20);
+            currentDeviceId = deviceId;
+            const userRef = db.collection('users').doc(currentUser.uid);
+            const devicesSnap = await userRef.collection('devices').doc(deviceId).get();
+            if (!devicesSnap.exists) {
+                // Nouvel appareil -> demander PIN
+                if (userPin) {
+                    showPinScreen(() => {
+                        userRef.collection('devices').doc(deviceId).set({ ip: currentIp, lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
+                    });
+                } else {
+                    // Pas de PIN, on enregistre quand même
+                    userRef.collection('devices').doc(deviceId).set({ ip: currentIp, lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
+                }
+            } else {
+                // Mise à jour dernière connexion
+                devicesSnap.ref.update({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() });
+            }
+        }
+
+        function showPinScreen(onSuccess) {
+            const screen = document.getElementById('pinScreen');
+            screen.style.display = 'flex';
+            let pinBuffer = '';
+            function updateDots() {
+                document.getElementById('pinDots').innerHTML = Array(4).fill(0).map((_,i) => `<div style="width:18px;height:18px;border-radius:50%;background:${i < pinBuffer.length ? '#fff' : '#333'}"></div>`).join('');
+            }
+            function renderKeypad() {
+                const keys = ['1','2','3','4','5','6','7','8','9','0','⌫'];
+                document.getElementById('pinKeypad').innerHTML = keys.map(k => `<button onclick="pinKeyPress('${k}')" style="background:#222; border:none; color:#fff; font-size:24px; padding:16px; border-radius:50%;">${k}</button>`).join('');
+            }
+            window.pinKeyPress = (k) => {
+                if (k === '⌫') pinBuffer = pinBuffer.slice(0,-1);
+                else if (pinBuffer.length < 4) pinBuffer += k;
+                updateDots();
+                if (pinBuffer.length === 4) {
+                    if (pinBuffer === userPin) {
+                        screen.style.display = 'none';
+                        onSuccess();
+                    } else {
+                        pinAttempts++;
+                        if (pinAttempts >= 5) {
+                            db.collection('users').doc(currentUser.uid).update({ isSuspended: true });
+                            alert('Compte suspendu pour sécurité. Contactez le support.');
+                            logoutUser();
+                        } else {
+                            document.getElementById('pinError').innerText = 'Code incorrect. Tentative ' + pinAttempts + '/5';
+                            pinBuffer = '';
+                            updateDots();
+                        }
+                    }
+                }
+            };
+            updateDots();
+            renderKeypad();
+        }
+
+        // ========== PARRAINAGE ==========
+        async function loadParrainage() {
+            const uid = currentUser.uid;
+            const parrainageSnap = await db.collection('users').doc(uid).collection('parrainages').get();
+            let totalGains = 0;
+            let filleuls = [];
+            parrainageSnap.forEach(d => {
+                totalGains += d.data().gains || 0;
+                filleuls.push(d.data());
+            });
+            document.getElementById('parrainageContent').innerHTML = `
+                <div><strong>Votre lien:</strong> https://ominipay.com/rejoindre?ref=OP-${uid.substring(0,8)}</div>
+                <div><strong>Gains totaux:</strong> ${totalGains.toLocaleString()} FCFA</div>
+                <div><strong>Filleuls (${filleuls.length})</strong></div>
+                <div>${filleuls.map(f => `<div>${f.id} - +${f.gains} FCFA</div>`).join('')}</div>
+                <button onclick="copyParrainLink()">Copier le lien</button>
+            `;
+        }
+
+        // ========== NOTIFICATIONS ==========
+        function listenNotifications() {
+            db.collection('users').doc(currentUser.uid).collection('notifications')
+                .orderBy('date','desc').limit(20)
+                .onSnapshot(snap => {
+                    const unread = snap.docs.filter(d => !d.data().read).length;
+                    document.getElementById('notifBadge').classList.toggle('visible', unread>0);
+                    renderNotifications(snap.docs);
+                });
+        }
+        function renderNotifications(docs) {
+            const container = document.getElementById('notifList');
+            if (!docs.length) { container.innerHTML = '<div>Aucune notification</div>'; return; }
+            container.innerHTML = docs.map(d => `<div class="notif-item" onclick="markRead('${d.id}')">${d.data().title} - ${d.data().message}</div>`).join('');
+        }
+
+        // ========== HISTORIQUE FINANCIER ==========
+        function listenTransactions() {
+            db.collection('users').doc(currentUser.uid).collection('transactions')
+                .orderBy('date','desc').limit(50)
+                .onSnapshot(snap => {
+                    const container = document.getElementById('historiqueList');
+                    container.innerHTML = snap.docs.map(d => `<div>${d.data().date?.toDate().toLocaleString()} - ${d.data().label} - ${d.data().amount} FCFA - ${d.data().status}</div>`).join('');
+                });
+        }
+
+        // ========== GESTION DES MOYENS DE PAIEMENT ==========
+        function renderPaymentMethodsList() {
+            const list = document.getElementById('paymentMethodsList');
+            if (!registeredMethods.length) list.innerHTML = '<div>Aucun moyen enregistré</div>';
+            else list.innerHTML = registeredMethods.map((m,i) => `<div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #eee;">${m.type}: ${m.value} <button onclick="deleteMethod(${i})">Supprimer</button></div>`).join('');
+        }
+        function savePaymentMethod() {
+            const type = document.getElementById('methodType').value;
+            const value = document.getElementById('methodValue').value.trim();
+            if (!value) return;
+            registeredMethods.push({ type, value });
+            db.collection('users').doc(currentUser.uid).update({ paymentMethods: registeredMethods });
+            renderPaymentMethodsList();
+            hideAddMethodForm();
+            showToast('Moyen ajouté');
+        }
+        function deleteMethod(idx) {
+            registeredMethods.splice(idx,1);
+            db.collection('users').doc(currentUser.uid).update({ paymentMethods: registeredMethods });
+            renderPaymentMethodsList();
+        }
+
+        // ========== RETRAIT ==========
+        function openRetrait() {
+            document.getElementById('retraitBalance').innerText = currentBalance.toLocaleString() + ' FCFA';
+            const select = document.getElementById('retraitMethodSelect');
+            select.innerHTML = registeredMethods.map(m => `<option value="${m.type}">${m.type}: ${m.value}</option>`).join('');
+            document.getElementById('retraitPanel').style.transform = 'translateX(0)';
+        }
+        async function doRetrait() {
+            const amount = parseFloat(document.getElementById('retraitAmountInput').value);
+            const methodType = document.getElementById('retraitMethodSelect').value;
+            const method = registeredMethods.find(m => m.type === methodType);
+            if (!method || amount <= 0 || amount > currentBalance) {
+                document.getElementById('retraitStatus').innerText = 'Montant invalide';
+                return;
+            }
+            // Appel CinetPay (placeholder)
+            document.getElementById('retraitStatus').innerText = 'Traitement...';
+            try {
+                const response = await fetch('https://client.cinetpay.com/v1/transfer/money/send/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CINETPAY_API_KEY}` },
+                    body: JSON.stringify({
+                        apikey: CINETPAY_API_KEY,
+                        site_id: CINETPAY_SITE_ID,
+                        transaction_id: 'OPR' + Date.now(),
+                        amount: amount,
+                        currency: 'XOF',
+                        description: 'Retrait OminiPay',
+                        receiver_phone: method.value,
+                        payment_method: methodType.toUpperCase()
+                    })
+                });
+                const data = await response.json();
+                if (data.code === '00') {
+                    currentBalance -= amount;
+                    await db.collection('users').doc(currentUser.uid).update({ balance: currentBalance });
+                    renderBalance();
+                    document.getElementById('retraitStatus').innerText = 'Retrait effectué avec succès';
+                } else throw new Error(data.message);
+            } catch(e) {
+                document.getElementById('retraitStatus').innerText = 'Erreur, réessayez';
+            }
+        }
+
+        // ========== RECHARGE ==========
+        async function doRecharge() {
+            const methodType = document.getElementById('rechargeMethod').value;
+            const amount = parseFloat(document.getElementById('rechargeAmount').value);
+            if (!methodType || amount <= 0) return;
+            // Rediriger vers CinetPay Checkout
+            const checkoutUrl = `https://client.cinetpay.com/v1/payment?apikey=${CINETPAY_API_KEY}&site_id=${CINETPAY_SITE_ID}&transaction_id=TOP${Date.now()}&amount=${amount}&currency=XOF&description=Recharge`;
+            window.location.href = checkoutUrl;
+        }
+
+        // ========== UTILITAIRES ==========
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.innerText = msg;
+            toast.style.cssText = 'position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:#000; color:#fff; padding:12px 20px; border-radius:20px; z-index:9999; animation:fadeInOut 2s forwards;';
+            document.body.appendChild(toast);
+            setTimeout(()=>toast.remove(),2000);
+        }
+
+        // ========== FERMETURE DES PANNEAUX ==========
+        function closeRecharge() { document.getElementById('rechargePanel').style.transform = 'translateX(100%)'; }
+        function closeCompte() { document.getElementById('comptePanel').style.transform = 'translateX(100%)'; }
+        function closeRetrait() { document.getElementById('retraitPanel').style.transform = 'translateX(100%)'; }
+        function closeAchat() { document.getElementById('achatPanel').style.transform = 'translateY(100%)'; }
+        function closeVente() { document.getElementById('ventePanel').style.transform = 'translateY(100%)'; }
+        function closeCommandes() { document.getElementById('commandesPanel').classList.remove('visible'); }
+        function closeHistorique() { document.getElementById('historiquePanel').classList.remove('visible'); }
+        function closeNotifications() { document.getElementById('notifPanel').classList.remove('visible'); }
+        function closeParrainage() { document.getElementById('parrainagePanel').classList.remove('visible'); }
+        function closeMesCadeaux() { document.getElementById('mesCadeauxPanel').classList.remove('visible'); }
+        function closeConnexionPanel() { document.getElementById('connexionPanel').classList.remove('visible'); }
+        function closeParametres() { document.getElementById('parametresPanel').classList.remove('visible'); }
+        function openCommandes() { document.getElementById('commandesPanel').classList.add('visible'); }
+        function openHistorique() { document.getElementById('historiquePanel').classList.add('visible'); }
+        function openNotifications() { document.getElementById('notifPanel').classList.add('visible'); }
+        function openParrainage() { loadParrainage(); document.getElementById('parrainagePanel').classList.add('visible'); }
+        function openMesCadeaux() { document.getElementById('mesCadeauxPanel').classList.add('visible'); }
+        function openHistoriqueConnexions() { document.getElementById('connexionPanel').classList.add('visible'); }
+        function openParametres() { document.getElementById('parametresPanel').classList.add('visible'); }
+        function openVente() { document.getElementById('ventePanel').style.transform = 'translateY(0)'; }
+        function openAchat() { document.getElementById('achatPanel').style.transform = 'translateY(0)'; }
+        function setAchatMode(mode) { achatMode = mode; document.getElementById('offrirFields').style.display = mode==='offrir' ? 'block' : 'none'; }
+        function toggleMenu() { document.getElementById('menuPanel').classList.toggle('visible'); document.getElementById('menu-overlay').classList.toggle('visible'); }
+        function toggleWallet() { document.getElementById('walletPanel').classList.toggle('visible'); document.getElementById('wallet-overlay').classList.toggle('visible'); }
+        function setActiveNav(btn) { document.querySelectorAll('.nav-link').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+        function setActiveCat(btn) { document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+        function filterCards() { let input=document.getElementById('searchInput').value.toLowerCase(); let cards=document.querySelectorAll('.card-slot'); let found=false; cards.forEach(c=>{if(c.getAttribute('data-name').toLowerCase().includes(input)){c.classList.remove('hidden');found=true;}else c.classList.add('hidden');}); document.getElementById('no-result-msg').style.display=found?'none':'block';}
+        function openFAQ() { document.getElementById('faqPanel').classList.add('visible'); }
+        function closeFAQ() { document.getElementById('faqPanel').classList.remove('visible'); }
+        function openContact() { document.getElementById('contactPanel').classList.add('visible'); }
+        function closeContact() { document.getElementById('contactPanel').classList.remove('visible'); }
+        function openApropos() { document.getElementById('aproposPanel').classList.add('visible'); }
+        function closeApropos() { document.getElementById('aproposPanel').classList.remove('visible'); }
+        function openConfidentialite() { document.getElementById('confidentialitePanel').classList.add('visible'); }
+        function closeConfidentialite() { document.getElementById('confidentialitePanel').classList.remove('visible'); }
+        function openSecurite() { document.getElementById('securitePanel').classList.add('visible'); }
+        function closeSecurite() { document.getElementById('securitePanel').classList.remove('visible'); }
+        function openTawk() { if(window.Tawk_API) Tawk_API.toggle(); }
+        function toggleTheme(btn) { btn.classList.toggle('dark-mode-active'); }
+        function copyParrainLink() { navigator.clipboard.writeText(`https://ominipay.com/rejoindre?ref=OP-${currentUser.uid.substring(0,8)}`); showToast('Lien copié'); }
+        function markRead(id) { db.collection('users').doc(currentUser.uid).collection('notifications').doc(id).update({read:true}); }
+        function markAllNotifRead() { /* à implémenter */ }
+        function showAddMethodForm() { document.getElementById('addMethodForm').style.display = 'block'; }
+        function hideAddMethodForm() { document.getElementById('addMethodForm').style.display = 'none'; }
+        function logoutUser() {
+            auth.signOut().then(() => {
+                document.getElementById('authScreen').style.display = 'flex';
+                document.getElementById('mainApp').style.display = 'none';
+                currentUser = null;
+            });
+        }
+
+        // Tawk.to Script
+        var Tawk_API = Tawk_API || {};
+        var s1 = document.createElement("script");
+        s1.async = true;
+        s1.src = 'https://embed.tawk.to/69bc1fc9e8fedb1c399fdbf7/1jk3dob3t';
+        s1.charset = 'UTF-8';
+        s1.setAttribute('crossorigin', '*');
+        document.head.appendChild(s1);
+    </script>
+</body>
 </html>
