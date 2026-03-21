@@ -1,1 +1,58 @@
-Abc
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OminiPay - Chargement Fun</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { text-align: center; background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .loader { border: 5px solid #f3f3f3; border-radius: 50%; border-top: 5px solid #007AFF; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .text { color: #333; font-size: 18px; font-weight: 500; margin-bottom: 10px; }
+        .subtext { color: #666; font-size: 14px; }
+        #confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1000; display: none; }
+        .confetti { position: absolute; width: 10px; height: 10px; background: #007AFF; border-radius: 50%; animation: fall 3s linear infinite; }
+        @keyframes fall { to { transform: translateY(100vh) rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="loading-screen">
+        <div class="loader"></div>
+        <div class="text">Initialisation d'OminiPay...</div>
+        <div class="subtext">On prépare tes cartes-cadeaux pour Gagnoa.</div>
+    </div>
+
+    <div class="container" id="success-screen" style="display:none;">
+        <div style="font-size: 60px;">🎉</div>
+        <div class="text" style="color: #4CD964;">Prêt à l'emploi !</div>
+        <div class="subtext">Dasse Kesse Élisée, ton site est en ligne.</div>
+    </div>
+
+    <div id="confetti-container"></div>
+
+    <script>
+        // Animation de 20 secondes (20 000 millisecondes)
+        setTimeout(() => {
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('success-screen').style.display = 'block';
+            startConfetti();
+        }, 20000);
+
+        function startConfetti() {
+            const container = document.getElementById('confetti-container');
+            container.style.display = 'block';
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.backgroundColor = ['#007AFF', '#4CD964', '#FFCC00', '#FF3B30'][Math.floor(Math.random() * 4)];
+                container.appendChild(confetti);
+            }
+        }
+    </script>
+</body>
+</html>
+ 
