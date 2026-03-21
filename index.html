@@ -3,94 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OminiPay - Test de Synchronisation</title>
+    <title>OminiPay - Catalogue Test</title>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-    
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; }
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .card {
-            background: white;
-            border-radius: 24px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-            border: 1px solid #eee;
-        }
-        .card img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 10px; }
-        .card-name { font-weight: 600; font-size: 14px; color: #333; }
-        .card-price { color: #007AFF; font-weight: bold; margin-top: 5px; font-size: 13px; }
-        .status-bar { text-align: center; margin-bottom: 20px; font-size: 12px; color: #666; }
+        body { font-family: sans-serif; background: #f8f9fa; padding: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .card { background: white; border-radius: 20px; padding: 15px; text-align: center; border: 1px solid #eee; }
+        .card img { width: 50px; margin-bottom: 10px; }
+        .price { color: #007AFF; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div class="status-bar" id="status">Connexion à Firestore en cours...</div>
-
-    <div class="grid-container" id="catalog-container">
-        </div>
+    <h2 style="font-weight: 300;">OminiPay Test</h2>
+    <div class="grid" id="container">Chargement...</div>
 
     <script>
-        // 1. CONFIGURATION (Remplace par tes vraies infos du projet OminiPay)
+        // 1. TA CONFIG PUBLIQUE (Copie-la depuis les paramètres de ton projet Firebase)
         const firebaseConfig = {
-            apiKey: "TON_API_KEY_PUBLIQUE",
+            apiKey: "AIzaSy...", 
             authDomain: "ominipay.firebaseapp.com",
             projectId: "ominipay",
-            storageBucket: "ominipay.appspot.com",
-            appId: "TON_APP_ID"
+            appId: "1:..."
         };
 
-        // Initialisation
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // 2. FONCTION D'ÉCOUTE EN TEMPS RÉEL
-        function chargerCartesEnTempsReel() {
-            const container = document.getElementById('catalog-container');
-            const status = document.getElementById('status');
-
-            // On écoute la collection "cartes"
-            db.collection("cartes").onSnapshot((snapshot) => {
-                container.innerHTML = ""; // Nettoyage de la grille
-                
-                if (snapshot.empty) {
-                    status.innerText = "Aucune carte trouvée dans Firestore (Collection: 'cartes')";
-                    return;
-                }
-
-                snapshot.forEach((doc) => {
+        // 2. RECUPERATION DES CARTES
+        function chargerCartes() {
+            const container = document.getElementById('container');
+            
+            db.collection("cartes").get().then((querySnapshot) => {
+                container.innerHTML = "";
+                querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    
-                    // Création de l'élément HTML de la carte
-                    const cardDiv = document.createElement('div');
-                    cardDiv.className = 'card';
-                    cardDiv.innerHTML = `
-                        <img src="${data.image || 'https://via.placeholder.com/60'}" alt="${data.nom}">
-                        <div class="card-name">${data.nom || 'Produit'}</div>
-                        <div class="card-price">${data.prix || 0} XOF</div>
+                    container.innerHTML += `
+                        <div class="card">
+                            <img src="${data.image || 'https://via.placeholder.com/50'}" alt="logo">
+                            <div style="font-size:14px; font-weight:600;">${data.nom}</div>
+                            <div class="price">${data.prix} XOF</div>
+                        </div>
                     `;
-                    container.appendChild(cardDiv);
                 });
-
-                status.innerText = "Catalogue synchronisé avec Firebase ✅";
-                status.style.color = "green";
-            }, (error) => {
-                console.error("Erreur Firestore:", error);
-                status.innerText = "Erreur : Vérifie tes règles de sécurité Firestore.";
-                status.style.color = "red";
+            }).catch(err => {
+                container.innerHTML = "Erreur de connexion : " + err.message;
             });
         }
 
-        // Lancer l'écoute au chargement de la page
-        window.onload = chargerCartesEnTempsReel;
+        chargerCartes();
     </script>
 </body>
 </html>
